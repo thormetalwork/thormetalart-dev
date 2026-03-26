@@ -131,6 +131,10 @@ defined( 'ABSPATH' ) || exit;
 
 			<button type="submit" class="btn-login">Entrar</button>
 		</form>
+
+		<div style="text-align:center; margin-top:16px;">
+			<a href="/forgot-password" style="color:#a8a29e; font-size:0.8125rem; text-decoration:none;">¿Olvidaste tu contraseña?</a>
+		</div>
 	</div>
 
 	<script>

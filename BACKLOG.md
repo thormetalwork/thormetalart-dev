@@ -569,7 +569,7 @@
     - `data/wordpress/wp-content/plugins/tma-panel/templates/reset-password.php` (NEW)
   - **Dependencias:** TICKET-PANEL-001, TICKET-PANEL-002
   - **Prioridad:** P0
-  - **Status:** ⏸️ PENDIENTE
+  - **Status:** 🔄 EN PROGRESO
 
 - [ ] **TICKET-PANEL-006: Frontend SPA shell + sidebar + navegación**
   - **Fuente:** Análisis comparativo RAI Panel — panel.php + panel.js + panel.css
