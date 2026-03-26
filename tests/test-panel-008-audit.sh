@@ -65,7 +65,7 @@ if [ -f "$AUDIT" ]; then
     && pass "Records IP address" \
     || fail "Doesn't record IP"
 
-  # Records user_agent
+  # Records user_agent (in details JSON or dedicated column)
   grep -q 'HTTP_USER_AGENT\|user_agent' "$AUDIT" \
     && pass "Records user agent" \
     || fail "Doesn't record user agent"
