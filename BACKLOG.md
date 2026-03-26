@@ -394,7 +394,7 @@
 > **Objetivo:** Migrar Dashboard + Portal estáticos a un plugin WordPress nativo (`tma-panel`) con autenticación, roles, persistencia y API REST.
 > **URL objetivo:** `panel.thormetalart.com` (reemplaza `dashboard.thormetalart.com` + `portal.thormetalart.com`)
 
-- [ ] **TICKET-PANEL-001: Plugin scaffold + routing por subdominio + Traefik**
+- [x] **TICKET-PANEL-001: Plugin scaffold + routing por subdominio + Traefik**
   - **Fuente:** Análisis comparativo RAI Panel v0.4.0
   - **Historia de Usuario:** Como desarrollador, quiero el plugin `tma-panel` creado con routing propio para que `panel.thormetalart.com` sirva el panel sin interferir con el sitio principal.
   - **Criterios de Aceptación:**
@@ -420,10 +420,16 @@
   - **Archivos:**
     - `data/wordpress/wp-content/plugins/tma-panel/tma-panel.php` (NEW)
     - `data/wordpress/wp-content/plugins/tma-panel/templates/panel.php` (NEW)
+    - `data/wordpress/wp-content/plugins/tma-panel/templates/login.php` (NEW)
+    - `data/wordpress/wp-content/plugins/tma-panel/includes/class-tma-panel-router.php` (NEW)
+    - `data/wordpress/wp-content/plugins/tma-panel/assets/css/panel.css` (NEW)
+    - `data/wordpress/wp-content/plugins/tma-panel/assets/js/panel.js` (NEW)
     - `docker-compose.yml` (MODIFIED) — Traefik label para panel.thormetalart.com
   - **Dependencias:** Ninguna
   - **Prioridad:** P0
-  - **Status:** 🔄 EN PROGRESO
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2026-03-26
+  - **Notas de cierre:** Plugin activado, routing funcional (login 200, root redirect 302→/login), 5 security headers verificados, sitio principal no afectado (200). .htaccess faltaba reglas de rewrite — corregido. .gitignore ajustado para trackear plugin y mu-plugins.
 
 - [ ] **TICKET-PANEL-002: Roles y capabilities (tma_admin / tma_client)**
   - **Fuente:** Análisis comparativo RAI Panel — class-rai-panel-roles.php
@@ -1084,9 +1090,9 @@
 | 5 — Seguridad | 1 | 1 | 0 | 0 | 100% |
 | 6 — Leads/CRM | 1 | 1 | 0 | 0 | 100% |
 | 7 — Portal Docs | 4 | 4 | 0 | 0 | 100% |
-| 8 — TMA Panel Base | 10 | 0 | 10 | 0 | 0% |
+| 8 — TMA Panel Base | 10 | 1 | 9 | 0 | 10% |
 | 9 — Dashboard Datos Reales | 5 | 0 | 5 | 0 | 0% |
 | 10 — Portal Integrado | 3 | 0 | 3 | 0 | 0% |
 | 11 — Leads Dinámico | 3 | 0 | 3 | 0 | 0% |
 | 12 — Cleanup Docker | 1 | 0 | 1 | 0 | 0% |
-| **TOTAL** | **39** | **17** | **22** | **0** | **44%** |
+| **TOTAL** | **39** | **18** | **21** | **0** | **46%** |
