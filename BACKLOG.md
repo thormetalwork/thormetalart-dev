@@ -431,7 +431,7 @@
   - **Completado:** 2026-03-26
   - **Notas de cierre:** Plugin activado, routing funcional (login 200, root redirect 302→/login), 5 security headers verificados, sitio principal no afectado (200). .htaccess faltaba reglas de rewrite — corregido. .gitignore ajustado para trackear plugin y mu-plugins.
 
-- [ ] **TICKET-PANEL-002: Roles y capabilities (tma_admin / tma_client)**
+- [x] **TICKET-PANEL-002: Roles y capabilities (tma_admin / tma_client)**
   - **Fuente:** Análisis comparativo RAI Panel — class-rai-panel-roles.php
   - **Historia de Usuario:** Como desarrollador, quiero roles `tma_admin` y `tma_client` registrados con capabilities específicas para controlar acceso por módulo del panel.
   - **Criterios de Aceptación:**
@@ -458,7 +458,9 @@
     - `data/wordpress/wp-content/plugins/tma-panel/includes/class-tma-panel-roles.php` (NEW)
   - **Dependencias:** TICKET-PANEL-001
   - **Prioridad:** P0
-  - **Status:** 🔄 EN PROGRESO
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2026-03-26
+  - **Notas de cierre:** tma_admin (11 caps: read, upload, edit + 8 panel caps). tma_client (6 caps: read + 5 panel caps, sin audit/toggle/kpis). Administrator hereda caps del panel. 32 tests pasan.
 
 - [ ] **TICKET-PANEL-003: Custom tables + migration system**
   - **Fuente:** Análisis comparativo RAI Panel — class-rai-panel-data.php + migrations/
@@ -1090,9 +1092,9 @@
 | 5 — Seguridad | 1 | 1 | 0 | 0 | 100% |
 | 6 — Leads/CRM | 1 | 1 | 0 | 0 | 100% |
 | 7 — Portal Docs | 4 | 4 | 0 | 0 | 100% |
-| 8 — TMA Panel Base | 10 | 1 | 9 | 0 | 10% |
+| 8 — TMA Panel Base | 10 | 2 | 8 | 0 | 20% |
 | 9 — Dashboard Datos Reales | 5 | 0 | 5 | 0 | 0% |
 | 10 — Portal Integrado | 3 | 0 | 3 | 0 | 0% |
 | 11 — Leads Dinámico | 3 | 0 | 3 | 0 | 0% |
 | 12 — Cleanup Docker | 1 | 0 | 1 | 0 | 0% |
-| **TOTAL** | **39** | **18** | **21** | **0** | **46%** |
+| **TOTAL** | **39** | **19** | **20** | **0** | **49%** |
