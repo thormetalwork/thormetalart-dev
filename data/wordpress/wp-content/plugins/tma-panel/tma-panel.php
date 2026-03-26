@@ -30,6 +30,7 @@ require_once TMA_PANEL_PATH . 'includes/class-tma-panel-router.php';
 require_once TMA_PANEL_PATH . 'includes/class-tma-panel-roles.php';
 require_once TMA_PANEL_PATH . 'includes/class-tma-panel-data.php';
 require_once TMA_PANEL_PATH . 'includes/class-tma-panel-api.php';
+require_once TMA_PANEL_PATH . 'includes/class-tma-panel-audit.php';
 
 /* ═══════════════════════════════════════════════════════════════════
    Activation / Deactivation
@@ -38,14 +39,25 @@ require_once TMA_PANEL_PATH . 'includes/class-tma-panel-api.php';
 register_activation_hook( __FILE__, function (): void {
 	TMA_Panel_Roles::activate();
 	TMA_Panel_Data::maybe_migrate();
+	TMA_Panel_Audit::schedule_cleanup();
 } );
-register_deactivation_hook( __FILE__, array( 'TMA_Panel_Roles', 'deactivate' ) );
+register_deactivation_hook( __FILE__, function (): void {
+	TMA_Panel_Roles::deactivate();
+	TMA_Panel_Audit::unschedule_cleanup();
+} );
 
 /* ═══════════════════════════════════════════════════════════════════
    Auto-migrate on admin_init (for updates without reactivation)
    ═══════════════════════════════════════════════════════════════════ */
 
 add_action( 'admin_init', array( 'TMA_Panel_Data', 'maybe_migrate' ) );
+
+/* ═══════════════════════════════════════════════════════════════════
+   Audit cron scheduling + hook
+   ═══════════════════════════════════════════════════════════════════ */
+
+add_action( 'init', array( 'TMA_Panel_Audit', 'schedule_cleanup' ) );
+add_action( 'tma_panel_audit_cleanup', array( 'TMA_Panel_Audit', 'cleanup' ) );
 
 /* ═══════════════════════════════════════════════════════════════════
    REST API — Register tma-panel/v1 endpoints
