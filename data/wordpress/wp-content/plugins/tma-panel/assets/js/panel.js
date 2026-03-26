@@ -499,6 +499,7 @@
 						<div style="padding:10px 14px;border-bottom:1px solid #eee;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
 							<button class="btn btn--success" id="tma-doc-approve">Aprobado</button>
 							<button class="btn btn--warning" id="tma-doc-changes">Con cambios</button>
+							<button class="btn btn--primary" id="tma-doc-add-note">Dejar nota</button>
 							<textarea id="tma-doc-change-notes" class="input textarea" rows="2" placeholder="Describe cambios (mínimo 10 caracteres)" style="display:none;min-width:320px;"></textarea>
 							<button class="btn btn--accent" id="tma-doc-save-changes" style="display:none;">Guardar cambios</button>
 						</div>
@@ -541,6 +542,11 @@
 					saveDocStatus('changes_requested', notes.trim());
 				});
 			}
+
+			const addNoteBtn = document.getElementById('tma-doc-add-note');
+			if (addNoteBtn) {
+				addNoteBtn.addEventListener('click', function () { addDocumentNote(); });
+			}
 		} catch (err) {
 			showError(container, t('error.loading_documents') + ': ' + err.message);
 		}
@@ -565,6 +571,24 @@
 		docsState[currentDocIndex].status = status;
 		alert(status === 'approved' ? 'Documento aprobado.' : 'Documento marcado con cambios.');
 		renderDocuments(document.getElementById('tma-content'));
+	}
+
+	async function addDocumentNote() {
+		if (currentDocIndex < 0 || !docsState[currentDocIndex]) return;
+		const doc = docsState[currentDocIndex];
+		const content = window.prompt('Escribe tu nota para este documento:');
+		if (!content || !content.trim()) return;
+		await api('/notes', {
+			method: 'POST',
+			body: JSON.stringify({
+				title: 'Nota sobre ' + (doc.slug || 'documento'),
+				content: content.trim(),
+				visibility: 'shared',
+				module: 'documents',
+				item_id: doc.id,
+			}),
+		});
+		alert('Nota guardada.');
 	}
 
 	async function openDocumentViewer(code, title) {
@@ -669,11 +693,14 @@
 				notes.forEach(function (note) {
 					const vis = note.visibility === 'internal' ? 'badge--warning' : 'badge--info';
 					const visLabel = note.visibility === 'internal' ? t('notes.internal') : t('notes.shared');
+					const moduleLabel = note.module ? String(note.module) : 'general';
+					const itemLabel = parseInt(note.item_id || 0, 10) > 0 ? ('#' + parseInt(note.item_id || 0, 10)) : '—';
 					notesList += `
 						<div class="note-item">
 							<div class="note-item__header">
 								<strong>${escapeHtml(note.title || t('notes.no_title'))}</strong>
 								<span class="badge ${vis}">${escapeHtml(visLabel)}</span>
+								<span class="badge badge--info">${escapeHtml(moduleLabel)} ${escapeHtml(itemLabel)}</span>
 								<span class="note-item__date">${formatDate(note.created_at)}</span>
 							</div>
 							<div class="note-item__body">${escapeHtml(note.content || '')}</div>
@@ -691,6 +718,13 @@
 						<input type="text" name="title" class="input" placeholder="${escapeHtml(t('notes.note_title'))}" required>
 						<textarea name="content" class="input textarea" placeholder="${escapeHtml(t('notes.content'))}" rows="3" required></textarea>
 						<div class="note-form__actions">
+							<select name="module" class="input input--select">
+								<option value="general">general</option>
+								<option value="documents">documents</option>
+								<option value="leads">leads</option>
+								<option value="dashboard">dashboard</option>
+							</select>
+							<input type="number" name="item_id" class="input" min="0" placeholder="item_id">
 							<select name="visibility" class="input input--select">
 								<option value="shared">${escapeHtml(t('notes.shared'))}</option>
 								${user.isAdmin ? '<option value="internal">' + escapeHtml(t('notes.internal')) + '</option>' : ''}
@@ -717,6 +751,8 @@
 								title: fd.get('title'),
 								content: fd.get('content'),
 								visibility: fd.get('visibility'),
+								module: fd.get('module') || 'general',
+								item_id: parseInt(fd.get('item_id') || '0', 10) || 0,
 							}),
 						});
 						renderNotes(container);
