@@ -1,0 +1,18 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "type": "command",
+        "command": "bash -c 'TOOL_NAME=$(cat /dev/stdin | python3 -c \"import sys,json; d=json.load(sys.stdin); print(d.get(\\\"toolName\\\",\\\"\\\"))\" 2>/dev/null || echo \"\"); if echo \"$TOOL_NAME\" | grep -qiE \"execute|terminal\"; then INPUT=$(cat /dev/stdin 2>/dev/null || echo \"\"); if echo \"$INPUT\" | grep -qiE \"rm\\s+-rf|drop\\s+database|drop\\s+table|make\\s+clean|--force|--no-verify\"; then echo \"{\\\"hookSpecificOutput\\\":{\\\"hookEventName\\\":\\\"PreToolUse\\\",\\\"permissionDecision\\\":\\\"ask\\\",\\\"permissionDecisionReason\\\":\\\"Destructive command detected. Requires user confirmation.\\\"}}\"; fi; fi'",
+        "timeout": 5
+      }
+    ],
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "bash -c 'cd /srv/stacks/thormetalart && if [[ -f .env ]]; then echo \"{\\\"systemMessage\\\":\\\"Thor Metal Art stack detected. .env loaded. Use make status to check services.\\\"}\"; else echo \"{\\\"systemMessage\\\":\\\"⚠️ Thor Metal Art: .env file missing. Create from .env.example before operating.\\\"}\"; fi'",
+        "timeout": 3
+      }
+    ]
+  }
+}

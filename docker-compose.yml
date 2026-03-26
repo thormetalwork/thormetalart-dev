@@ -1,0 +1,184 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: thormetalart_mysql
+    restart: always
+    ports:
+      - "127.0.0.1:3311:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+    networks:
+      - thormetalart_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: thormetalart_redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    command: redis-server --maxmemory 128mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - thormetalart_network
+
+  wordpress:
+    build:
+      context: ./docker/wordpress
+      dockerfile: Dockerfile
+    image: thormetalart_wordpress:6.9-php8.1-redis
+    container_name: thormetalart_wordpress
+    restart: always
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      WORDPRESS_DB_HOST: ${WORDPRESS_DB_HOST}
+      WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}
+      WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
+      WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
+      WORDPRESS_TABLE_PREFIX: ${WORDPRESS_TABLE_PREFIX}
+    volumes:
+      - ./data/wordpress:/var/www/html
+    networks:
+      - thormetalart_network
+      - traefik-public
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/wp-login.php"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-public"
+      - "traefik.http.routers.thormetalart.rule=Host(`thormetalart.com`) || Host(`www.thormetalart.com`)"
+      - "traefik.http.routers.thormetalart.entrypoints=websecure"
+      - "traefik.http.routers.thormetalart.tls=true"
+      - "traefik.http.routers.thormetalart.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.thormetalart.tls.domains[0].main=thormetalart.com"
+      - "traefik.http.routers.thormetalart.tls.domains[0].sans=www.thormetalart.com"
+      - "traefik.http.routers.thormetalart.middlewares=security-headers@file,rate-limit@file"
+      - "traefik.http.services.thormetalart.loadbalancer.server.port=80"
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: thormetalart_phpmyadmin
+    restart: always
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      UPLOAD_LIMIT: 64M
+    networks:
+      - thormetalart_network
+      - traefik-public
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-public"
+      - "traefik.http.routers.thormetalart-pma.rule=Host(`pma.thormetalart.com`)"
+      - "traefik.http.routers.thormetalart-pma.entrypoints=websecure"
+      - "traefik.http.routers.thormetalart-pma.tls=true"
+      - "traefik.http.routers.thormetalart-pma.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.thormetalart-pma.middlewares=security-headers@file,rate-limit@file"
+      - "traefik.http.services.thormetalart-pma.loadbalancer.server.port=80"
+
+  dashboard:
+    image: nginx:alpine
+    container_name: thormetalart_dashboard
+    restart: unless-stopped
+    depends_on:
+      dashboard-api:
+        condition: service_healthy
+    volumes:
+      - ./dashboard:/usr/share/nginx/html:ro
+      - ./dashboard/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - thormetalart_network
+      - traefik-public
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-public"
+      - "traefik.http.routers.thormetalart-dash.rule=Host(`dashboard.thormetalart.com`)"
+      - "traefik.http.routers.thormetalart-dash.entrypoints=websecure"
+      - "traefik.http.routers.thormetalart-dash.tls=true"
+      - "traefik.http.routers.thormetalart-dash.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.thormetalart-dash.middlewares=security-headers@file,rate-limit@file"
+      - "traefik.http.services.thormetalart-dash.loadbalancer.server.port=80"
+
+  portal:
+    image: nginx:alpine
+    container_name: thormetalart_portal
+    restart: unless-stopped
+    volumes:
+      - ./portal:/usr/share/nginx/html:ro
+      - ./portal/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - thormetalart_network
+      - traefik-public
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-public"
+      - "traefik.http.routers.thormetalart-portal.rule=Host(`portal.thormetalart.com`)"
+      - "traefik.http.routers.thormetalart-portal.entrypoints=websecure"
+      - "traefik.http.routers.thormetalart-portal.tls=true"
+      - "traefik.http.routers.thormetalart-portal.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.thormetalart-portal.middlewares=security-headers@file,rate-limit@file"
+      - "traefik.http.services.thormetalart-portal.loadbalancer.server.port=80"
+
+  dashboard-api:
+    build:
+      context: ./dashboard/api
+      dockerfile: Dockerfile
+    image: thormetalart_dashboard_api:1.0
+    container_name: thormetalart_dashboard_api
+    restart: unless-stopped
+    environment:
+      API_PORT: "3001"
+      GBP_API_KEY: ${GBP_API_KEY:-}
+      GA4_PROPERTY_ID: ${GA4_PROPERTY_ID:-}
+      GA4_SERVICE_KEY: ${GA4_SERVICE_KEY:-}
+      IG_ACCESS_TOKEN: ${IG_ACCESS_TOKEN:-}
+    networks:
+      - thormetalart_network
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:3001/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  redis_data:
+
+networks:
+  thormetalart_network:
+    driver: bridge
+  traefik-public:
+    external: true

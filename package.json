@@ -1,0 +1,6 @@
+{
+  "devDependencies": {
+    "mammoth": "^1.12.0",
+    "xlsx": "^0.18.5"
+  }
+}

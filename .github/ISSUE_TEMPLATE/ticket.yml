@@ -1,0 +1,114 @@
+name: "\U0001F3AB Ticket de Desarrollo"
+description: "Crear un ticket de desarrollo siguiendo la nomenclatura Thor Metal Art"
+title: "[TICKET-XXX-000]: "
+labels: ["ticket", "triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Nuevo Ticket de Desarrollo — Thor Metal Art
+
+        Completa los campos para crear un ticket estructurado.
+        **Nomenclatura:** `TICKET-{SCOPE}-{NUM}` (ej: TICKET-WP-001)
+
+  - type: dropdown
+    id: scope
+    attributes:
+      label: "Scope (Área)"
+      description: "Selecciona el área del ticket"
+      options:
+        - WP - WordPress (temas, plugins, páginas)
+        - DOCK - Docker (compose, containers)
+        - DASH - Dashboard (KPIs, charts, API)
+        - SEO - SEO (meta tags, schema, GBP)
+        - INF - Infraestructura (Traefik, SSL, servidor)
+        - DB - Base de datos (MySQL, migraciones)
+        - CACHE - Cache (Redis, performance)
+        - SEC - Seguridad (auditorías, hardening)
+        - DOC - Documentación
+        - FIX - Bug fixes
+        - LEAD - Leads (CRM, pipeline, tracking)
+        - BRAND - Branding (diseño, logo)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: "Prioridad"
+      description: "Selecciona la prioridad"
+      options:
+        - P0 - Crítico (bloqueador de producción)
+        - P1 - Importante (esta semana)
+        - P2 - Medio (este sprint)
+        - P3 - Bajo (backlog futuro)
+    validations:
+      required: true
+
+  - type: textarea
+    id: user-story
+    attributes:
+      label: "Historia de Usuario"
+      description: "Como [rol], quiero [acción] para [beneficio]"
+      placeholder: |
+        Como **visitante**, quiero **ver una galería de trabajos realizados** para **evaluar la calidad de Thor Metal Art antes de contactar**.
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: "Criterios de Aceptación (Gherkin)"
+      description: "Define los escenarios en formato Given/When/Then"
+      placeholder: |
+        ```gherkin
+        Scenario: Galería muestra proyectos con imágenes
+          Given la página de Portfolio está publicada
+          When un visitante navega a /portfolio/
+          Then ve un grid responsive con imágenes de proyectos
+          And cada proyecto tiene título, categoría e imagen principal
+        ```
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: technical-details
+    attributes:
+      label: "Detalles Técnicos (opcional)"
+      description: "Archivos a modificar, dependencias, consideraciones"
+      placeholder: |
+        **Archivos:**
+        - `data/wordpress/wp-content/mu-plugins/tma-post-types.php` (NEW)
+        - `data/wordpress/wp-content/themes/thormetalart/template-portfolio.php` (NEW)
+
+        **Dependencias:** TICKET-WP-001 (tema hijo)
+    validations:
+      required: false
+
+  - type: input
+    id: estimation
+    attributes:
+      label: "Estimación"
+      description: "Tiempo estimado"
+      placeholder: "4-6 horas"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: phase
+    attributes:
+      label: "Fase de BACKLOG.md"
+      description: "¿En qué fase va este ticket?"
+      options:
+        - "Fase 1 - Infraestructura Base"
+        - "Fase 2 - Dashboard Ejecutivo"
+        - "Fase 3 - WordPress Sitio Web"
+        - "Fase 4 - SEO y Presencia Digital"
+        - "Fase 5 - Seguridad y Hardening"
+        - "Fase 6 - Leads y CRM"
+        - "Hotfix - Corrección urgente"
+        - "Nueva Fase"
+    validations:
+      required: true

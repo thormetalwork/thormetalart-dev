@@ -1,0 +1,60 @@
+name: "\U0001F41B Bug Report"
+description: "Reportar un bug en el stack Thor Metal Art"
+title: "[BUG]: "
+labels: ["bug", "triage"]
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: "Área afectada"
+      options:
+        - WordPress (sitio web)
+        - Dashboard (panel ejecutivo)
+        - Docker (contenedores)
+        - MySQL (base de datos)
+        - Redis (cache)
+        - Traefik (proxy/routing)
+        - Scripts (backup/restore/test)
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: "Descripción del bug"
+      description: "¿Qué está pasando?"
+      placeholder: "El dashboard no carga los charts de Chart.js..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: "Pasos para reproducir"
+      description: "Pasos exactos"
+      placeholder: |
+        1. Ir a dashboard.thormetalart.server-dev
+        2. Click en pestaña "Google Business"
+        3. El chart de impresiones no se renderiza
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: "Comportamiento esperado"
+      placeholder: "El chart debería mostrar datos de impresiones Search vs Maps"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: "Severidad"
+      options:
+        - Critical (producción caída)
+        - High (funcionalidad principal rota)
+        - Medium (funcionalidad secundaria afectada)
+        - Low (cosmético/menor)
+    validations:
+      required: true

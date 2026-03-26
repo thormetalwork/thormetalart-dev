@@ -1,0 +1,550 @@
+
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thor Metal Art — Client Dashboard</title>
+<script>
+(function(){var t=localStorage.getItem('tma-theme');if(t)document.documentElement.setAttribute('data-theme',t)})();
+</script>
+<style>
+:root, [data-theme="dark"] {
+  --font-sans: 'DM Sans', 'Inter', sans-serif;
+  --color-text-primary: #E8E6DE;
+  --color-text-secondary: #9A9A8E;
+  --color-text-tertiary: #6A6A6E;
+  --color-text-success: #4caf50;
+  --color-text-danger: #ef5350;
+  --color-text-info: #64b5f6;
+  --color-text-warning: #ffa726;
+  --color-background-primary: #111118;
+  --color-background-secondary: #1A1A2E;
+  --color-background-info: rgba(100,181,246,.12);
+  --color-background-warning: rgba(255,167,38,.10);
+  --color-background-success: rgba(76,175,80,.10);
+  --color-border-tertiary: #2A2A3E;
+  --color-border-secondary: #3A3A4E;
+  --border-radius-lg: 12px;
+  --border-radius-md: 8px;
+  --topbar-bg: #1A1A2E;
+  --body-bg: #111118;
+}
+[data-theme="light"] {
+  --color-text-primary: #1A1A1A;
+  --color-text-secondary: #555;
+  --color-text-tertiary: #888;
+  --color-text-success: #2e7d32;
+  --color-text-danger: #c62828;
+  --color-text-info: #1565c0;
+  --color-text-warning: #e65100;
+  --color-background-primary: #F5F5F0;
+  --color-background-secondary: #EAEAE5;
+  --color-background-info: rgba(21,101,192,.08);
+  --color-background-warning: rgba(230,81,0,.06);
+  --color-background-success: rgba(46,125,50,.08);
+  --color-border-tertiary: #D5D5D0;
+  --color-border-secondary: #C5C5C0;
+  --topbar-bg: #2A2A3E;
+  --body-bg: #F5F5F0;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans,sans-serif);color:var(--color-text-primary);background:var(--body-bg)}
+.dash{padding:0 0 2rem}
+.topbar{background:var(--topbar-bg);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;border-radius:var(--border-radius-lg) var(--border-radius-lg) 0 0}
+.logo{font-size:15px;font-weight:500;color:#B8860B;letter-spacing:.04em}
+.logo span{color:#888;font-size:12px;font-weight:400;margin-left:8px}
+.status-dot{width:8px;height:8px;border-radius:50%;background:#4caf50;display:inline-block;margin-right:6px}
+.live{font-size:12px;color:#888}
+.tabs{display:flex;gap:2px;padding:0 20px;background:var(--color-background-secondary);border-bottom:0.5px solid var(--color-border-tertiary)}
+.tab{padding:10px 16px;font-size:13px;color:var(--color-text-secondary);cursor:pointer;border-bottom:2px solid transparent;transition:.15s}
+.tab.active{color:var(--color-text-primary);border-bottom-color:#B8860B;font-weight:500}
+.body{padding:16px 20px}
+.section{display:none}.section.active{display:block}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px}
+.kpi{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px 14px}
+.kpi-label{font-size:11px;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.kpi-value{font-size:22px;font-weight:500;line-height:1}
+.kpi-delta{font-size:11px;margin-top:4px}
+.up{color:var(--color-text-success)}.down{color:var(--color-text-danger)}.neu{color:var(--color-text-secondary)}
+.kpi-accent{border-left:3px solid #B8860B}
+.row2{display:grid;grid-template-columns:1.5fr 1fr;gap:12px;margin-bottom:16px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:14px 16px}
+.card-title{font-size:12px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.card-badge{font-size:10px;background:var(--color-background-info);color:var(--color-text-info);padding:2px 7px;border-radius:20px}
+.chart-wrap{position:relative;width:100%}
+.source-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.src{font-size:10px;padding:3px 8px;border-radius:20px;font-weight:500}
+.src-ga{background:#0a2a5e;color:#7ab3f7}.src-gbp{background:#0e3a1e;color:#66bb6a}
+.src-ig{background:#3e1028;color:#f48fb1}.src-m{background:#3e2e00;color:#ffcc80}
+.src-dark .src-ga{background:#0a2a5e;color:#7ab3f7}
+.lead-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:13px}
+.lead-row:last-child{border:none}
+.lead-name{font-weight:500;min-width:110px}
+.lead-svc{color:var(--color-text-secondary);font-size:11px;flex:1}
+.badge{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500;white-space:nowrap}
+.b-new{background:var(--color-background-info);color:var(--color-text-info)}
+.b-cot{background:var(--color-background-warning);color:var(--color-text-warning)}
+.b-win{background:var(--color-background-success);color:var(--color-text-success)}
+.b-cold{background:var(--color-background-secondary);color:var(--color-text-secondary)}
+.lead-val{font-weight:500;font-size:12px;min-width:52px;text-align:right}
+.sparkline{display:flex;align-items:flex-end;gap:3px;height:36px}
+.bar{background:#B8860B;border-radius:2px 2px 0 0;opacity:.85;transition:.2s;min-width:6px}
+.bar:hover{opacity:1}
+.prog-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:12px}
+.prog-label{min-width:90px;color:var(--color-text-secondary)}
+.prog-track{flex:1;height:6px;background:var(--color-background-secondary);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;border-radius:3px}
+.prog-val{min-width:36px;text-align:right;font-weight:500;font-size:12px}
+.review-row{display:flex;gap:3px;margin-bottom:3px}
+.star{color:#B8860B;font-size:14px}
+.star.e{color:var(--color-border-tertiary)}
+.review-text{font-size:12px;color:var(--color-text-secondary);margin-top:4px;line-height:1.5}
+.review-author{font-size:11px;color:var(--color-text-tertiary);margin-top:4px}
+.alert-row{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border-radius:var(--border-radius-md);margin-bottom:8px;font-size:12px}
+.alert-icon{width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;margin-top:1px}
+.a-warn{background:var(--color-background-warning)}.a-warn .alert-icon{background:var(--color-text-warning);color:#fff}
+.a-ok{background:var(--color-background-success)}.a-ok .alert-icon{background:var(--color-text-success);color:#fff}
+.a-info{background:var(--color-background-info)}.a-info .alert-icon{background:var(--color-text-info);color:#fff}
+.alert-body{flex:1}
+.alert-title{font-weight:500;color:var(--color-text-primary);margin-bottom:1px}
+.alert-sub{color:var(--color-text-secondary)}
+.phase-pill{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:3px 10px;border-radius:20px;background:var(--color-background-warning);color:var(--color-text-warning);font-weight:500;margin-bottom:14px}
+.phase-dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+.mini-kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.mini-k{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 12px;text-align:center}
+.mini-k-v{font-size:18px;font-weight:500}
+.mini-k-l{font-size:10px;color:var(--color-text-secondary);margin-top:2px}
+.divider{height:0.5px;background:var(--color-border-tertiary);margin:14px 0}
+.sel{font-size:12px;padding:4px 8px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary)}
+.tooltip-wrap{position:relative;display:inline-block}
+.theme-toggle{background:none;border:1px solid var(--color-border-tertiary);color:var(--color-text-secondary);padding:4px 10px;border-radius:20px;cursor:pointer;font-size:13px;line-height:1;transition:.2s}
+.theme-toggle:hover{border-color:#B8860B;color:#B8860B}
+.theme-toggle .icon-sun{display:none}
+.theme-toggle .icon-moon{display:inline}
+[data-theme="light"] .theme-toggle .icon-sun{display:inline}
+[data-theme="light"] .theme-toggle .icon-moon{display:none}
+[data-theme="light"] .src-ga{background:#e8f0fe;color:#1a73e8}
+[data-theme="light"] .src-gbp{background:#e6f4ea;color:#137333}
+[data-theme="light"] .src-ig{background:#fce8f1;color:#c2185b}
+[data-theme="light"] .src-m{background:#fff8e1;color:#f57f17}
+</style>
+</head>
+<body>
+
+<div class="dash">
+<div class="topbar">
+  <div class="logo">Thor Metal Art <span>Client Dashboard</span></div>
+  <div style="display:flex;align-items:center;gap:12px">
+    <div class="live"><span class="status-dot"></span>Demo — datos de muestra</div>
+    <button class="theme-toggle" onclick="toggleTheme()" aria-label="Cambiar tema"><span class="icon-sun">☀️</span><span class="icon-moon">🌙</span></button>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('overview')">Vista general</div>
+  <div class="tab" onclick="showTab('gbp')">Google Business</div>
+  <div class="tab" onclick="showTab('web')">Sitio web</div>
+  <div class="tab" onclick="showTab('leads')">Leads</div>
+  <div class="tab" onclick="showTab('ig')">Instagram</div>
+  <div class="tab" onclick="showTab('alerts')">Alertas</div>
+</div>
+
+<!-- ── OVERVIEW ── -->
+<div class="body">
+<div id="sec-overview" class="section active">
+  <div class="phase-pill"><div class="phase-dot"></div>Fase 1 — Semana 4 de 6</div>
+
+  <div class="kpi-grid">
+    <div class="kpi kpi-accent">
+      <div class="kpi-label">Rating Google</div>
+      <div class="kpi-value" style="color:#B8860B">4.9 ★</div>
+      <div class="kpi-delta up">+2 reseñas este mes</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Leads del mes</div>
+      <div class="kpi-value">7</div>
+      <div class="kpi-delta up">3 Instagram · 2 GBP · 2 Referido</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Impresiones GBP</div>
+      <div class="kpi-value">1,840</div>
+      <div class="kpi-delta up">↑ 34% vs mes anterior</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Valor pipeline</div>
+      <div class="kpi-value">$28,400</div>
+      <div class="kpi-delta neu">3 proyectos en cotización</div>
+    </div>
+  </div>
+
+  <div class="row2">
+    <div class="card">
+      <div class="card-title">Leads por canal — últimos 30 días <div class="source-bar"><span class="src src-m">Manual</span></div></div>
+      <div class="chart-wrap" style="height:160px"><canvas id="ch-leads"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Impresiones GBP por semana <span class="src src-gbp">GBP API</span></div>
+      <div class="sparkline" style="align-items:flex-end;height:100px;gap:4px;margin-top:8px" id="spark-gbp"></div>
+      <div style="font-size:10px;color:var(--color-text-secondary);margin-top:6px">Últimas 8 semanas · busca en Maps y Search</div>
+    </div>
+  </div>
+
+  <div class="row3">
+    <div class="card">
+      <div class="card-title">Reseñas recientes <span class="src src-gbp">GBP</span></div>
+      <div class="review-row"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+      <div class="review-text">"El gate quedó espectacular. Karel fue muy profesional desde el diseño hasta la instalación."</div>
+      <div class="review-author">— María G. · Coral Gables · hace 3 días</div>
+      <div class="divider"></div>
+      <div class="review-row"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+      <div class="review-text">"Increíble calidad. Superó todas las expectativas. Lo recomiendo 100%."</div>
+      <div class="review-author">— Roberto M. · Doral · hace 9 días</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Tráfico web <span class="src src-ga">GA4</span></div>
+      <div class="mini-kpi-row" style="margin-top:4px">
+        <div class="mini-k"><div class="mini-k-v">312</div><div class="mini-k-l">Sesiones</div></div>
+        <div class="mini-k"><div class="mini-k-v">2:14</div><div class="mini-k-l">Tiempo medio</div></div>
+        <div class="mini-k"><div class="mini-k-v">4.2%</div><div class="mini-k-l">Conversión</div></div>
+      </div>
+      <div class="prog-row"><span class="prog-label">Orgánico</span><div class="prog-track"><div class="prog-fill" style="width:48%;background:#1a73e8"></div></div><span class="prog-val">48%</span></div>
+      <div class="prog-row"><span class="prog-label">Instagram</span><div class="prog-track"><div class="prog-fill" style="width:31%;background:#c2185b"></div></div><span class="prog-val">31%</span></div>
+      <div class="prog-row"><span class="prog-label">Directo</span><div class="prog-track"><div class="prog-fill" style="width:14%;background:#B8860B"></div></div><span class="prog-val">14%</span></div>
+      <div class="prog-row"><span class="prog-label">Otros</span><div class="prog-track"><div class="prog-fill" style="width:7%;background:#888"></div></div><span class="prog-val">7%</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Instagram <span class="src src-ig">IG API</span></div>
+      <div class="mini-kpi-row" style="margin-top:4px">
+        <div class="mini-k"><div class="mini-k-v">1,284</div><div class="mini-k-l">Seguidores</div></div>
+        <div class="mini-k"><div class="mini-k-v">5.8%</div><div class="mini-k-l">Engagement</div></div>
+        <div class="mini-k"><div class="mini-k-v">+47</div><div class="mini-k-l">Nuevos/mes</div></div>
+      </div>
+      <div class="divider"></div>
+      <div style="font-size:12px;color:var(--color-text-secondary)">Mejor post del mes</div>
+      <div style="font-size:12px;margin-top:4px;font-weight:500">Gate Coral Gables — 890 alcance</div>
+      <div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px">62 likes · 8 comentarios · 3 guardados</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── GBP ── -->
+<div id="sec-gbp" class="section">
+  <div class="source-bar" style="margin-bottom:14px"><span class="src src-gbp">Google Business Profile API</span></div>
+  <div class="kpi-grid">
+    <div class="kpi kpi-accent">
+      <div class="kpi-label">Reseñas totales</div>
+      <div class="kpi-value">8</div>
+      <div class="kpi-delta up">Meta Fase 1: 3 ✓ · Meta Fase 2: 15</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Rating promedio</div>
+      <div class="kpi-value" style="color:#B8860B">4.9 ★</div>
+      <div class="kpi-delta up">Meta: mantener ≥ 4.5</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Llamadas recibidas</div>
+      <div class="kpi-value">12</div>
+      <div class="kpi-delta up">↑ 60% vs mes anterior</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Solicitudes dirección</div>
+      <div class="kpi-value">6</div>
+      <div class="kpi-delta neu">clientes verificando ubicación</div>
+    </div>
+  </div>
+  <div class="row2">
+    <div class="card">
+      <div class="card-title">Impresiones GBP mensual · Search vs Maps</div>
+      <div class="chart-wrap" style="height:180px"><canvas id="ch-gbp"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Acciones en el perfil</div>
+      <div style="margin-top:8px">
+        <div class="prog-row"><span class="prog-label">Clics web</span><div class="prog-track"><div class="prog-fill" style="width:60%;background:#137333"></div></div><span class="prog-val">38</span></div>
+        <div class="prog-row"><span class="prog-label">Llamadas</span><div class="prog-track"><div class="prog-fill" style="width:19%;background:#1a73e8"></div></div><span class="prog-val">12</span></div>
+        <div class="prog-row"><span class="prog-label">Dirección</span><div class="prog-track"><div class="prog-fill" style="width:9%;background:#f57f17"></div></div><span class="prog-val">6</span></div>
+        <div class="prog-row"><span class="prog-label">Mensajes</span><div class="prog-track"><div class="prog-fill" style="width:5%;background:#B8860B"></div></div><span class="prog-val">3</span></div>
+      </div>
+      <div class="divider"></div>
+      <div style="font-size:12px;color:var(--color-text-secondary)">Keyword principal que genera clics:</div>
+      <div style="font-size:13px;font-weight:500;margin-top:4px">"custom metal gates miami" · posición #3</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── WEB ── -->
+<div id="sec-web" class="section">
+  <div class="source-bar" style="margin-bottom:14px"><span class="src src-ga">Google Analytics 4</span><span class="src src-ga" style="background:#e3f2fd;color:#0d47a1">Search Console</span></div>
+  <div class="kpi-grid">
+    <div class="kpi kpi-accent">
+      <div class="kpi-label">Sesiones totales</div>
+      <div class="kpi-value">312</div>
+      <div class="kpi-delta up">↑ 28% vs mes anterior</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Usuarios únicos</div>
+      <div class="kpi-value">248</div>
+      <div class="kpi-delta neu">72% nuevos</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Tasa conversión</div>
+      <div class="kpi-value">4.2%</div>
+      <div class="kpi-delta up">13 formularios enviados</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Página más visitada</div>
+      <div class="kpi-value" style="font-size:14px">Custom Gates</div>
+      <div class="kpi-delta neu">108 sesiones · bounce 38%</div>
+    </div>
+  </div>
+  <div class="row2">
+    <div class="card">
+      <div class="card-title">Sesiones por semana (últimas 8)</div>
+      <div class="chart-wrap" style="height:160px"><canvas id="ch-web"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Top páginas</div>
+      <div style="margin-top:8px">
+        <div class="prog-row"><span class="prog-label" style="min-width:120px">Custom Gates Miami</span><div class="prog-track"><div class="prog-fill" style="width:58%;background:#B8860B"></div></div><span class="prog-val">108</span></div>
+        <div class="prog-row"><span class="prog-label" style="min-width:120px">Home</span><div class="prog-track"><div class="prog-fill" style="width:45%;background:#B8860B;opacity:.75"></div></div><span class="prog-val">84</span></div>
+        <div class="prog-row"><span class="prog-label" style="min-width:120px">Metal Railings</span><div class="prog-track"><div class="prog-fill" style="width:32%;background:#B8860B;opacity:.6"></div></div><span class="prog-val">59</span></div>
+        <div class="prog-row"><span class="prog-label" style="min-width:120px">Arte & Comisiones</span><div class="prog-track"><div class="prog-fill" style="width:21%;background:#B8860B;opacity:.45"></div></div><span class="prog-val">38</span></div>
+        <div class="prog-row"><span class="prog-label" style="min-width:120px">Contacto</span><div class="prog-track"><div class="prog-fill" style="width:13%;background:#B8860B;opacity:.3"></div></div><span class="prog-val">23</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── LEADS ── -->
+<div id="sec-leads" class="section">
+  <div class="source-bar" style="margin-bottom:14px"><span class="src src-m">Entrada manual</span></div>
+  <div class="kpi-grid">
+    <div class="kpi kpi-accent">
+      <div class="kpi-label">Leads este mes</div>
+      <div class="kpi-value">7</div>
+      <div class="kpi-delta up">↑ vs 3 del mes anterior</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Proyectos cerrados</div>
+      <div class="kpi-value">2</div>
+      <div class="kpi-delta up">Tasa cierre: 29%</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Pipeline activo</div>
+      <div class="kpi-value">$28,400</div>
+      <div class="kpi-delta neu">5 proyectos en proceso</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Ticket promedio</div>
+      <div class="kpi-value">$4,200</div>
+      <div class="kpi-delta up">↑ vs $3,100 anterior</div>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:12px">
+    <div class="card-title">Pipeline de leads activos</div>
+    <div class="lead-row" style="font-size:10px;color:var(--color-text-secondary);padding-bottom:6px;border-bottom:0.5px solid var(--color-border-tertiary)">
+      <span style="min-width:110px">Cliente</span><span style="flex:1">Proyecto</span><span style="min-width:80px">Canal</span><span style="min-width:80px">Estado</span><span style="min-width:52px;text-align:right">Valor</span>
+    </div>
+    <div class="lead-row">
+      <span class="lead-name">María González</span>
+      <span class="lead-svc">Gate residencial · Coral Gables</span>
+      <span class="lead-svc">Instagram</span>
+      <span class="badge b-cot">Cotización</span>
+      <span class="lead-val">$3,800</span>
+    </div>
+    <div class="lead-row">
+      <span class="lead-name">Roberto Méndez</span>
+      <span class="lead-svc">Railings 3 townhouses · Doral</span>
+      <span class="lead-svc">GBP</span>
+      <span class="badge b-cot">Negociación</span>
+      <span class="lead-val">$11,500</span>
+    </div>
+    <div class="lead-row">
+      <span class="lead-name">Sunrise Contracting</span>
+      <span class="lead-svc">Fence comercial · Hialeah</span>
+      <span class="lead-svc">Angi</span>
+      <span class="badge b-new">Nuevo</span>
+      <span class="lead-val">$6,200</span>
+    </div>
+    <div class="lead-row">
+      <span class="lead-name">Jennifer Park</span>
+      <span class="lead-svc">Mesa custom · Brickell</span>
+      <span class="lead-svc">Referido</span>
+      <span class="badge b-win">Cerrado ✓</span>
+      <span class="lead-val">$2,200</span>
+    </div>
+    <div class="lead-row">
+      <span class="lead-name">Carlos Ruiz</span>
+      <span class="lead-svc">Escultura comisión · Miami Beach</span>
+      <span class="lead-svc">Instagram</span>
+      <span class="badge b-new">Nuevo</span>
+      <span class="lead-val">$4,700</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Leads por canal — este mes</div>
+    <div class="chart-wrap" style="height:140px"><canvas id="ch-leads2"></canvas></div>
+  </div>
+</div>
+
+<!-- ── INSTAGRAM ── -->
+<div id="sec-ig" class="section">
+  <div class="source-bar" style="margin-bottom:14px"><span class="src src-ig">Instagram Graph API</span></div>
+  <div class="kpi-grid">
+    <div class="kpi kpi-accent">
+      <div class="kpi-label">Seguidores</div>
+      <div class="kpi-value">1,284</div>
+      <div class="kpi-delta up">+47 este mes</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Alcance mensual</div>
+      <div class="kpi-value">8,420</div>
+      <div class="kpi-delta up">↑ 22% vs anterior</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Engagement rate</div>
+      <div class="kpi-value">5.8%</div>
+      <div class="kpi-delta up">Benchmark sector: 2.1%</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Posts publicados</div>
+      <div class="kpi-value">12</div>
+      <div class="kpi-delta neu">8 feed · 4 reels</div>
+    </div>
+  </div>
+  <div class="row2">
+    <div class="card">
+      <div class="card-title">Alcance semanal (últimas 8 semanas)</div>
+      <div class="chart-wrap" style="height:160px"><canvas id="ch-ig"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Top posts del mes</div>
+      <div class="lead-row" style="flex-direction:column;gap:4px;align-items:flex-start">
+        <div style="font-weight:500;font-size:13px">Gate Coral Gables — proceso</div>
+        <div style="font-size:11px;color:var(--color-text-secondary)">890 alcance · 62 likes · 3 guardados · Reel</div>
+        <div class="prog-track" style="width:100%;margin-top:2px"><div class="prog-fill" style="width:100%;background:#c2185b;opacity:.7"></div></div>
+      </div>
+      <div class="lead-row" style="flex-direction:column;gap:4px;align-items:flex-start">
+        <div style="font-weight:500;font-size:13px">Escultura en proceso — taller</div>
+        <div style="font-size:11px;color:var(--color-text-secondary)">620 alcance · 54 likes · 7 guardados · Post</div>
+        <div class="prog-track" style="width:100%;margin-top:2px"><div class="prog-fill" style="width:70%;background:#c2185b;opacity:.7"></div></div>
+      </div>
+      <div class="lead-row" style="flex-direction:column;gap:4px;align-items:flex-start;border:none">
+        <div style="font-weight:500;font-size:13px">Railing Brickell — antes/después</div>
+        <div style="font-size:11px;color:var(--color-text-secondary)">510 alcance · 41 likes · 2 guardados · Post</div>
+        <div class="prog-track" style="width:100%;margin-top:2px"><div class="prog-fill" style="width:57%;background:#c2185b;opacity:.7"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── ALERTAS ── -->
+<div id="sec-alerts" class="section">
+  <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:14px">El sistema revisa automáticamente métricas clave y genera alertas cuando algo requiere acción.</div>
+
+  <div class="alert-row a-ok"><div class="alert-icon">✓</div><div class="alert-body"><div class="alert-title">GBP verificado y activo</div><div class="alert-sub">Thor Metal Art aparece en Google Maps · posición media: #3 para "custom metal gates miami"</div></div></div>
+
+  <div class="alert-row a-warn"><div class="alert-icon">!</div><div class="alert-body"><div class="alert-title">Reseña pendiente de respuesta</div><div class="alert-sub">Carlos D. dejó una reseña de 5 estrellas hace 2 días sin respuesta. Meta: responder en &lt;48h.</div></div></div>
+
+  <div class="alert-row a-ok"><div class="alert-icon">✓</div><div class="alert-body"><div class="alert-title">Meta de reseñas Fase 1 superada</div><div class="alert-sub">8 reseñas activas · rating 4.9 ★ · Meta mínima era 3 reseñas</div></div></div>
+
+  <div class="alert-row a-info"><div class="alert-icon">i</div><div class="alert-body"><div class="alert-title">Lead sin seguimiento: Sunrise Contracting</div><div class="alert-sub">Llegó hace 4 días por Angi. Sin cotización enviada. Recomendado: contactar hoy.</div></div></div>
+
+  <div class="alert-row a-warn"><div class="alert-icon">!</div><div class="alert-body"><div class="alert-title">Velocidad web: mejorar imágenes</div><div class="alert-sub">PageSpeed mobile: 61/100. Las imágenes de la galería pesan &gt;800KB. Comprimir a WebP.</div></div></div>
+
+  <div class="alert-row a-ok"><div class="alert-icon">✓</div><div class="alert-body"><div class="alert-title">NAP consistente en todos los canales</div><div class="alert-sub">Nombre, teléfono y área de servicio idénticos en GBP, web, Instagram y Angi.</div></div></div>
+
+  <div class="alert-row a-info"><div class="alert-icon">i</div><div class="alert-body"><div class="alert-title">Oportunidad: publicar en GBP</div><div class="alert-sub">Último post en GBP hace 18 días. Recomendado: 1 post/semana con foto de obra reciente.</div></div></div>
+</div>
+
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+function showTab(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  event.target.classList.add('active');
+  if(id==='gbp') drawGBP();
+  if(id==='web') drawWeb();
+  if(id==='ig') drawIG();
+  if(id==='leads') drawLeads2();
+}
+
+const chartDef = (type,labels,datasets,opts={})=>({
+  type,data:{labels,datasets},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},...(opts.legend||{})},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:'rgba(128,128,128,.1)'},ticks:{font:{size:10}}},...(opts.scales||{})},..  (opts.extra||{})}
+});
+
+const gbpWeeks=['S1','S2','S3','S4','S5','S6','S7','S8'];
+const gbpVals=[210,280,340,410,480,590,720,840];
+
+function drawSpark(){
+  const c=document.getElementById('spark-gbp');
+  c.innerHTML='';
+  const mx=Math.max(...gbpVals);
+  gbpVals.forEach(v=>{
+    const b=document.createElement('div');
+    b.className='bar';
+    b.style.height=Math.round(v/mx*90)+'px';
+    b.style.flex='1';
+    b.title=v+' impresiones';
+    c.appendChild(b);
+  });
+}
+drawSpark();
+
+new Chart(document.getElementById('ch-leads'),chartDef('bar',
+  ['Instagram','GBP','Referido','Angi','Web directa'],
+  [{data:[3,2,2,1,1],backgroundColor:['#c2185b','#137333','#B8860B','#f57f17','#1a73e8'],borderRadius:4}]
+));
+
+let gbpChart,webChart,igChart,leads2Chart;
+function drawGBP(){
+  if(gbpChart)return;
+  gbpChart=new Chart(document.getElementById('ch-gbp'),{
+    type:'bar',
+    data:{labels:['Sep','Oct','Nov','Dic','Ene','Feb'],
+      datasets:[
+        {label:'Search',data:[180,240,310,480,720,1120],backgroundColor:'rgba(19,115,51,.7)',borderRadius:4},
+        {label:'Maps',data:[90,110,150,210,380,720],backgroundColor:'rgba(26,115,232,.5)',borderRadius:4}
+      ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'bottom',labels:{font:{size:10},boxWidth:10,padding:8}}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:'rgba(128,128,128,.1)'},ticks:{font:{size:10}}},stacked:false}}
+  });
+}
+function drawWeb(){
+  if(webChart)return;
+  webChart=new Chart(document.getElementById('ch-web'),chartDef('line',
+    ['S1','S2','S3','S4','S5','S6','S7','S8'],
+    [{data:[18,24,32,38,45,58,72,90],borderColor:'#B8860B',backgroundColor:'rgba(184,134,11,.1)',fill:true,tension:.4,pointRadius:3}]
+  ));
+}
+function drawIG(){
+  if(igChart)return;
+  igChart=new Chart(document.getElementById('ch-ig'),chartDef('line',
+    ['S1','S2','S3','S4','S5','S6','S7','S8'],
+    [{data:[520,680,740,810,920,1040,1180,1340],borderColor:'#c2185b',backgroundColor:'rgba(194,24,91,.08)',fill:true,tension:.4,pointRadius:3}]
+  ));
+}
+function drawLeads2(){
+  if(leads2Chart)return;
+  leads2Chart=new Chart(document.getElementById('ch-leads2'),chartDef('bar',
+    ['Instagram','GBP','Referido','Angi','Web'],
+    [{data:[3,2,2,1,1],backgroundColor:['#c2185b','#137333','#B8860B','#f57f17','#1a73e8'],borderRadius:4}]
+  ));
+}
+
+function toggleTheme(){
+  var h=document.documentElement;
+  var t=h.getAttribute('data-theme')==='dark'?'light':'dark';
+  h.setAttribute('data-theme',t);
+  localStorage.setItem('tma-theme',t);
+}
+</script>
+</body>
+</html>
