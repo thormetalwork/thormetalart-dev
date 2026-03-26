@@ -849,7 +849,7 @@
   - **Status:** ✅ COMPLETADO (2026-03-26)
   - **Notas:** Bloque web en API dashboard, KPIs GA4, top pages con barras y line chart de sesiones. 8/8 tests.
 
-- [ ] **TICKET-DASH-008: Sección Instagram en panel**
+- [x] **TICKET-DASH-008: Sección Instagram en panel**
   - **Fuente:** Migración de tab Instagram del dashboard actual
   - **Historia de Usuario:** Como Karel, quiero ver mis métricas de Instagram para saber si mi presencia social está creciendo.
   - **Criterios de Aceptación:**
@@ -864,7 +864,8 @@
     - `data/wordpress/wp-content/plugins/tma-panel/assets/js/panel.js` (MODIFIED)
   - **Dependencias:** TICKET-DASH-004
   - **Prioridad:** P2
-  - **Status:** 🔄 EN PROGRESO
+  - **Status:** ✅ COMPLETADO (2026-03-26)
+  - **Notas:** Bloque Instagram en API dashboard, KPIs followers/reach/engagement y sparkline de reach semanal en Chart.js. 8/8 tests.
 
 ---
 
@@ -1105,8 +1106,8 @@
 | 6 — Leads/CRM | 1 | 1 | 0 | 0 | 100% |
 | 7 — Portal Docs | 4 | 4 | 0 | 0 | 100% |
 | 8 — TMA Panel Base | 10 | 10 | 0 | 0 | 100% |
-| 9 — Dashboard Datos Reales | 5 | 4 | 1 | 0 | 80% |
+| 9 — Dashboard Datos Reales | 5 | 5 | 0 | 0 | 100% |
 | 10 — Portal Integrado | 3 | 0 | 3 | 0 | 0% |
 | 11 — Leads Dinámico | 3 | 0 | 3 | 0 | 0% |
 | 12 — Cleanup Docker | 1 | 0 | 1 | 0 | 0% |
-| **TOTAL** | **39** | **31** | **8** | **0** | **79%** |
+| **TOTAL** | **39** | **32** | **7** | **0** | **82%** |
