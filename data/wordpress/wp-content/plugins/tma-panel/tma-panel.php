@@ -100,3 +100,39 @@ add_filter( 'allowed_redirect_hosts', function ( array $hosts ): array {
 	$hosts[] = TMA_PANEL_HOST;
 	return $hosts;
 } );
+
+/* ═══════════════════════════════════════════════════════════════════
+   AJAX Login handler
+   ═══════════════════════════════════════════════════════════════════ */
+
+add_action( 'wp_ajax_nopriv_tma_panel_login', 'tma_panel_handle_login' );
+add_action( 'wp_ajax_tma_panel_login', 'tma_panel_handle_login' );
+
+function tma_panel_handle_login(): void {
+	if ( ! isset( $_POST['tma_login_nonce'] )
+		|| ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['tma_login_nonce'] ) ), 'tma_panel_login' ) ) {
+		wp_send_json_error( 'Nonce inválido.', 403 );
+	}
+
+	$log      = sanitize_text_field( wp_unslash( $_POST['log'] ?? '' ) );
+	$pwd      = $_POST['pwd'] ?? '';
+	$remember = ! empty( $_POST['rememberme'] );
+
+	$user = wp_signon( array(
+		'user_login'    => $log,
+		'user_password' => $pwd,
+		'remember'      => $remember,
+	), is_ssl() );
+
+	if ( is_wp_error( $user ) ) {
+		wp_send_json_error( 'Credenciales inválidas.' );
+	}
+
+	$valid_roles = array( 'tma_admin', 'tma_client', 'administrator' );
+	if ( ! array_intersect( $valid_roles, $user->roles ) ) {
+		wp_destroy_current_session();
+		wp_send_json_error( 'Tu cuenta no tiene permisos para acceder al panel.' );
+	}
+
+	wp_send_json_success( array( 'redirect' => 'https://' . TMA_PANEL_HOST . '/' ) );
+}
