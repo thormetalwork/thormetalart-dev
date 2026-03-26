@@ -307,6 +307,13 @@ class TMA_Panel_API {
 		$leads_total = (int) $wpdb->get_var(
 			"SELECT COUNT(*) FROM {$wpdb->prefix}panel_leads"
 		);
+		if ( class_exists( 'TMA_Panel_Leads' ) ) {
+			TMA_Panel_Leads::get_pipeline_value();
+		}
+
+		$high_value_new_attention = (int) $wpdb->get_var(
+			"SELECT COUNT(*) FROM {$wpdb->prefix}panel_leads WHERE status = 'new' AND lead_value > 0"
+		);
 
 		$lead_sources_rows = $wpdb->get_results(
 			"SELECT COALESCE(NULLIF(source,''), 'unknown') AS source, COUNT(*) AS total
@@ -441,6 +448,10 @@ class TMA_Panel_API {
 					'documents'   => $docs_count,
 					'notes'       => $notes_count,
 					'kpis'        => count( $kpi_rows ),
+				),
+				'new_attention' => array(
+					'high_value_leads' => $high_value_new_attention,
+					'requires_attention' => $high_value_new_attention > 0,
 				),
 				'kpis'         => $cards,
 				'history'      => $history,

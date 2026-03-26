@@ -1039,7 +1039,7 @@
   - **Status:** ✅ COMPLETADO (2026-03-26)
   - **Notas:** Migración 002 para panel_lead_history, logging automático en update_lead(), endpoint GET /leads/{id}/history y timeline UI con botón "Ver historial". 7/7 tests.
 
-- [ ] **TICKET-LEAD-004: Alertas de leads de alto valor**
+- [x] **TICKET-LEAD-004: Alertas de leads de alto valor**
   - **Fuente:** Requisito de negocio
   - **Historia de Usuario:** Como Karel, quiero recibir alertas cuando llega un lead de alto valor para darle atención inmediata.
   - **Criterios de Aceptación:**
@@ -1058,7 +1058,8 @@
     - `data/wordpress/wp-content/plugins/tma-panel/assets/js/panel.js` (MODIFIED)
   - **Dependencias:** TICKET-LEAD-002
   - **Prioridad:** P3
-  - **Status:** ⏸️ PENDIENTE
+  - **Status:** ✅ COMPLETADO (2026-03-26)
+  - **Notas:** Dashboard API expone new_attention.high_value_leads (status=new y lead_value>0), UI muestra alerta contextual, y formulario dispara email opcional para servicios premium. 6/6 tests.
 
 ---
 
@@ -1113,6 +1114,6 @@
 | 8 — TMA Panel Base | 10 | 10 | 0 | 0 | 100% |
 | 9 — Dashboard Datos Reales | 5 | 5 | 0 | 0 | 100% |
 | 10 — Portal Integrado | 3 | 3 | 0 | 0 | 100% |
-| 11 — Leads Dinámico | 3 | 2 | 1 | 0 | 67% |
+| 11 — Leads Dinámico | 3 | 3 | 0 | 0 | 100% |
 | 12 — Cleanup Docker | 1 | 0 | 1 | 0 | 0% |
-| **TOTAL** | **39** | **37** | **2** | **0** | **95%** |
+| **TOTAL** | **39** | **38** | **1** | **0** | **97%** |

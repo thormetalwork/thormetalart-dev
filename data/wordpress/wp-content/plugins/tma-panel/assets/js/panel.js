@@ -118,6 +118,8 @@
 			const web = data.web || {};
 			const instagram = data.instagram || {};
 			const isDemo = !!data.is_demo;
+			const newAttention = data.new_attention || {};
+			const attentionCount = Number(newAttention.high_value_leads || 0);
 
 			container.innerHTML = `
 				<div class="dashboard-actions" style="display:flex;justify-content:flex-end;margin-bottom:var(--tma-sp-3);">
@@ -126,6 +128,7 @@
 						📋 ${escapeHtml(t('dashboard.export') || 'Exportar resumen')}
 					</button>
 				</div>
+				${attentionCount > 0 ? '<div class="card dashboard-alert high-value-alert" style="border-left:4px solid #B8860B;margin-bottom:var(--tma-sp-3);"><strong>' + attentionCount + ' lead(s) nuevos requieren atención</strong><div style="font-size:12px;color:var(--tma-muted);margin-top:6px;">Hay leads con valor estimado pendientes de seguimiento.</div></div>' : ''}
 				<div class="kpi-grid">
 					<div class="kpi-card">
 						<span class="kpi-card__label">Reviews GBP</span>

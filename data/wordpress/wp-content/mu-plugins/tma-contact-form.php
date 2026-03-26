@@ -282,6 +282,7 @@ function tma_handle_lead_submission() {
 
     // Send admin notification.
     tma_send_lead_notification( $name, $email, $phone, $service, $message, $page_url );
+    tma_send_high_value_lead_alert( $name, $email, $phone, $service, $message, $page_url );
 
     wp_send_json_success( [ 'message' => $labels['success'] ] );
 }
@@ -305,6 +306,45 @@ function tma_send_lead_notification( $name, $email, $phone, $service, $message, 
         "",
         "---",
         "Gestiona los leads en: " . admin_url( 'admin.php?page=tma-leads' ),
+    ] );
+
+    $headers = [
+        'Content-Type: text/plain; charset=UTF-8',
+        "Reply-To: {$name} <{$email}>",
+    ];
+
+    wp_mail( $to, $subject, $body, $headers );
+}
+
+/**
+ * Optional alert email for high-value services.
+ */
+function tma_send_high_value_lead_alert( $name, $email, $phone, $service, $message, $page_url ) {
+    $service_norm = strtolower( trim( (string) $service ) );
+    $high_value_services = [
+        'custom gates',
+        'art & commissions',
+        'portones personalizados',
+        'arte y comisiones',
+    ];
+
+    if ( ! in_array( $service_norm, $high_value_services, true ) ) {
+        return;
+    }
+
+    $to = get_option( 'admin_email' );
+    $subject = sprintf( '[Thor Metal Art] Alerta lead alto valor: %s', $name );
+    $body = implode( "\n", [
+        'High value lead / Lead de alto valor',
+        '',
+        "Nombre:   {$name}",
+        "Email:    {$email}",
+        "Teléfono: {$phone}",
+        "Servicio: {$service}",
+        "Página:   {$page_url}",
+        '',
+        'Mensaje:',
+        $message,
     ] );
 
     $headers = [
