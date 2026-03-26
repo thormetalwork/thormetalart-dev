@@ -112,6 +112,14 @@ class TMA_Panel_API {
 							'default'           => 'internal',
 							'sanitize_callback' => 'sanitize_text_field',
 						),
+						'module' => array(
+							'default'           => 'general',
+							'sanitize_callback' => 'sanitize_text_field',
+						),
+						'item_id' => array(
+							'default'           => 0,
+							'sanitize_callback' => 'absint',
+						),
 					),
 				),
 			)
@@ -572,19 +580,20 @@ class TMA_Panel_API {
 	 */
 	public static function get_notes( WP_REST_Request $request ): WP_REST_Response {
 		global $wpdb;
+		self::ensure_notes_context_columns();
 
 		$is_admin = current_user_can( 'tma_view_audit' );
 
 		if ( $is_admin ) {
 			$rows = $wpdb->get_results(
-				"SELECT id, user_id, title, content, visibility, created_at, updated_at
+				"SELECT id, user_id, title, content, visibility, module, item_id, created_at, updated_at
 				 FROM {$wpdb->prefix}panel_notes
 				 ORDER BY created_at DESC"
 			);
 		} else {
 			$rows = $wpdb->get_results(
 				$wpdb->prepare(
-					"SELECT id, user_id, title, content, visibility, created_at, updated_at
+					"SELECT id, user_id, title, content, visibility, module, item_id, created_at, updated_at
 					 FROM {$wpdb->prefix}panel_notes
 					 WHERE visibility = %s OR user_id = %d
 					 ORDER BY created_at DESC",
@@ -602,6 +611,8 @@ class TMA_Panel_API {
 				'title'      => $row->title,
 				'content'    => $row->content,
 				'visibility' => $row->visibility,
+				'module'     => $row->module,
+				'item_id'    => (int) $row->item_id,
 				'created_at' => $row->created_at,
 				'updated_at' => $row->updated_at,
 			);
@@ -615,10 +626,13 @@ class TMA_Panel_API {
 	 */
 	public static function create_note( WP_REST_Request $request ): WP_REST_Response {
 		global $wpdb;
+		self::ensure_notes_context_columns();
 
 		$title      = $request->get_param( 'title' );
 		$content    = $request->get_param( 'content' );
 		$visibility = $request->get_param( 'visibility' );
+		$module     = sanitize_text_field( (string) $request->get_param( 'module' ) );
+		$item_id    = (int) $request->get_param( 'item_id' );
 
 		$allowed_vis = array( 'internal', 'client' );
 		if ( ! in_array( $visibility, $allowed_vis, true ) ) {
@@ -632,8 +646,10 @@ class TMA_Panel_API {
 				'title'      => $title,
 				'content'    => $content,
 				'visibility' => $visibility,
+				'module'     => $module ?: 'general',
+				'item_id'    => $item_id,
 			),
-			array( '%d', '%s', '%s', '%s' )
+			array( '%d', '%s', '%s', '%s', '%s', '%d' )
 		);
 
 		if ( false === $inserted ) {
@@ -646,10 +662,29 @@ class TMA_Panel_API {
 		return new WP_REST_Response(
 			array(
 				'id'      => (int) $wpdb->insert_id,
+				'module'  => $module ?: 'general',
+				'item_id' => $item_id,
 				'message' => __( 'Note created.', 'thormetalart' ),
 			),
 			201
 		);
+	}
+
+	/**
+	 * Ensure notes table supports contextual notes (module/item_id).
+	 */
+	private static function ensure_notes_context_columns(): void {
+		global $wpdb;
+		$table   = $wpdb->prefix . 'panel_notes';
+		$columns = $wpdb->get_col( "SHOW COLUMNS FROM {$table}", 0 ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+
+		if ( ! in_array( 'module', $columns, true ) ) {
+			$wpdb->query( "ALTER TABLE {$table} ADD COLUMN module varchar(50) NOT NULL DEFAULT 'general'" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		}
+
+		if ( ! in_array( 'item_id', $columns, true ) ) {
+			$wpdb->query( "ALTER TABLE {$table} ADD COLUMN item_id bigint(20) unsigned NOT NULL DEFAULT 0" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		}
 	}
 
 	/**
