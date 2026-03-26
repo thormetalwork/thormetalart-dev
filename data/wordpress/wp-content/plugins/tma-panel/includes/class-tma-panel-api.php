@@ -328,6 +328,27 @@ class TMA_Panel_API {
 			'impressions_split' => $impressions_split,
 		);
 
+		$users_pair = $get_latest_pair( $series_by_metric['users'] ?? array() );
+		$conv_pair  = $get_latest_pair( $series_by_metric['conversion_rate'] ?? array() );
+		$forms_pair = $get_latest_pair( $series_by_metric['forms_submitted'] ?? array() );
+		$avg_pair   = $get_latest_pair( $series_by_metric['avg_time'] ?? array() );
+
+		$web = array(
+			'sessions'         => (int) $cards['sessions']['latest'],
+			'users'            => (int) $users_pair['latest'],
+			'conversion_rate'  => (float) $conv_pair['latest'],
+			'forms_submitted'  => (int) $forms_pair['latest'],
+			'avg_time'         => (int) $avg_pair['latest'],
+			'sessions_history' => $kpi_map['sessions'],
+			'top_pages'        => array(
+				array( 'path' => '/custom-metal-gates-miami', 'sessions' => 220 ),
+				array( 'path' => '/metal-railings-miami', 'sessions' => 180 ),
+				array( 'path' => '/contact', 'sessions' => 145 ),
+				array( 'path' => '/portfolio', 'sessions' => 120 ),
+				array( 'path' => '/art-commissions', 'sessions' => 95 ),
+			),
+		);
+
 		$docs_count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}panel_docs" );
 		$notes_count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}panel_notes" );
 
@@ -346,6 +367,7 @@ class TMA_Panel_API {
 				'history'      => $history,
 				'lead_sources' => $lead_sources,
 				'gbp'          => $gbp,
+				'web'          => $web,
 				'is_demo'      => ! $has_real_dashboard_kpis,
 				'periods'      => array_keys( $periods ),
 			),

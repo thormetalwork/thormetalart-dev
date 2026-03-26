@@ -115,6 +115,7 @@
 			const history = data.history || {};
 			const leadSources = data.lead_sources || [];
 			const gbp = data.gbp || {};
+			const web = data.web || {};
 			const isDemo = !!data.is_demo;
 
 			container.innerHTML = `
@@ -157,10 +158,11 @@
 					</div>
 				</div>
 				${renderGBPSection(gbp)}
+				${renderWebSection(web)}
 				${renderKpiTable(kpis)}
 			`;
 
-			renderDashboardCharts(history, leadSources, gbp);
+			renderDashboardCharts(history, leadSources, gbp, web);
 
 			// Bind export button.
 			var exportBtn = document.getElementById('tma-export-btn');
@@ -189,6 +191,46 @@
 		`;
 	}
 
+	function renderWebSection(web) {
+		var pages = Array.isArray(web.top_pages) ? web.top_pages : [];
+		var maxSessions = pages.reduce(function (m, p) { return Math.max(m, Number(p.sessions || 0)); }, 1);
+		var rows = pages.map(function (p) {
+			var sessions = Number(p.sessions || 0);
+			var width = Math.max(4, Math.round((sessions / maxSessions) * 100));
+			return '<div style="margin-bottom:8px;">'
+				+ '<div style="display:flex;justify-content:space-between;font-size:12px;">'
+				+ '<span>' + escapeHtml(String(p.path || '/')) + '</span>'
+				+ '<strong>' + escapeHtml(String(sessions)) + '</strong>'
+				+ '</div>'
+				+ '<div style="height:8px;background:#e5e7eb;border-radius:999px;overflow:hidden;">'
+				+ '<div style="height:100%;width:' + width + '%;background:#B8860B;"></div>'
+				+ '</div>'
+				+ '</div>';
+		}).join('');
+
+		return `
+			<div class="card" style="margin-top:var(--tma-sp-4);">
+				<h2 class="card__title">Web Analytics (GA4)</h2>
+				<div class="kpi-grid" style="margin-top:var(--tma-sp-3);">
+					<div class="kpi-card"><span class="kpi-card__label">Sessions</span><span class="kpi-card__value">${escapeHtml(String(web.sessions || 0))}</span></div>
+					<div class="kpi-card"><span class="kpi-card__label">Users</span><span class="kpi-card__value">${escapeHtml(String(web.users || 0))}</span></div>
+					<div class="kpi-card"><span class="kpi-card__label">Conversion Rate</span><span class="kpi-card__value">${escapeHtml(String(web.conversion_rate || 0))}%</span></div>
+					<div class="kpi-card"><span class="kpi-card__label">Forms Submitted</span><span class="kpi-card__value">${escapeHtml(String(web.forms_submitted || 0))}</span></div>
+					<div class="kpi-card"><span class="kpi-card__label">Avg Time</span><span class="kpi-card__value">${escapeHtml(String(web.avg_time || 0))}s</span></div>
+				</div>
+				<div class="grid grid--2" style="display:grid;grid-template-columns:1fr 1fr;gap:var(--tma-sp-4);margin-top:var(--tma-sp-4);">
+					<div>
+						<canvas id="tma-chart-web-sessions" height="180"></canvas>
+					</div>
+					<div>
+						<h3 style="margin:0 0 12px 0;font-size:14px;">Top Pages</h3>
+						${rows || '<p style="color:var(--tma-muted);">No data</p>'}
+					</div>
+				</div>
+			</div>
+		`;
+	}
+
 	function renderTrend(kpi) {
 		if (!kpi) return '→ neutral';
 		const trend = kpi.trend || 'neutral';
@@ -208,7 +250,7 @@
 		});
 	}
 
-	function renderDashboardCharts(history, leadSources, gbp) {
+	function renderDashboardCharts(history, leadSources, gbp, web) {
 		if (!window.Chart) return;
 
 		const gold = '#B8860B';
@@ -268,6 +310,26 @@
 					maintainAspectRatio: false,
 					scales: { x: { stacked: true }, y: { stacked: true } },
 				},
+			});
+		}
+
+		const webHistory = (web && web.sessions_history) ? web.sessions_history : [];
+		const webCanvas = document.getElementById('tma-chart-web-sessions');
+		if (webCanvas && webHistory.length) {
+			new window.Chart(webCanvas, {
+				type: 'line',
+				data: {
+					labels: webHistory.map(function (x) { return x.period; }),
+					datasets: [{
+						label: 'Sessions',
+						data: webHistory.map(function (x) { return Number(x.value || 0); }),
+						borderColor: '#B8860B',
+						backgroundColor: 'rgba(184,134,11,0.2)',
+						tension: 0.3,
+						fill: true,
+					}],
+				},
+				options: { responsive: true, maintainAspectRatio: false },
 			});
 		}
 	}
