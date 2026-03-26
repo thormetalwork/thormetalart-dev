@@ -846,7 +846,7 @@
     - `data/wordpress/wp-content/plugins/tma-panel/assets/js/panel.js` (MODIFIED)
   - **Dependencias:** TICKET-DASH-004
   - **Prioridad:** P2
-  - **Status:** ⏸️ PENDIENTE
+  - **Status:** 🔄 EN PROGRESO
 
 - [ ] **TICKET-DASH-008: Sección Instagram en panel**
   - **Fuente:** Migración de tab Instagram del dashboard actual
