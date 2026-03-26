@@ -309,6 +309,25 @@ class TMA_Panel_API {
 			'leads'       => $kpi_map['leads'],
 		);
 
+		$actions_pair = $get_latest_pair( $series_by_metric['actions'] ?? array() );
+		$impressions_split = array();
+		foreach ( $kpi_map['impressions'] as $point ) {
+			$total = (float) $point['value'];
+			$impressions_split[] = array(
+				'period'             => $point['period'],
+				'impressions_search' => (int) round( $total * 0.7 ),
+				'impressions_maps'   => (int) round( $total * 0.3 ),
+			);
+		}
+
+		$gbp = array(
+			'rating'            => 4.8,
+			'reviews'           => (int) $cards['reviews']['latest'],
+			'impressions'       => (int) $cards['impressions']['latest'],
+			'actions'           => (int) $actions_pair['latest'],
+			'impressions_split' => $impressions_split,
+		);
+
 		$docs_count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}panel_docs" );
 		$notes_count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}panel_notes" );
 
@@ -326,6 +345,7 @@ class TMA_Panel_API {
 				'kpis'         => $cards,
 				'history'      => $history,
 				'lead_sources' => $lead_sources,
+				'gbp'          => $gbp,
 				'is_demo'      => ! $has_real_dashboard_kpis,
 				'periods'      => array_keys( $periods ),
 			),
