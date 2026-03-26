@@ -447,31 +447,92 @@
 				return;
 			}
 
-			let rows = '';
+			let cards = '';
 			docs.forEach(function (doc) {
-				const statusClass = doc.status === 'final' ? 'badge--success' : (doc.status === 'draft' ? 'badge--warning' : 'badge--info');
-				rows += '<tr>'
-					+ '<td>' + escapeHtml(doc.title || '') + '</td>'
-					+ '<td>' + escapeHtml(doc.doc_type || '') + '</td>'
-					+ '<td><span class="badge ' + statusClass + '">' + escapeHtml(doc.status || '') + '</span></td>'
-					+ '<td>' + formatDate(doc.updated_at) + '</td>'
-					+ '</tr>';
+				const statusClass = doc.status === 'approved' ? 'badge--success' : (doc.status === 'pending' ? 'badge--warning' : 'badge--info');
+				const code = doc.slug || '';
+				cards += '<article class="card" style="margin-bottom:12px;">'
+					+ '<div style="display:flex;justify-content:space-between;gap:12px;align-items:center;">'
+					+ '<div>'
+					+ '<p style="font-size:11px;color:var(--tma-muted);margin:0 0 6px 0;">' + escapeHtml(code) + '</p>'
+					+ '<h3 style="margin:0 0 6px 0;font-size:16px;">' + escapeHtml(doc.title || '') + '</h3>'
+					+ '<p style="margin:0;color:var(--tma-muted);font-size:12px;">Actualizado: ' + formatDate(doc.updated_at) + '</p>'
+					+ '</div>'
+					+ '<div style="display:flex;align-items:center;gap:8px;">'
+					+ '<span class="badge ' + statusClass + '">' + escapeHtml(doc.status || '') + '</span>'
+					+ '<button class="btn btn--primary btn-view-doc" data-doc-code="' + escapeHtml(code) + '">Ver</button>'
+					+ '</div>'
+					+ '</div>'
+					+ '</article>';
 			});
 
 			container.innerHTML = `
 				<div class="card">
 					<h2 class="card__title">${escapeHtml(t('documents.title'))}</h2>
-					<div class="table-wrap">
-						<table class="table">
-							<thead><tr><th>${escapeHtml(t('documents.doc_title'))}</th><th>${escapeHtml(t('documents.type'))}</th><th>${escapeHtml(t('documents.status'))}</th><th>${escapeHtml(t('documents.updated'))}</th></tr></thead>
-							<tbody>${rows}</tbody>
-						</table>
+					<div>${cards}</div>
+				</div>
+				<div id="tma-doc-viewer-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:9999;padding:24px;">
+					<div style="height:100%;max-width:1100px;margin:0 auto;background:#fff;border-radius:10px;overflow:hidden;display:flex;flex-direction:column;">
+						<div style="padding:10px 14px;border-bottom:1px solid #ddd;display:flex;justify-content:space-between;align-items:center;">
+							<strong id="tma-doc-viewer-title">Documento</strong>
+							<button class="btn" id="tma-doc-viewer-close">Cerrar</button>
+						</div>
+						<div id="tma-doc-viewer-host" style="position:relative;flex:1;overflow:auto;background:#f6f7f8;"></div>
 					</div>
 				</div>
 			`;
+
+			container.querySelectorAll('.btn-view-doc').forEach(function (btn) {
+				btn.addEventListener('click', function () {
+					openDocumentViewer(btn.dataset.docCode || '', btn.closest('article') ? btn.closest('article').querySelector('h3').textContent : 'Documento');
+				});
+			});
+
+			const closeBtn = document.getElementById('tma-doc-viewer-close');
+			if (closeBtn) closeBtn.addEventListener('click', closeDocumentViewer);
 		} catch (err) {
 			showError(container, t('error.loading_documents') + ': ' + err.message);
 		}
+	}
+
+	async function openDocumentViewer(code, title) {
+		const modal = document.getElementById('tma-doc-viewer-modal');
+		const host = document.getElementById('tma-doc-viewer-host');
+		const titleEl = document.getElementById('tma-doc-viewer-title');
+		if (!modal || !host) return;
+		modal.style.display = 'block';
+		if (titleEl) titleEl.textContent = title || 'Documento';
+
+		try {
+			const doc = await api('/documents/' + encodeURIComponent(code) + '/content');
+			host.innerHTML = '';
+			const root = host.shadowRoot ? host.shadowRoot : (host.attachShadow ? host.attachShadow({ mode: 'open' }) : host);
+			const now = new Date().toLocaleString('es-ES');
+			const userName = (window.TMA_PANEL && window.TMA_PANEL.user && window.TMA_PANEL.user.name) ? window.TMA_PANEL.user.name : 'Usuario';
+			root.innerHTML = `
+				<style>
+					.viewer-wrap{position:relative;min-height:100%;padding:28px;background:#fff;user-select:none;-webkit-user-select:none;}
+					.viewer-prose{max-width:900px;margin:0 auto;color:#1a1a1a;font:16px/1.65 'DM Sans',sans-serif;}
+					.viewer-watermark{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:.09;font-size:42px;transform:rotate(-25deg);color:#B8860B;font-family:'Cormorant Garamond',serif;white-space:pre;}
+					.viewer-prose img{max-width:100%;height:auto;}
+					.viewer-prose table{width:100%;border-collapse:collapse;}
+					.viewer-prose td,.viewer-prose th{border:1px solid #ddd;padding:8px;}
+				</style>
+				<div class="viewer-wrap">
+					<div class="viewer-watermark">${escapeHtml(userName)} • ${escapeHtml(now)}</div>
+					<div class="viewer-prose">${doc.html || ''}</div>
+				</div>
+			`;
+		} catch (err) {
+			host.innerHTML = '<div style="padding:18px;color:#b42318;">No se pudo cargar el documento: ' + escapeHtml(err.message) + '</div>';
+		}
+	}
+
+	function closeDocumentViewer() {
+		const modal = document.getElementById('tma-doc-viewer-modal');
+		const host = document.getElementById('tma-doc-viewer-host');
+		if (modal) modal.style.display = 'none';
+		if (host) host.innerHTML = '';
 	}
 
 	/* ═══════════════════════════════════════════════════════════════

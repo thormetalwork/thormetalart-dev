@@ -902,7 +902,7 @@
     - `data/wordpress/wp-content/plugins/tma-panel/cache/html/` (NEW — migrado de portal/docs/)
   - **Dependencias:** TICKET-PANEL-004
   - **Prioridad:** P1
-  - **Status:** ⏸️ PENDIENTE
+  - **Status:** 🔄 EN PROGRESO
 
 - [ ] **TICKET-PORTAL-006: Sistema de aprobación de documentos**
   - **Fuente:** Análisis comparativo RAI Panel — UX de aprobación por documento

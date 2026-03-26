@@ -44,6 +44,16 @@ class TMA_Panel_API {
 			)
 		);
 
+		register_rest_route(
+			self::NAMESPACE,
+			'/documents/(?P<code>[a-zA-Z0-9_-]+)/content',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( __CLASS__, 'get_document_content' ),
+				'permission_callback' => array( __CLASS__, 'check_panel_access' ),
+			)
+		);
+
 		// ── Leads ──
 		register_rest_route(
 			self::NAMESPACE,
@@ -415,6 +425,23 @@ class TMA_Panel_API {
 		}
 
 		return new WP_REST_Response( $docs, 200 );
+	}
+
+	/**
+	 * GET /documents/{code}/content — secure HTML content from cache.
+	 */
+	public static function get_document_content( WP_REST_Request $request ): WP_REST_Response {
+		$code    = sanitize_text_field( $request->get_param( 'code' ) );
+		$content = TMA_Panel_Docs::get_document_content( $code );
+
+		if ( is_wp_error( $content ) ) {
+			return new WP_REST_Response(
+				array( 'message' => $content->get_error_message() ),
+				(int) ( $content->get_error_data()['status'] ?? 500 )
+			);
+		}
+
+		return new WP_REST_Response( $content, 200 );
 	}
 
 	/**

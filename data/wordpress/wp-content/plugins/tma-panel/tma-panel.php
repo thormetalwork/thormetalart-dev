@@ -33,6 +33,7 @@ require_once TMA_PANEL_PATH . 'includes/class-tma-panel-api.php';
 require_once TMA_PANEL_PATH . 'includes/class-tma-panel-audit.php';
 require_once TMA_PANEL_PATH . 'includes/class-tma-panel-export.php';
 require_once TMA_PANEL_PATH . 'includes/class-tma-panel-cron.php';
+require_once TMA_PANEL_PATH . 'includes/class-tma-panel-docs.php';
 
 /* ═══════════════════════════════════════════════════════════════════
    Activation / Deactivation
@@ -43,6 +44,7 @@ register_activation_hook( __FILE__, function (): void {
 	TMA_Panel_Data::maybe_migrate();
 	TMA_Panel_Audit::schedule_cleanup();
 	TMA_Panel_Cron::schedule_event();
+	TMA_Panel_Docs::migrate_portal_docs_to_cache();
 } );
 register_deactivation_hook( __FILE__, function (): void {
 	TMA_Panel_Roles::deactivate();
