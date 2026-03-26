@@ -1017,7 +1017,7 @@
   - **Status:** ✅ COMPLETADO (2026-03-26)
   - **Notas:** Clase TMA_Panel_Leads + migración desde tma_leads, endpoint POST /leads/{id} para status/value, y hook del formulario (tma_panel_create_lead) hacia panel_leads. 8/8 tests.
 
-- [ ] **TICKET-LEAD-003: Historial de cambios por lead**
+- [x] **TICKET-LEAD-003: Historial de cambios por lead**
   - **Fuente:** Mejores prácticas CRM
   - **Historia de Usuario:** Como Karel, quiero ver el historial de cada lead para recordar todas las interacciones y cambios de estado.
   - **Criterios de Aceptación:**
@@ -1036,7 +1036,8 @@
     - `data/wordpress/wp-content/plugins/tma-panel/migrations/002-lead-history.php` (NEW)
   - **Dependencias:** TICKET-LEAD-002
   - **Prioridad:** P2
-  - **Status:** 🔄 EN PROGRESO
+  - **Status:** ✅ COMPLETADO (2026-03-26)
+  - **Notas:** Migración 002 para panel_lead_history, logging automático en update_lead(), endpoint GET /leads/{id}/history y timeline UI con botón "Ver historial". 7/7 tests.
 
 - [ ] **TICKET-LEAD-004: Alertas de leads de alto valor**
   - **Fuente:** Requisito de negocio
@@ -1112,6 +1113,6 @@
 | 8 — TMA Panel Base | 10 | 10 | 0 | 0 | 100% |
 | 9 — Dashboard Datos Reales | 5 | 5 | 0 | 0 | 100% |
 | 10 — Portal Integrado | 3 | 3 | 0 | 0 | 100% |
-| 11 — Leads Dinámico | 3 | 1 | 2 | 0 | 33% |
+| 11 — Leads Dinámico | 3 | 2 | 1 | 0 | 67% |
 | 12 — Cleanup Docker | 1 | 0 | 1 | 0 | 0% |
-| **TOTAL** | **39** | **36** | **3** | **0** | **92%** |
+| **TOTAL** | **39** | **37** | **2** | **0** | **95%** |
