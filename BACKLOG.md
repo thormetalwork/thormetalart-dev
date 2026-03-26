@@ -1014,7 +1014,7 @@
     - `data/wordpress/wp-content/mu-plugins/tma-contact-form.php` (MODIFIED) — hook para crear lead en tma_panel_leads
   - **Dependencias:** TICKET-PANEL-004, TICKET-LEAD-001
   - **Prioridad:** P1
-  - **Status:** ⏸️ PENDIENTE
+  - **Status:** 🔄 EN PROGRESO
 
 - [ ] **TICKET-LEAD-003: Historial de cambios por lead**
   - **Fuente:** Mejores prácticas CRM
