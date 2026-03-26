@@ -785,10 +785,15 @@ class TMA_Panel_API {
 		global $wpdb;
 
 		$rows = $wpdb->get_results(
-			"SELECT id, user_id, action, entity_type, entity_id, details, ip_address, created_at
-			 FROM {$wpdb->prefix}panel_audit
-			 ORDER BY created_at DESC
-			 LIMIT 100"
+			$wpdb->prepare(
+				"SELECT a.id, a.user_id, a.action, a.entity_type, a.entity_id, a.details, a.ip_address, a.created_at,
+				        COALESCE(u.display_name, CONCAT('Usuario #', a.user_id)) AS user_name
+				 FROM {$wpdb->prefix}panel_audit a
+				 LEFT JOIN {$wpdb->users} u ON a.user_id = u.ID
+				 ORDER BY a.created_at DESC
+				 LIMIT %d",
+				100
+			)
 		);
 
 		$entries = array();
@@ -796,6 +801,7 @@ class TMA_Panel_API {
 			$entries[] = array(
 				'id'          => (int) $row->id,
 				'user_id'     => (int) $row->user_id,
+				'user_name'   => $row->user_name,
 				'action'      => $row->action,
 				'entity_type' => $row->entity_type,
 				'entity_id'   => (int) $row->entity_id,

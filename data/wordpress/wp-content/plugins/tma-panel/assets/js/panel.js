@@ -584,13 +584,43 @@
 			const ok = window.confirm('Confirmar aprobación de "' + (doc.title || 'documento') + '"?');
 			if (!ok) return;
 		}
-		await api('/documents/' + doc.id + '/status', {
-			method: 'POST',
-			body: JSON.stringify({ status: status, notes: notes || '' })
-		});
-		docsState[currentDocIndex].status = status;
-		alert(status === 'approved' ? 'Documento aprobado.' : 'Documento marcado con cambios.');
-		renderDocuments(document.getElementById('tma-content'));
+		try {
+			await api('/documents/' + doc.id + '/status', {
+				method: 'POST',
+				body: JSON.stringify({ status: status, notes: notes || '' })
+			});
+			docsState[currentDocIndex].status = status;
+			// Update badge in the list card without destroying the modal
+			var viewBtn = document.querySelector('.btn-view-doc[data-doc-index="' + currentDocIndex + '"]');
+			if (viewBtn) {
+				var badge = viewBtn.closest('article') && viewBtn.closest('article').querySelector('.badge');
+				if (badge) {
+					badge.className = 'badge ' + (status === 'approved' ? 'badge--success' : (status === 'pending' ? 'badge--warning' : 'badge--info'));
+					badge.textContent = status;
+				}
+			}
+			updateViewerActionButtons(status);
+			// Reset change notes controls
+			var notesEl = document.getElementById('tma-doc-change-notes');
+			var saveBtn = document.getElementById('tma-doc-save-changes');
+			if (notesEl) { notesEl.value = ''; notesEl.style.display = 'none'; }
+			if (saveBtn) { saveBtn.style.display = 'none'; }
+		} catch (err) {
+			alert('Error al guardar estado: ' + getErrorMessage(err));
+		}
+	}
+
+	function updateViewerActionButtons(status) {
+		var approveBtn = document.getElementById('tma-doc-approve');
+		var changesBtn = document.getElementById('tma-doc-changes');
+		if (approveBtn) {
+			approveBtn.disabled = (status === 'approved');
+			approveBtn.textContent = (status === 'approved') ? '✅ Aprobado' : 'Aprobado';
+		}
+		if (changesBtn) {
+			changesBtn.disabled = (status === 'changes_requested');
+			changesBtn.textContent = (status === 'changes_requested') ? '📝 Con cambios' : 'Con cambios';
+		}
 	}
 
 	async function addDocumentNote() {
@@ -618,6 +648,17 @@
 		if (!modal || !host) return;
 		modal.style.display = 'block';
 		if (titleEl) titleEl.textContent = title || 'Documento';
+
+		// Reflect current doc status in action buttons immediately
+		if (currentDocIndex >= 0 && docsState[currentDocIndex]) {
+			updateViewerActionButtons(docsState[currentDocIndex].status || 'pending');
+		}
+
+		// Prev/Next disabled state
+		var prevBtn = document.getElementById('tma-doc-prev');
+		var nextBtn = document.getElementById('tma-doc-next');
+		if (prevBtn) prevBtn.disabled = (currentDocIndex <= 0);
+		if (nextBtn) nextBtn.disabled = (currentDocIndex >= docsState.length - 1);
 
 		try {
 			const doc = await api('/documents/' + encodeURIComponent(code) + '/content');
@@ -733,7 +774,7 @@
 					+ '<div><strong>' + escapeHtml(item.action || 'Cambio') + '</strong></div>'
 					+ '<div style="color:var(--tma-muted);font-size:12px;">'
 					+ escapeHtml(formatDate(item.created_at))
-					+ ' · user #' + Number(item.user_id || 0)
+					+ ' · ' + escapeHtml(item.user_name || ('user #' + Number(item.user_id || 0)))
 					+ '</div>'
 					+ '</div>';
 			});
@@ -791,7 +832,7 @@
 							</select>
 							<input type="number" name="item_id" class="input" min="0" placeholder="item_id">
 							<select name="visibility" class="input input--select">
-								<option value="shared">${escapeHtml(t('notes.shared'))}</option>
+							<option value="client">${escapeHtml(t('notes.shared'))}</option>
 								${user.isAdmin ? '<option value="internal">' + escapeHtml(t('notes.internal')) + '</option>' : ''}
 							</select>
 							<button type="submit" class="btn btn--primary">${escapeHtml(t('notes.add'))}</button>

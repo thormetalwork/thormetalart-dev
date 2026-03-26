@@ -169,10 +169,12 @@ class TMA_Panel_Leads {
 
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT id, lead_id, user_id, action, old_status, new_status, created_at
-				 FROM {$wpdb->prefix}panel_lead_history
-				 WHERE lead_id = %d
-				 ORDER BY created_at DESC",
+				"SELECT h.id, h.lead_id, h.user_id, h.action, h.old_status, h.new_status, h.created_at,
+				        COALESCE(u.display_name, CONCAT('Usuario #', h.user_id)) AS user_name
+				 FROM {$wpdb->prefix}panel_lead_history h
+				 LEFT JOIN {$wpdb->users} u ON h.user_id = u.ID
+				 WHERE h.lead_id = %d
+				 ORDER BY h.created_at DESC",
 				$lead_id
 			)
 		);
@@ -183,6 +185,7 @@ class TMA_Panel_Leads {
 				'id'         => (int) $row->id,
 				'lead_id'    => (int) $row->lead_id,
 				'user_id'    => (int) $row->user_id,
+				'user_name'  => (string) $row->user_name,
 				'action'     => (string) $row->action,
 				'old_status' => (string) $row->old_status,
 				'new_status' => (string) $row->new_status,
