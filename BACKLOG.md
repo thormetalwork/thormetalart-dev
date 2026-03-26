@@ -1036,7 +1036,7 @@
     - `data/wordpress/wp-content/plugins/tma-panel/migrations/002-lead-history.php` (NEW)
   - **Dependencias:** TICKET-LEAD-002
   - **Prioridad:** P2
-  - **Status:** ⏸️ PENDIENTE
+  - **Status:** 🔄 EN PROGRESO
 
 - [ ] **TICKET-LEAD-004: Alertas de leads de alto valor**
   - **Fuente:** Requisito de negocio
@@ -1057,7 +1057,7 @@
     - `data/wordpress/wp-content/plugins/tma-panel/assets/js/panel.js` (MODIFIED)
   - **Dependencias:** TICKET-LEAD-002
   - **Prioridad:** P3
-  - **Status:** ⏸️ PENDIENTE
+  - **Status:** 🔄 EN PROGRESO
 
 ---
 
@@ -1094,7 +1094,7 @@
   - **Pre-requisito:** Todas las fases 8-11 completadas y verificadas
   - **Dependencias:** TICKET-PANEL-001 a TICKET-LEAD-004 (todas las fases del panel)
   - **Prioridad:** P3
-  - **Status:** ⏸️ PENDIENTE
+  - **Status:** 🔄 EN PROGRESO
 
 ---
 
