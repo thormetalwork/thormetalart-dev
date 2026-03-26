@@ -114,6 +114,7 @@
 			const counts = data.counts || {};
 			const history = data.history || {};
 			const leadSources = data.lead_sources || [];
+			const gbp = data.gbp || {};
 			const isDemo = !!data.is_demo;
 
 			container.innerHTML = `
@@ -155,10 +156,11 @@
 						<canvas id="tma-chart-lead-sources" height="180"></canvas>
 					</div>
 				</div>
+				${renderGBPSection(gbp)}
 				${renderKpiTable(kpis)}
 			`;
 
-			renderDashboardCharts(history, leadSources);
+			renderDashboardCharts(history, leadSources, gbp);
 
 			// Bind export button.
 			var exportBtn = document.getElementById('tma-export-btn');
@@ -168,6 +170,23 @@
 		} catch (err) {
 			showError(container, t('error.loading_dashboard') + ': ' + err.message);
 		}
+	}
+
+	function renderGBPSection(gbp) {
+		return `
+			<div class="card" style="margin-top:var(--tma-sp-4);">
+				<h2 class="card__title">Google Business Profile</h2>
+				<div class="kpi-grid" style="margin-top:var(--tma-sp-3);">
+					<div class="kpi-card"><span class="kpi-card__label">Rating</span><span class="kpi-card__value">${escapeHtml(String(gbp.rating || 0))}</span></div>
+					<div class="kpi-card"><span class="kpi-card__label">Reviews</span><span class="kpi-card__value">${escapeHtml(String(gbp.reviews || 0))}</span></div>
+					<div class="kpi-card"><span class="kpi-card__label">Impressions</span><span class="kpi-card__value">${escapeHtml(String(gbp.impressions || 0))}</span></div>
+					<div class="kpi-card"><span class="kpi-card__label">Actions</span><span class="kpi-card__value">${escapeHtml(String(gbp.actions || 0))}</span></div>
+				</div>
+				<div style="margin-top:var(--tma-sp-4);">
+					<canvas id="tma-chart-gbp-impressions-split" height="180"></canvas>
+				</div>
+			</div>
+		`;
 	}
 
 	function renderTrend(kpi) {
@@ -189,7 +208,7 @@
 		});
 	}
 
-	function renderDashboardCharts(history, leadSources) {
+	function renderDashboardCharts(history, leadSources, gbp) {
 		if (!window.Chart) return;
 
 		const gold = '#B8860B';
@@ -229,6 +248,26 @@
 					}],
 				},
 				options: { responsive: true, maintainAspectRatio: false },
+			});
+		}
+
+		const split = (gbp && gbp.impressions_split) ? gbp.impressions_split : [];
+		const splitCanvas = document.getElementById('tma-chart-gbp-impressions-split');
+		if (splitCanvas && split.length) {
+			new window.Chart(splitCanvas, {
+				type: 'bar',
+				data: {
+					labels: split.map(function (x) { return x.period; }),
+					datasets: [
+						{ label: 'Search', data: split.map(function (x) { return x.impressions_search; }), backgroundColor: '#B8860B', stack: 'impressions' },
+						{ label: 'Maps', data: split.map(function (x) { return x.impressions_maps; }), backgroundColor: '#1A1A1A', stack: 'impressions' },
+					],
+				},
+				options: {
+					responsive: true,
+					maintainAspectRatio: false,
+					scales: { x: { stacked: true }, y: { stacked: true } },
+				},
 			});
 		}
 	}
