@@ -572,7 +572,7 @@
   - **Status:** ✅ COMPLETADO (2025-07-24)
   - **Notas:** Login branded dark/gold, forgot/reset password, rate limiting 5 intentos/15 min transients, 26/26 tests.
 
-- [ ] **TICKET-PANEL-006: Frontend SPA shell + sidebar + navegación**
+- [x] **TICKET-PANEL-006: Frontend SPA shell + sidebar + navegación**
   - **Fuente:** Análisis comparativo RAI Panel — panel.php + panel.js + panel.css
   - **Historia de Usuario:** Como usuario autenticado, quiero una interfaz SPA con sidebar de navegación para acceder a todas las secciones del panel.
   - **Criterios de Aceptación:**
@@ -609,7 +609,8 @@
     - `data/wordpress/wp-content/plugins/tma-panel/assets/js/panel.js` (NEW)
   - **Dependencias:** TICKET-PANEL-004, TICKET-PANEL-005
   - **Prioridad:** P0
-  - **Status:** ⏸️ PENDIENTE
+  - **Status:** ✅ COMPLETADO (2025-07-24)
+  - **Notas:** SPA con 5 secciones API-driven, KPI grid, tablas, notes form, badges. 42/42 tests.
 
 - [ ] **TICKET-PANEL-007: i18n ES/EN con diccionario JS**
   - **Fuente:** Análisis comparativo RAI Panel — i18n.js (325 líneas, ~160 strings)
@@ -1095,9 +1096,9 @@
 | 5 — Seguridad | 1 | 1 | 0 | 0 | 100% |
 | 6 — Leads/CRM | 1 | 1 | 0 | 0 | 100% |
 | 7 — Portal Docs | 4 | 4 | 0 | 0 | 100% |
-| 8 — TMA Panel Base | 10 | 5 | 5 | 0 | 50% |
+| 8 — TMA Panel Base | 10 | 6 | 4 | 0 | 60% |
 | 9 — Dashboard Datos Reales | 5 | 0 | 5 | 0 | 0% |
 | 10 — Portal Integrado | 3 | 0 | 3 | 0 | 0% |
 | 11 — Leads Dinámico | 3 | 0 | 3 | 0 | 0% |
 | 12 — Cleanup Docker | 1 | 0 | 1 | 0 | 0% |
-| **TOTAL** | **39** | **22** | **17** | **0** | **56%** |
+| **TOTAL** | **39** | **23** | **16** | **0** | **59%** |
