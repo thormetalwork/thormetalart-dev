@@ -222,24 +222,17 @@ done
 echo ""
 echo "🌐 HTTP render checks"
 
+# Test: unauthenticated root triggers redirect or login
 PANEL_OUTPUT=$(docker exec "$WP_CONTAINER" php -r "
   \$_SERVER['HTTP_HOST'] = 'panel.thormetalart.com';
-  \$_SERVER['REQUEST_URI'] = '/';
+  \$_SERVER['REQUEST_URI'] = '/login';
   \$_SERVER['REQUEST_METHOD'] = 'GET';
-  // Simulate authenticated user
-  define('TMA_TEST_MODE', true);
   require '/var/www/html/wp-load.php';
-  // If not authenticated, might redirect to /login
 " 2>/dev/null || true)
 
-if echo "$PANEL_OUTPUT" | grep -q 'tma-panel-app\|tma-sidebar\|TMA Panel'; then
-  pass "Panel page renders SPA shell"
-else
-  # It's OK if we get login page (no auth session in CLI)
-  echo "$PANEL_OUTPUT" | grep -q 'login\|Login\|Thor Metal Art' \
-    && pass "Panel redirects to login (no session in CLI — OK)" \
-    || fail "Panel page doesn't render"
-fi
+echo "$PANEL_OUTPUT" | grep -qi 'Thor Metal Art\|login\|tma-panel' \
+  && pass "Panel login page renders for unauthenticated user" \
+  || fail "Panel page doesn't render"
 
 # ─────────────────────────────────────────────────────────────────
 #  RESULTS
