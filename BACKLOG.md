@@ -493,7 +493,7 @@
   - **Status:** ✅ COMPLETADO (2026-03-26)
   - **Notas:** 5 tablas con dbDelta, migration runner versionado, 13 docs + 36 KPIs seed. 40/40 tests.
 
-- [ ] **TICKET-PANEL-004: REST API endpoints base**
+- [x] **TICKET-PANEL-004: REST API endpoints base**
   - **Fuente:** Análisis comparativo RAI Panel — class-rai-panel-api.php
   - **Historia de Usuario:** Como frontend SPA, quiero endpoints REST con autenticación para leer/escribir datos del panel.
   - **Criterios de Aceptación:**
@@ -525,7 +525,8 @@
     - `data/wordpress/wp-content/plugins/tma-panel/includes/class-tma-panel-api.php` (NEW)
   - **Dependencias:** TICKET-PANEL-002, TICKET-PANEL-003
   - **Prioridad:** P0
-  - **Status:** 🔄 EN PROGRESO
+  - **Status:** ✅ COMPLETADO (2026-03-26)
+  - **Notas:** 6 endpoints tma-panel/v1, auth 401/403, sanitize+prepare, POST /notes. 34/34 tests.
 
 - [ ] **TICKET-PANEL-005: Login template custom branded**
   - **Fuente:** Análisis comparativo RAI Panel — templates/login.php, SEC-003 a SEC-009
@@ -1093,9 +1094,9 @@
 | 5 — Seguridad | 1 | 1 | 0 | 0 | 100% |
 | 6 — Leads/CRM | 1 | 1 | 0 | 0 | 100% |
 | 7 — Portal Docs | 4 | 4 | 0 | 0 | 100% |
-| 8 — TMA Panel Base | 10 | 3 | 7 | 0 | 30% |
+| 8 — TMA Panel Base | 10 | 4 | 6 | 0 | 40% |
 | 9 — Dashboard Datos Reales | 5 | 0 | 5 | 0 | 0% |
 | 10 — Portal Integrado | 3 | 0 | 3 | 0 | 0% |
 | 11 — Leads Dinámico | 3 | 0 | 3 | 0 | 0% |
 | 12 — Cleanup Docker | 1 | 0 | 1 | 0 | 0% |
-| **TOTAL** | **39** | **20** | **19** | **0** | **51%** |
+| **TOTAL** | **39** | **21** | **18** | **0** | **54%** |
