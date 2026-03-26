@@ -58,6 +58,19 @@
 		container.innerHTML = `<div class="card"><p style="color:var(--tma-danger);">${escapeHtml(message)}</p></div>`;
 	}
 
+	function getErrorMessage(err, fallback) {
+		if (err && typeof err.message === 'string' && err.message.trim()) {
+			return err.message;
+		}
+		if (typeof err === 'string' && err.trim()) {
+			return err;
+		}
+		if (err && err.type === 'error') {
+			return fallback || 'No se pudo cargar un recurso externo.';
+		}
+		return fallback || 'Error desconocido.';
+	}
+
 	/* ═══════════════════════════════════════════════════════════════
 	   Router (hash-based)
 	   ═══════════════════════════════════════════════════════════════ */
@@ -175,7 +188,7 @@
 				exportBtn.addEventListener('click', handleExport);
 			}
 		} catch (err) {
-			showError(container, t('error.loading_dashboard') + ': ' + err.message);
+			showError(container, t('error.loading_dashboard') + ': ' + getErrorMessage(err, 'Recurso bloqueado o no disponible.'));
 		}
 	}
 
@@ -551,7 +564,7 @@
 				addNoteBtn.addEventListener('click', function () { addDocumentNote(); });
 			}
 		} catch (err) {
-			showError(container, t('error.loading_documents') + ': ' + err.message);
+			showError(container, t('error.loading_documents') + ': ' + getErrorMessage(err));
 		}
 	}
 
@@ -567,6 +580,10 @@
 	async function saveDocStatus(status, notes) {
 		if (currentDocIndex < 0 || !docsState[currentDocIndex]) return;
 		const doc = docsState[currentDocIndex];
+		if (status === 'approved') {
+			const ok = window.confirm('Confirmar aprobación de "' + (doc.title || 'documento') + '"?');
+			if (!ok) return;
+		}
 		await api('/documents/' + doc.id + '/status', {
 			method: 'POST',
 			body: JSON.stringify({ status: status, notes: notes || '' })
@@ -623,7 +640,7 @@
 				</div>
 			`;
 		} catch (err) {
-			host.innerHTML = '<div style="padding:18px;color:#b42318;">No se pudo cargar el documento: ' + escapeHtml(err.message) + '</div>';
+			host.innerHTML = '<div style="padding:18px;color:#b42318;">No se pudo cargar el documento: ' + escapeHtml(getErrorMessage(err, 'No existe en caché o la API no lo encontró.')) + '</div>';
 		}
 	}
 
@@ -691,7 +708,7 @@
 				});
 			});
 		} catch (err) {
-			showError(container, t('error.loading_leads') + ': ' + err.message);
+			showError(container, t('error.loading_leads') + ': ' + getErrorMessage(err));
 		}
 	}
 
@@ -810,7 +827,7 @@
 				});
 			}
 		} catch (err) {
-			showError(container, t('error.loading_notes') + ': ' + err.message);
+			showError(container, t('error.loading_notes') + ': ' + getErrorMessage(err));
 		}
 	}
 
@@ -854,7 +871,7 @@
 				</div>
 			`;
 		} catch (err) {
-			showError(container, t('error.loading_audit') + ': ' + err.message);
+			showError(container, t('error.loading_audit') + ': ' + getErrorMessage(err));
 		}
 	}
 
