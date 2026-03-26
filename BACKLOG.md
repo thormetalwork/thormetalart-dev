@@ -936,7 +936,7 @@
     - `data/wordpress/wp-content/plugins/tma-panel/assets/js/panel.js` (MODIFIED)
   - **Dependencias:** TICKET-PORTAL-005
   - **Prioridad:** P1
-  - **Status:** ⏸️ PENDIENTE
+  - **Status:** 🔄 EN PROGRESO
 
 - [ ] **TICKET-PORTAL-007: Sistema de notas bidireccional**
   - **Fuente:** Análisis comparativo RAI Panel — notas por módulo + timeline

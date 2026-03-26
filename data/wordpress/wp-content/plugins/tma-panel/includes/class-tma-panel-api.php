@@ -54,6 +54,26 @@ class TMA_Panel_API {
 			)
 		);
 
+		register_rest_route(
+			self::NAMESPACE,
+			'/documents/(?P<id>\\d+)/status',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( __CLASS__, 'update_document_status' ),
+				'permission_callback' => array( __CLASS__, 'check_panel_access' ),
+				'args'                => array(
+					'status' => array(
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'notes'  => array(
+						'required'          => false,
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+				),
+			)
+		);
+
 		// ── Leads ──
 		register_rest_route(
 			self::NAMESPACE,
@@ -402,9 +422,10 @@ class TMA_Panel_API {
 	 */
 	public static function get_documents( WP_REST_Request $request ): WP_REST_Response {
 		global $wpdb;
+		self::ensure_docs_approval_columns();
 
 		$rows = $wpdb->get_results(
-			"SELECT id, title, slug, doc_order, status, visibility, file_url, created_at, updated_at
+			"SELECT id, title, slug, doc_order, status, visibility, file_url, approved_by, approved_at, change_notes, created_at, updated_at
 			 FROM {$wpdb->prefix}panel_docs
 			 ORDER BY doc_order ASC"
 		);
@@ -419,6 +440,9 @@ class TMA_Panel_API {
 				'status'     => $row->status,
 				'visibility' => $row->visibility,
 				'file_url'   => $row->file_url,
+				'approved_by'=> (int) $row->approved_by,
+				'approved_at'=> $row->approved_at,
+				'notes'      => $row->change_notes,
 				'created_at' => $row->created_at,
 				'updated_at' => $row->updated_at,
 			);
@@ -442,6 +466,74 @@ class TMA_Panel_API {
 		}
 
 		return new WP_REST_Response( $content, 200 );
+	}
+
+	/**
+	 * POST /documents/{id}/status — update approval status.
+	 */
+	public static function update_document_status( WP_REST_Request $request ): WP_REST_Response {
+		global $wpdb;
+		self::ensure_docs_approval_columns();
+
+		$doc_id = (int) $request->get_param( 'id' );
+		$status = sanitize_text_field( (string) $request->get_param( 'status' ) );
+		$notes  = sanitize_text_field( (string) $request->get_param( 'notes' ) );
+
+		$allowed = array( 'pending', 'approved', 'changes_requested' );
+		if ( ! in_array( $status, $allowed, true ) ) {
+			return new WP_REST_Response( array( 'message' => __( 'Invalid status.', 'thormetalart' ) ), 400 );
+		}
+
+		if ( 'changes_requested' === $status && strlen( trim( $notes ) ) < 10 ) {
+			return new WP_REST_Response( array( 'message' => __( 'Notes must be at least 10 characters.', 'thormetalart' ) ), 400 );
+		}
+
+		$updated = $wpdb->update(
+			$wpdb->prefix . 'panel_docs',
+			array(
+				'status'       => $status,
+				'approved_by'  => get_current_user_id(),
+				'approved_at'  => current_time( 'mysql' ),
+				'change_notes' => $notes,
+			),
+			array( 'id' => $doc_id ),
+			array( '%s', '%d', '%s', '%s' ),
+			array( '%d' )
+		);
+
+		if ( false === $updated ) {
+			return new WP_REST_Response( array( 'message' => __( 'Could not update document.', 'thormetalart' ) ), 500 );
+		}
+
+		return new WP_REST_Response(
+			array(
+				'id'          => $doc_id,
+				'status'      => $status,
+				'approved_by' => get_current_user_id(),
+				'approved_at' => current_time( 'mysql' ),
+				'notes'       => $notes,
+			),
+			200
+		);
+	}
+
+	/**
+	 * Ensure approval metadata columns exist in panel_docs.
+	 */
+	private static function ensure_docs_approval_columns(): void {
+		global $wpdb;
+		$table = $wpdb->prefix . 'panel_docs';
+
+		$columns = $wpdb->get_col( "SHOW COLUMNS FROM {$table}", 0 ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		if ( ! in_array( 'approved_by', $columns, true ) ) {
+			$wpdb->query( "ALTER TABLE {$table} ADD COLUMN approved_by bigint(20) unsigned NOT NULL DEFAULT 0" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		}
+		if ( ! in_array( 'approved_at', $columns, true ) ) {
+			$wpdb->query( "ALTER TABLE {$table} ADD COLUMN approved_at datetime NULL" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		}
+		if ( ! in_array( 'change_notes', $columns, true ) ) {
+			$wpdb->query( "ALTER TABLE {$table} ADD COLUMN change_notes text NULL" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		}
 	}
 
 	/**
