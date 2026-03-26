@@ -1067,7 +1067,7 @@
 
 > **Objetivo:** Una vez que tma-panel está funcional, eliminar los 3 contenedores Docker que ya no son necesarios.
 
-- [ ] **TICKET-DOCK-004: Eliminar servicios dashboard, dashboard-api y portal de Docker**
+- [x] **TICKET-DOCK-004: Eliminar servicios dashboard, dashboard-api y portal de Docker**
   - **Fuente:** Migración a plugin tma-panel
   - **Historia de Usuario:** Como DevOps, quiero eliminar los contenedores obsoletos para reducir recursos y complejidad del stack.
   - **Criterios de Aceptación:**
@@ -1096,7 +1096,8 @@
   - **Pre-requisito:** Todas las fases 8-11 completadas y verificadas
   - **Dependencias:** TICKET-PANEL-001 a TICKET-LEAD-004 (todas las fases del panel)
   - **Prioridad:** P3
-  - **Status:** 🔄 EN PROGRESO
+  - **Status:** ✅ COMPLETADO (2026-03-26)
+  - **Notas:** Se removieron servicios dashboard/dashboard-api/portal de docker-compose.yml, se archivaron carpetas en _archive/, se aplicó up --remove-orphans y make test OK. 5/5 tests.
 
 ---
 
@@ -1115,5 +1116,5 @@
 | 9 — Dashboard Datos Reales | 5 | 5 | 0 | 0 | 100% |
 | 10 — Portal Integrado | 3 | 3 | 0 | 0 | 100% |
 | 11 — Leads Dinámico | 3 | 3 | 0 | 0 | 100% |
-| 12 — Cleanup Docker | 1 | 0 | 1 | 0 | 0% |
-| **TOTAL** | **39** | **38** | **1** | **0** | **97%** |
+| 12 — Cleanup Docker | 1 | 1 | 0 | 0 | 100% |
+| **TOTAL** | **39** | **39** | **0** | **0** | **100%** |
