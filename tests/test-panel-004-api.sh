@@ -177,12 +177,24 @@ done
 echo ""
 echo "🔒 Authentication checks"
 
-UNAUTH_CODE=$(curl -sk -o /dev/null -w "%{http_code}" "${API_BASE}/dashboard" 2>/dev/null || echo "000")
-[ "$UNAUTH_CODE" = "401" ] \
+UNAUTH_DASH=$(docker exec "$WP_CONTAINER" php -r "
+  require '/var/www/html/wp-load.php';
+  wp_set_current_user(0);
+  \$request = new WP_REST_Request('GET', '/tma-panel/v1/dashboard');
+  \$response = rest_do_request(\$request);
+  echo \$response->get_status();
+" 2>/dev/null || echo "0")
+[ "$UNAUTH_DASH" = "401" ] \
   && pass "GET /dashboard unauthenticated → 401" \
-  || fail "GET /dashboard unauthenticated → $UNAUTH_CODE (expected 401)"
+  || fail "GET /dashboard unauthenticated → $UNAUTH_DASH (expected 401)"
 
-UNAUTH_LEADS=$(curl -sk -o /dev/null -w "%{http_code}" "${API_BASE}/leads" 2>/dev/null || echo "000")
+UNAUTH_LEADS=$(docker exec "$WP_CONTAINER" php -r "
+  require '/var/www/html/wp-load.php';
+  wp_set_current_user(0);
+  \$request = new WP_REST_Request('GET', '/tma-panel/v1/leads');
+  \$response = rest_do_request(\$request);
+  echo \$response->get_status();
+" 2>/dev/null || echo "0")
 [ "$UNAUTH_LEADS" = "401" ] \
   && pass "GET /leads unauthenticated → 401" \
   || fail "GET /leads unauthenticated → $UNAUTH_LEADS (expected 401)"
