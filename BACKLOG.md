@@ -804,7 +804,7 @@
   - **Status:** ✅ COMPLETADO (2026-03-26)
   - **Notas:** Cron diario tma_panel_sync_external_kpis, sync GBP/GA4/Instagram hacia panel_kpis, warnings por keys faltantes sin fallar. 14/14 tests.
 
-- [ ] **TICKET-DASH-006: Sección Google Business Profile en panel**
+- [x] **TICKET-DASH-006: Sección Google Business Profile en panel**
   - **Fuente:** Migración de tab GBP del dashboard actual
   - **Historia de Usuario:** Como Karel, quiero ver el rendimiento de mi perfil de Google Business para saber si estoy ganando visibilidad local.
   - **Criterios de Aceptación:**
@@ -823,7 +823,8 @@
     - `data/wordpress/wp-content/plugins/tma-panel/assets/js/panel.js` (MODIFIED)
   - **Dependencias:** TICKET-DASH-004
   - **Prioridad:** P2
-  - **Status:** 🔄 EN PROGRESO
+  - **Status:** ✅ COMPLETADO (2026-03-26)
+  - **Notas:** Bloque GBP en API dashboard, KPIs rating/reviews/impressions/actions, gráfico stacked Search vs Maps en Chart.js. 7/7 tests.
 
 - [ ] **TICKET-DASH-007: Sección Web Analytics (GA4) en panel**
   - **Fuente:** Migración de tab Web del dashboard actual
@@ -1103,8 +1104,8 @@
 | 6 — Leads/CRM | 1 | 1 | 0 | 0 | 100% |
 | 7 — Portal Docs | 4 | 4 | 0 | 0 | 100% |
 | 8 — TMA Panel Base | 10 | 10 | 0 | 0 | 100% |
-| 9 — Dashboard Datos Reales | 5 | 2 | 3 | 0 | 40% |
+| 9 — Dashboard Datos Reales | 5 | 3 | 2 | 0 | 60% |
 | 10 — Portal Integrado | 3 | 0 | 3 | 0 | 0% |
 | 11 — Leads Dinámico | 3 | 0 | 3 | 0 | 0% |
 | 12 — Cleanup Docker | 1 | 0 | 1 | 0 | 0% |
-| **TOTAL** | **39** | **29** | **10** | **0** | **74%** |
+| **TOTAL** | **39** | **30** | **9** | **0** | **77%** |
