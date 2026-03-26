@@ -423,7 +423,7 @@
     - `docker-compose.yml` (MODIFIED) — Traefik label para panel.thormetalart.com
   - **Dependencias:** Ninguna
   - **Prioridad:** P0
-  - **Status:** ⏸️ PENDIENTE
+  - **Status:** 🔄 EN PROGRESO
 
 - [ ] **TICKET-PANEL-002: Roles y capabilities (tma_admin / tma_client)**
   - **Fuente:** Análisis comparativo RAI Panel — class-rai-panel-roles.php
