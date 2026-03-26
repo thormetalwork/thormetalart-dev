@@ -17,7 +17,7 @@ class TMA_Panel_Data {
 	 * Current database schema version.
 	 * Increment when adding new migration files.
 	 */
-	private const DB_VERSION = 1;
+	private const DB_VERSION = 2;
 
 	/**
 	 * Option key for tracking applied migration version.
@@ -83,6 +83,7 @@ class TMA_Panel_Data {
 		global $wpdb;
 		$tables = array(
 			$wpdb->prefix . 'panel_leads',
+			$wpdb->prefix . 'panel_lead_history',
 			$wpdb->prefix . 'panel_notes',
 			$wpdb->prefix . 'panel_kpis',
 			$wpdb->prefix . 'panel_audit',

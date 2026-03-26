@@ -652,15 +652,16 @@
 					quoted: 'badge--accent',
 					won: 'badge--success',
 					lost: 'badge--danger',
-				}[lead.stage] || 'badge--info';
+				}[lead.status] || 'badge--info';
 
 				rows += '<tr>'
 					+ '<td>' + escapeHtml(lead.name || '') + '</td>'
 					+ '<td>' + escapeHtml(lead.email || '') + '</td>'
 					+ '<td>' + escapeHtml(lead.source || '') + '</td>'
-					+ '<td><span class="badge ' + stageClass + '">' + escapeHtml(lead.stage || '') + '</span></td>'
-					+ '<td>$' + (parseFloat(lead.value) || 0).toLocaleString() + '</td>'
+					+ '<td><span class="badge ' + stageClass + '">' + escapeHtml(lead.status || '') + '</span></td>'
+					+ '<td>$' + (parseFloat(lead.lead_value) || 0).toLocaleString() + '</td>'
 					+ '<td>' + formatDate(lead.created_at) + '</td>'
+					+ '<td><button class="btn btn--small btn--ghost js-view-history" data-lead-id="' + Number(lead.id || 0) + '">Ver historial</button></td>'
 					+ '</tr>';
 			});
 
@@ -669,14 +670,58 @@
 					<h2 class="card__title">${escapeHtml(t('leads.title'))}</h2>
 					<div class="table-wrap">
 						<table class="table">
-							<thead><tr><th>${escapeHtml(t('leads.name'))}</th><th>${escapeHtml(t('leads.email'))}</th><th>${escapeHtml(t('leads.source'))}</th><th>${escapeHtml(t('leads.stage'))}</th><th>${escapeHtml(t('leads.value'))}</th><th>${escapeHtml(t('leads.date'))}</th></tr></thead>
+							<thead><tr><th>${escapeHtml(t('leads.name'))}</th><th>${escapeHtml(t('leads.email'))}</th><th>${escapeHtml(t('leads.source'))}</th><th>${escapeHtml(t('leads.stage'))}</th><th>${escapeHtml(t('leads.value'))}</th><th>${escapeHtml(t('leads.date'))}</th><th>Timeline</th></tr></thead>
 							<tbody>${rows}</tbody>
 						</table>
 					</div>
 				</div>
+				<div class="card" id="lead-history" style="margin-top:var(--tma-sp-4);display:none;">
+					<h3 class="card__title">Timeline de historial</h3>
+					<div id="lead-history-timeline" class="timeline"></div>
+				</div>
 			`;
+
+			container.querySelectorAll('.js-view-history').forEach(function (btn) {
+				btn.addEventListener('click', async function () {
+					const leadId = Number(btn.getAttribute('data-lead-id') || 0);
+					await renderLeadHistoryTimeline(container, leadId);
+				});
+			});
 		} catch (err) {
 			showError(container, t('error.loading_leads') + ': ' + err.message);
+		}
+	}
+
+	async function renderLeadHistoryTimeline(container, leadId) {
+		const card = container.querySelector('#lead-history');
+		const timeline = container.querySelector('#lead-history-timeline');
+		if (!card || !timeline) {
+			return;
+		}
+
+		try {
+			const items = await api('/leads/' + leadId + '/history');
+			card.style.display = 'block';
+			if (!Array.isArray(items) || !items.length) {
+				timeline.innerHTML = '<p style="color:var(--tma-muted);">Sin cambios registrados todavía.</p>';
+				return;
+			}
+
+			let html = '';
+			items.forEach(function (item) {
+				html += '<div class="timeline__item">'
+					+ '<div><strong>' + escapeHtml(item.action || 'Cambio') + '</strong></div>'
+					+ '<div style="color:var(--tma-muted);font-size:12px;">'
+					+ escapeHtml(formatDate(item.created_at))
+					+ ' · user #' + Number(item.user_id || 0)
+					+ '</div>'
+					+ '</div>';
+			});
+
+			timeline.innerHTML = html;
+		} catch (err) {
+			card.style.display = 'block';
+			timeline.innerHTML = '<p style="color:#b42318;">No se pudo cargar el historial.</p>';
 		}
 	}
 
