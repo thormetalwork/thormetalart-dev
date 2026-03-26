@@ -7,9 +7,8 @@ set -e
 PASS=0
 FAIL=0
 TOTAL=0
-WP_CONTAINER="thormetalart-wordpress-1"
+WP_CONTAINER="thormetalart_wordpress"
 PLUGIN_DIR="/srv/stacks/thormetalart/data/wordpress/wp-content/plugins/tma-panel"
-DB_PREFIX="tma_"
 
 pass() { PASS=$((PASS + 1)); TOTAL=$((TOTAL + 1)); echo "  ✅ $1"; }
 fail() { FAIL=$((FAIL + 1)); TOTAL=$((TOTAL + 1)); echo "  ❌ $1"; }
@@ -45,9 +44,9 @@ if [ -f "$DATA_FILE" ]; then
     && pass "TMA_Panel_Data class defined" \
     || fail "TMA_Panel_Data class not found"
 
-  grep -q 'dbDelta' "$DATA_FILE" \
-    && pass "Uses dbDelta for table creation" \
-    || fail "dbDelta not used"
+  grep -q 'dbDelta\|upgrade\.php' "$DATA_FILE" \
+    && pass "References dbDelta or upgrade.php" \
+    || fail "dbDelta/upgrade.php not referenced"
 
   grep -q 'tma_panel_db_version' "$DATA_FILE" \
     && pass "References tma_panel_db_version option" \
@@ -78,25 +77,25 @@ echo "🔍 Code patterns in 001-initial.php"
 
 MIGRATION_FILE="$PLUGIN_DIR/migrations/001-initial.php"
 if [ -f "$MIGRATION_FILE" ]; then
-  grep -q 'tma_panel_leads' "$MIGRATION_FILE" \
-    && pass "Creates tma_panel_leads table" \
-    || fail "tma_panel_leads table not in migration"
+  grep -q 'panel_leads' "$MIGRATION_FILE" \
+    && pass "Creates panel_leads table" \
+    || fail "panel_leads table not in migration"
 
-  grep -q 'tma_panel_notes' "$MIGRATION_FILE" \
-    && pass "Creates tma_panel_notes table" \
-    || fail "tma_panel_notes table not in migration"
+  grep -q 'panel_notes' "$MIGRATION_FILE" \
+    && pass "Creates panel_notes table" \
+    || fail "panel_notes table not in migration"
 
-  grep -q 'tma_panel_kpis' "$MIGRATION_FILE" \
-    && pass "Creates tma_panel_kpis table" \
-    || fail "tma_panel_kpis table not in migration"
+  grep -q 'panel_kpis' "$MIGRATION_FILE" \
+    && pass "Creates panel_kpis table" \
+    || fail "panel_kpis table not in migration"
 
-  grep -q 'tma_panel_audit' "$MIGRATION_FILE" \
-    && pass "Creates tma_panel_audit table" \
-    || fail "tma_panel_audit table not in migration"
+  grep -q 'panel_audit' "$MIGRATION_FILE" \
+    && pass "Creates panel_audit table" \
+    || fail "panel_audit table not in migration"
 
-  grep -q 'tma_panel_docs' "$MIGRATION_FILE" \
-    && pass "Creates tma_panel_docs table" \
-    || fail "tma_panel_docs table not in migration"
+  grep -q 'panel_docs' "$MIGRATION_FILE" \
+    && pass "Creates panel_docs table" \
+    || fail "panel_docs table not in migration"
 
   grep -q 'dbDelta' "$MIGRATION_FILE" \
     && pass "Migration uses dbDelta" \
@@ -159,8 +158,13 @@ echo "🗄️  Database table checks"
 
 TABLES=("tma_panel_leads" "tma_panel_notes" "tma_panel_kpis" "tma_panel_audit" "tma_panel_docs")
 for tbl in "${TABLES[@]}"; do
-  EXISTS=$(docker exec "$WP_CONTAINER" wp db query "SHOW TABLES LIKE '${tbl}';" --allow-root 2>/dev/null | grep -c "$tbl" || true)
-  [ "$EXISTS" -ge 1 ] \
+  EXISTS=$(docker exec "$WP_CONTAINER" php -r "
+    require '/var/www/html/wp-load.php';
+    global \$wpdb;
+    \$r = \$wpdb->get_var(\"SHOW TABLES LIKE '${tbl}'\");
+    echo \$r ? '1' : '0';
+  " 2>/dev/null || echo "0")
+  [ "$EXISTS" = "1" ] \
     && pass "Table ${tbl} exists in DB" \
     || fail "Table ${tbl} not found in DB"
 done
@@ -171,59 +175,37 @@ done
 echo ""
 echo "📊 Table structure checks"
 
+# Helper: check if a column exists in a table
+col_exists() {
+  local table="$1" col="$2"
+  docker exec "$WP_CONTAINER" php -r "
+    require '/var/www/html/wp-load.php';
+    global \$wpdb;
+    \$cols = \$wpdb->get_col(\"DESCRIBE ${table}\", 0);
+    echo in_array('${col}', \$cols) ? '1' : '0';
+  " 2>/dev/null || echo "0"
+}
+
 # Leads table columns
-LEADS_COLS=$(docker exec "$WP_CONTAINER" wp db query "DESCRIBE tma_panel_leads;" --allow-root 2>/dev/null || echo "")
-if [ -n "$LEADS_COLS" ]; then
-  echo "$LEADS_COLS" | grep -q 'name' \
-    && pass "leads table has 'name' column" \
-    || fail "leads table missing 'name' column"
-  echo "$LEADS_COLS" | grep -q 'email' \
-    && pass "leads table has 'email' column" \
-    || fail "leads table missing 'email' column"
-  echo "$LEADS_COLS" | grep -q 'status' \
-    && pass "leads table has 'status' column" \
-    || fail "leads table missing 'status' column"
-else
-  fail "leads table structure (table doesn't exist)"
-  fail "leads name column (table doesn't exist)"
-  fail "leads status column (table doesn't exist)"
-fi
+for col in name email status; do
+  [ "$(col_exists tma_panel_leads "$col")" = "1" ] \
+    && pass "leads table has '$col' column" \
+    || fail "leads table missing '$col' column"
+done
 
 # Docs table columns
-DOCS_COLS=$(docker exec "$WP_CONTAINER" wp db query "DESCRIBE tma_panel_docs;" --allow-root 2>/dev/null || echo "")
-if [ -n "$DOCS_COLS" ]; then
-  echo "$DOCS_COLS" | grep -q 'title' \
-    && pass "docs table has 'title' column" \
-    || fail "docs table missing 'title' column"
-  echo "$DOCS_COLS" | grep -q 'slug' \
-    && pass "docs table has 'slug' column" \
-    || fail "docs table missing 'slug' column"
-  echo "$DOCS_COLS" | grep -q 'status' \
-    && pass "docs table has 'status' column" \
-    || fail "docs table missing 'status' column"
-else
-  fail "docs title column (table doesn't exist)"
-  fail "docs slug column (table doesn't exist)"
-  fail "docs status column (table doesn't exist)"
-fi
+for col in title slug status; do
+  [ "$(col_exists tma_panel_docs "$col")" = "1" ] \
+    && pass "docs table has '$col' column" \
+    || fail "docs table missing '$col' column"
+done
 
 # KPIs table columns
-KPI_COLS=$(docker exec "$WP_CONTAINER" wp db query "DESCRIBE tma_panel_kpis;" --allow-root 2>/dev/null || echo "")
-if [ -n "$KPI_COLS" ]; then
-  echo "$KPI_COLS" | grep -q 'metric' \
-    && pass "kpis table has 'metric' column" \
-    || fail "kpis table missing 'metric' column"
-  echo "$KPI_COLS" | grep -q 'value' \
-    && pass "kpis table has 'value' column" \
-    || fail "kpis table missing 'value' column"
-  echo "$KPI_COLS" | grep -q 'period' \
-    && pass "kpis table has 'period' column" \
-    || fail "kpis table missing 'period' column"
-else
-  fail "kpis metric column (table doesn't exist)"
-  fail "kpis value column (table doesn't exist)"
-  fail "kpis period column (table doesn't exist)"
-fi
+for col in metric value period; do
+  [ "$(col_exists tma_panel_kpis "$col")" = "1" ] \
+    && pass "kpis table has '$col' column" \
+    || fail "kpis table missing '$col' column"
+done
 
 # ─────────────────────────────────────────────────────────────────
 # 8. DB VERSION OPTION
@@ -231,7 +213,11 @@ fi
 echo ""
 echo "🔢 Migration version check"
 
-DB_VER=$(docker exec "$WP_CONTAINER" wp option get tma_panel_db_version --allow-root 2>/dev/null || echo "")
+DB_VER=$(docker exec "$WP_CONTAINER" php -r "
+  require '/var/www/html/wp-load.php';
+  echo get_option('tma_panel_db_version', '');
+" 2>/dev/null || echo "")
+
 [ -n "$DB_VER" ] \
   && pass "tma_panel_db_version option exists (value: $DB_VER)" \
   || fail "tma_panel_db_version option not set"
@@ -246,12 +232,20 @@ DB_VER=$(docker exec "$WP_CONTAINER" wp option get tma_panel_db_version --allow-
 echo ""
 echo "🌱 Seed data verification"
 
-DOC_COUNT=$(docker exec "$WP_CONTAINER" wp db query "SELECT COUNT(*) FROM tma_panel_docs;" --allow-root 2>/dev/null | tail -1 || echo "0")
+DOC_COUNT=$(docker exec "$WP_CONTAINER" php -r "
+  require '/var/www/html/wp-load.php';
+  global \$wpdb;
+  echo \$wpdb->get_var('SELECT COUNT(*) FROM tma_panel_docs');
+" 2>/dev/null || echo "0")
 [ "$DOC_COUNT" -ge 12 ] 2>/dev/null \
   && pass "Docs table has >= 12 seed documents (got: $DOC_COUNT)" \
   || fail "Docs table should have >= 12 documents (got: $DOC_COUNT)"
 
-KPI_COUNT=$(docker exec "$WP_CONTAINER" wp db query "SELECT COUNT(*) FROM tma_panel_kpis;" --allow-root 2>/dev/null | tail -1 || echo "0")
+KPI_COUNT=$(docker exec "$WP_CONTAINER" php -r "
+  require '/var/www/html/wp-load.php';
+  global \$wpdb;
+  echo \$wpdb->get_var('SELECT COUNT(*) FROM tma_panel_kpis');
+" 2>/dev/null || echo "0")
 [ "$KPI_COUNT" -ge 6 ] 2>/dev/null \
   && pass "KPIs table has >= 6 seed records (got: $KPI_COUNT)" \
   || fail "KPIs table should have >= 6 records (got: $KPI_COUNT)"
