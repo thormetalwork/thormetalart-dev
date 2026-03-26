@@ -105,6 +105,16 @@ class TMA_Panel_API {
 			)
 		);
 
+		register_rest_route(
+			self::NAMESPACE,
+			'/leads/(?P<id>\\d+)/history',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( __CLASS__, 'get_lead_history' ),
+				'permission_callback' => array( __CLASS__, 'check_panel_access' ),
+			)
+		);
+
 		// ── Notes (GET + POST) ──
 		register_rest_route(
 			self::NAMESPACE,
@@ -630,6 +640,19 @@ class TMA_Panel_API {
 			),
 			200
 		);
+	}
+
+	/**
+	 * GET /leads/{id}/history — lead change timeline.
+	 */
+	public static function get_lead_history( WP_REST_Request $request ): WP_REST_Response {
+		$lead_id = (int) $request['id'];
+		if ( ! class_exists( 'TMA_Panel_Leads' ) ) {
+			return new WP_REST_Response( array(), 200 );
+		}
+
+		$history = TMA_Panel_Leads::get_lead_history( $lead_id );
+		return new WP_REST_Response( $history, 200 );
 	}
 
 	/**
