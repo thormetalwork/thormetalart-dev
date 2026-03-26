@@ -349,6 +349,17 @@ class TMA_Panel_API {
 			),
 		);
 
+		$followers_pair = $get_latest_pair( $series_by_metric['followers'] ?? array() );
+		$reach_pair     = $get_latest_pair( $series_by_metric['reach'] ?? array() );
+		$eng_pair       = $get_latest_pair( $series_by_metric['engagement_rate'] ?? array() );
+
+		$instagram = array(
+			'followers'     => (int) $followers_pair['latest'],
+			'reach'         => (int) $reach_pair['latest'],
+			'engagement'    => (float) $eng_pair['latest'],
+			'reach_history' => $series_by_metric['reach'] ?? array(),
+		);
+
 		$docs_count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}panel_docs" );
 		$notes_count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}panel_notes" );
 
@@ -368,6 +379,7 @@ class TMA_Panel_API {
 				'lead_sources' => $lead_sources,
 				'gbp'          => $gbp,
 				'web'          => $web,
+				'instagram'    => $instagram,
 				'is_demo'      => ! $has_real_dashboard_kpis,
 				'periods'      => array_keys( $periods ),
 			),

@@ -116,6 +116,7 @@
 			const leadSources = data.lead_sources || [];
 			const gbp = data.gbp || {};
 			const web = data.web || {};
+			const instagram = data.instagram || {};
 			const isDemo = !!data.is_demo;
 
 			container.innerHTML = `
@@ -159,10 +160,11 @@
 				</div>
 				${renderGBPSection(gbp)}
 				${renderWebSection(web)}
+				${renderInstagramSection(instagram)}
 				${renderKpiTable(kpis)}
 			`;
 
-			renderDashboardCharts(history, leadSources, gbp, web);
+			renderDashboardCharts(history, leadSources, gbp, web, instagram);
 
 			// Bind export button.
 			var exportBtn = document.getElementById('tma-export-btn');
@@ -231,6 +233,22 @@
 		`;
 	}
 
+	function renderInstagramSection(instagram) {
+		return `
+			<div class="card" style="margin-top:var(--tma-sp-4);">
+				<h2 class="card__title">Instagram</h2>
+				<div class="kpi-grid" style="margin-top:var(--tma-sp-3);">
+					<div class="kpi-card"><span class="kpi-card__label">Followers</span><span class="kpi-card__value">${escapeHtml(String(instagram.followers || 0))}</span></div>
+					<div class="kpi-card"><span class="kpi-card__label">Reach</span><span class="kpi-card__value">${escapeHtml(String(instagram.reach || 0))}</span></div>
+					<div class="kpi-card"><span class="kpi-card__label">Engagement Rate</span><span class="kpi-card__value">${escapeHtml(String(instagram.engagement || 0))}%</span></div>
+				</div>
+				<div style="margin-top:var(--tma-sp-4);">
+					<canvas id="tma-chart-instagram-reach" height="120"></canvas>
+				</div>
+			</div>
+		`;
+	}
+
 	function renderTrend(kpi) {
 		if (!kpi) return '→ neutral';
 		const trend = kpi.trend || 'neutral';
@@ -250,7 +268,7 @@
 		});
 	}
 
-	function renderDashboardCharts(history, leadSources, gbp, web) {
+	function renderDashboardCharts(history, leadSources, gbp, web, instagram) {
 		if (!window.Chart) return;
 
 		const gold = '#B8860B';
@@ -330,6 +348,31 @@
 					}],
 				},
 				options: { responsive: true, maintainAspectRatio: false },
+			});
+		}
+
+		const igHistory = (instagram && instagram.reach_history) ? instagram.reach_history : [];
+		const igCanvas = document.getElementById('tma-chart-instagram-reach');
+		if (igCanvas && igHistory.length) {
+			new window.Chart(igCanvas, {
+				type: 'line',
+				data: {
+					labels: igHistory.map(function (x) { return x.period; }),
+					datasets: [{
+						label: 'Reach',
+						data: igHistory.map(function (x) { return Number(x.value || 0); }),
+						borderColor: '#B8860B',
+						backgroundColor: 'rgba(184,134,11,0.15)',
+						fill: true,
+						tension: 0.35,
+					}],
+				},
+				options: {
+					responsive: true,
+					maintainAspectRatio: false,
+					plugins: { legend: { display: false } },
+					scales: { x: { display: false }, y: { display: false } },
+				},
 			});
 		}
 	}
