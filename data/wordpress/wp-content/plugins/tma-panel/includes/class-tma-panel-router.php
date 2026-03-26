@@ -32,6 +32,6 @@ class TMA_Panel_Router {
 		header( 'Referrer-Policy: strict-origin' );
 		header( 'Permissions-Policy: camera=(), microphone=(), geolocation=()' );
 		header( 'X-Robots-Tag: noindex, nofollow' );
-		header( "Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'" );
+		header( "Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'" );
 	}
 }

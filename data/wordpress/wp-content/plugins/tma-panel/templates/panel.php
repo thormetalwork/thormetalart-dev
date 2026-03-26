@@ -35,7 +35,7 @@ $nonce        = wp_create_nonce( 'wp_rest' );
 	<!-- Config para el SPA -->
 	<script>
 		window.TMA_PANEL = {
-			apiBase:  '<?php echo esc_url( 'https://' . TMA_PANEL_HOST . '/wp-json/tma-panel/v1' ); ?>',
+			apiBase:  '<?php echo esc_url( home_url( '/index.php?rest_route=/tma-panel/v1' ) ); ?>',
 			nonce:    '<?php echo esc_js( $nonce ); ?>',
 			user: {
 				id:      <?php echo (int) $current_user->ID; ?>,
@@ -71,7 +71,7 @@ $nonce        = wp_create_nonce( 'wp_rest' );
 					<button class="lang-switch__btn" data-lang="en" title="English">EN</button>
 				</div>
 				<span class="sidebar__user"><?php echo esc_html( $current_user->display_name ); ?></span>
-				<a href="<?php echo esc_url( wp_logout_url( 'https://' . TMA_PANEL_HOST . '/login' ) ); ?>" class="sidebar__logout" data-i18n="common.logout">Salir</a>
+				<a href="<?php echo esc_url( wp_logout_url( tma_panel_url( '/login' ) ) ); ?>" class="sidebar__logout" data-i18n="common.logout">Salir</a>
 			</div>
 		</nav>
 

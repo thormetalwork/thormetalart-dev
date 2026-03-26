@@ -133,7 +133,7 @@ defined( 'ABSPATH' ) || exit;
 		</form>
 
 		<div style="text-align:center; margin-top:16px;">
-			<a href="/forgot-password" style="color:#a8a29e; font-size:0.8125rem; text-decoration:none;">¿Olvidaste tu contraseña?</a>
+			<a href="<?php echo esc_url( tma_panel_url( '/forgot-password' ) ); ?>" style="color:#a8a29e; font-size:0.8125rem; text-decoration:none;">¿Olvidaste tu contraseña?</a>
 		</div>
 	</div>
 
@@ -157,7 +157,7 @@ defined( 'ABSPATH' ) || exit;
 			.then(function(r) { return r.json(); })
 			.then(function(res) {
 				if (res.success) {
-					window.location.href = '<?php echo esc_url( 'https://' . TMA_PANEL_HOST . '/' ); ?>';
+					window.location.href = '<?php echo esc_url( tma_panel_url( '/' ) ); ?>';
 				} else {
 					errorEl.textContent = res.data || 'Credenciales inválidas.';
 					errorEl.style.display = 'block';

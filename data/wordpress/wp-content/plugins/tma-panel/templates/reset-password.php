@@ -153,10 +153,10 @@ if ( 'POST' === $_SERVER['REQUEST_METHOD'] && ! is_wp_error( $user ) ) {
 
 		<?php if ( $message ) : ?>
 			<div class="msg-success"><?php echo esc_html( $message ); ?></div>
-			<a href="/login" class="back-link">Ir al login →</a>
+			<a href="<?php echo esc_url( tma_panel_url( '/login' ) ); ?>" class="back-link">Ir al login →</a>
 		<?php elseif ( $error ) : ?>
 			<div class="msg-error"><?php echo esc_html( $error ); ?></div>
-			<a href="/forgot-password" class="back-link">Solicitar nuevo enlace</a>
+			<a href="<?php echo esc_url( tma_panel_url( '/forgot-password' ) ); ?>" class="back-link">Solicitar nuevo enlace</a>
 		<?php else : ?>
 		<form method="post">
 			<?php wp_nonce_field( 'tma_panel_reset', 'tma_reset_nonce' ); ?>

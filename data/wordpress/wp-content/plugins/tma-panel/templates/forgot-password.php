@@ -29,7 +29,7 @@ if ( 'POST' === $_SERVER['REQUEST_METHOD'] ) {
 
 		if ( $user ) {
 			$key       = get_password_reset_key( $user );
-			$reset_url = 'https://' . TMA_PANEL_HOST . '/reset-password?key=' . rawurlencode( $key ) . '&login=' . rawurlencode( $user->user_login );
+			$reset_url = tma_panel_url( '/reset-password' ) . '?key=' . rawurlencode( $key ) . '&login=' . rawurlencode( $user->user_login );
 
 			wp_mail(
 				$user->user_email,
@@ -173,7 +173,7 @@ if ( 'POST' === $_SERVER['REQUEST_METHOD'] ) {
 		</form>
 		<?php endif; ?>
 
-		<a href="/login" class="back-link">← Volver al login</a>
+		<a href="<?php echo esc_url( tma_panel_url( '/login' ) ); ?>" class="back-link">← Volver al login</a>
 	</div>
 </body>
 </html>

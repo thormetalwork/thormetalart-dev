@@ -21,6 +21,58 @@ define( 'TMA_PANEL_VERSION', '0.1.0' );
 define( 'TMA_PANEL_PATH', plugin_dir_path( __FILE__ ) );
 define( 'TMA_PANEL_URL', plugin_dir_url( __FILE__ ) );
 define( 'TMA_PANEL_HOST', 'panel.thormetalart.com' );
+define( 'TMA_PANEL_PATH_PREFIX', '/panel' );
+
+/**
+ * Build panel URL compatible with subdomain and /panel fallback mode.
+ *
+ * @param string $path Optional path under panel context.
+ * @return string
+ */
+function tma_panel_url( string $path = '/' ): string {
+	$host = sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ?? '' ) );
+	if ( $host === TMA_PANEL_HOST ) {
+		$base = 'https://' . TMA_PANEL_HOST;
+	} else {
+		$base = home_url( TMA_PANEL_PATH_PREFIX );
+	}
+
+	$base = rtrim( $base, '/' );
+	$path = '/' . ltrim( $path, '/' );
+
+	if ( '/' === $path ) {
+		return $base . '/';
+	}
+
+	return $base . $path;
+}
+
+/**
+ * Resolve request path relative to panel context.
+ * Returns null when request is not a panel request.
+ *
+ * @return string|null
+ */
+function tma_panel_current_route(): ?string {
+	$raw_path = parse_url( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ?? '/' ) ), PHP_URL_PATH );
+	$raw_path = is_string( $raw_path ) ? $raw_path : '/';
+	$raw_path = '/' . ltrim( $raw_path, '/' );
+
+	$host = sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ?? '' ) );
+	if ( $host === TMA_PANEL_HOST ) {
+		$route = rtrim( $raw_path, '/' );
+		return '' === $route ? '/' : $route;
+	}
+
+	if ( $raw_path === TMA_PANEL_PATH_PREFIX || str_starts_with( $raw_path, TMA_PANEL_PATH_PREFIX . '/' ) ) {
+		$route = substr( $raw_path, strlen( TMA_PANEL_PATH_PREFIX ) );
+		$route = '/' . ltrim( (string) $route, '/' );
+		$route = rtrim( $route, '/' );
+		return '' === $route ? '/' : $route;
+	}
+
+	return null;
+}
 
 /* ═══════════════════════════════════════════════════════════════════
    Includes
@@ -99,7 +151,7 @@ add_action( 'admin_init', function (): void {
 	$tma_roles   = array( 'tma_admin', 'tma_client' );
 	if ( $user->ID && array_intersect( $tma_roles, $user->roles )
 		&& ! array_intersect( array( 'administrator' ), $user->roles ) ) {
-		wp_safe_redirect( 'https://' . TMA_PANEL_HOST . '/' );
+		wp_safe_redirect( tma_panel_url( '/' ) );
 		exit;
 	}
 } );
@@ -117,6 +169,7 @@ add_filter( 'auth_cookie_expiration', function ( int $expiration, int $user_id )
 // CORS: allow panel domain for REST API.
 add_filter( 'allowed_http_origins', function ( array $origins ): array {
 	$origins[] = 'https://' . TMA_PANEL_HOST;
+	$origins[] = home_url();
 	return $origins;
 } );
 
@@ -143,12 +196,10 @@ add_action(
    ═══════════════════════════════════════════════════════════════════ */
 
 add_action( 'init', function (): void {
-	if ( ! isset( $_SERVER['HTTP_HOST'] ) || $_SERVER['HTTP_HOST'] !== TMA_PANEL_HOST ) {
+	$request_uri = tma_panel_current_route();
+	if ( null === $request_uri ) {
 		return;
 	}
-
-	$request_uri = parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH );
-	$request_uri = rtrim( $request_uri, '/' );
 
 	// Allow REST API and WordPress core paths to pass through.
 	if ( str_starts_with( $request_uri, '/wp-json' )
@@ -174,13 +225,13 @@ add_action( 'init', function (): void {
 			require_once TMA_PANEL_PATH . 'templates/reset-password.php';
 			exit;
 		}
-		wp_safe_redirect( 'https://' . TMA_PANEL_HOST . '/login' );
+		wp_safe_redirect( tma_panel_url( '/login' ) );
 		exit;
 	}
 
 	// Logged in on /login → redirect to panel root.
 	if ( $request_uri === '/login' ) {
-		wp_safe_redirect( 'https://' . TMA_PANEL_HOST . '/' );
+		wp_safe_redirect( tma_panel_url( '/' ) );
 		exit;
 	}
 
@@ -206,7 +257,7 @@ add_action( 'init', function (): void {
    ═══════════════════════════════════════════════════════════════════ */
 
 add_filter( 'redirect_canonical', function ( $redirect_url ) {
-	if ( isset( $_SERVER['HTTP_HOST'] ) && $_SERVER['HTTP_HOST'] === TMA_PANEL_HOST ) {
+	if ( null !== tma_panel_current_route() ) {
 		return false;
 	}
 	return $redirect_url;
@@ -218,6 +269,10 @@ add_filter( 'redirect_canonical', function ( $redirect_url ) {
 
 add_filter( 'allowed_redirect_hosts', function ( array $hosts ): array {
 	$hosts[] = TMA_PANEL_HOST;
+	$main_host = wp_parse_url( home_url(), PHP_URL_HOST );
+	if ( is_string( $main_host ) && $main_host !== '' ) {
+		$hosts[] = $main_host;
+	}
 	return $hosts;
 } );
 
@@ -268,5 +323,5 @@ function tma_panel_handle_login(): void {
 	// Clear rate limiter on success.
 	delete_transient( $transient_key );
 
-	wp_send_json_success( array( 'redirect' => 'https://' . TMA_PANEL_HOST . '/' ) );
+	wp_send_json_success( array( 'redirect' => tma_panel_url( '/' ) ) );
 }
