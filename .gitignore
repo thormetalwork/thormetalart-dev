@@ -1,6 +1,10 @@
 # Data volumes
 data/
 
+# Exception: track custom plugins and mu-plugins (our code)
+!data/wordpress/wp-content/plugins/tma-panel/
+!data/wordpress/wp-content/mu-plugins/
+
 # Environment
 .env
 .env.production
