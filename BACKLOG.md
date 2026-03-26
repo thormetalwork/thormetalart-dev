@@ -826,7 +826,7 @@
   - **Status:** ✅ COMPLETADO (2026-03-26)
   - **Notas:** Bloque GBP en API dashboard, KPIs rating/reviews/impressions/actions, gráfico stacked Search vs Maps en Chart.js. 7/7 tests.
 
-- [ ] **TICKET-DASH-007: Sección Web Analytics (GA4) en panel**
+- [x] **TICKET-DASH-007: Sección Web Analytics (GA4) en panel**
   - **Fuente:** Migración de tab Web del dashboard actual
   - **Historia de Usuario:** Como Karel, quiero ver el tráfico de mi sitio web para entender qué páginas atraen más visitantes.
   - **Criterios de Aceptación:**
@@ -846,7 +846,8 @@
     - `data/wordpress/wp-content/plugins/tma-panel/assets/js/panel.js` (MODIFIED)
   - **Dependencias:** TICKET-DASH-004
   - **Prioridad:** P2
-  - **Status:** 🔄 EN PROGRESO
+  - **Status:** ✅ COMPLETADO (2026-03-26)
+  - **Notas:** Bloque web en API dashboard, KPIs GA4, top pages con barras y line chart de sesiones. 8/8 tests.
 
 - [ ] **TICKET-DASH-008: Sección Instagram en panel**
   - **Fuente:** Migración de tab Instagram del dashboard actual
@@ -1104,8 +1105,8 @@
 | 6 — Leads/CRM | 1 | 1 | 0 | 0 | 100% |
 | 7 — Portal Docs | 4 | 4 | 0 | 0 | 100% |
 | 8 — TMA Panel Base | 10 | 10 | 0 | 0 | 100% |
-| 9 — Dashboard Datos Reales | 5 | 3 | 2 | 0 | 60% |
+| 9 — Dashboard Datos Reales | 5 | 4 | 1 | 0 | 80% |
 | 10 — Portal Integrado | 3 | 0 | 3 | 0 | 0% |
 | 11 — Leads Dinámico | 3 | 0 | 3 | 0 | 0% |
 | 12 — Cleanup Docker | 1 | 0 | 1 | 0 | 0% |
-| **TOTAL** | **39** | **30** | **9** | **0** | **77%** |
+| **TOTAL** | **39** | **31** | **8** | **0** | **79%** |
