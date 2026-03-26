@@ -108,36 +108,57 @@
 
 	async function renderDashboard(container) {
 		try {
+			await ensureChartJs();
 			const data = await api('/dashboard');
 			const kpis = data.kpis || {};
 			const counts = data.counts || {};
+			const history = data.history || {};
+			const leadSources = data.lead_sources || [];
+			const isDemo = !!data.is_demo;
 
 			container.innerHTML = `
 				<div class="dashboard-actions" style="display:flex;justify-content:flex-end;margin-bottom:var(--tma-sp-3);">
+					${isDemo ? '<span class="badge badge--warning" style="margin-right:auto;">(Datos de ejemplo)</span>' : ''}
 					<button class="btn btn--accent" id="tma-export-btn">
 						📋 ${escapeHtml(t('dashboard.export') || 'Exportar resumen')}
 					</button>
 				</div>
 				<div class="kpi-grid">
 					<div class="kpi-card">
-						<span class="kpi-card__label">${escapeHtml(t('dashboard.leads'))}</span>
-						<span class="kpi-card__value">${parseInt(counts.leads) || 0}</span>
+						<span class="kpi-card__label">Reviews GBP</span>
+						<span class="kpi-card__value">${parseInt(counts.reviews) || 0}</span>
+						<span class="kpi-card__meta">${renderTrend(kpis.reviews)}</span>
 					</div>
 					<div class="kpi-card">
-						<span class="kpi-card__label">${escapeHtml(t('dashboard.documents'))}</span>
-						<span class="kpi-card__value">${parseInt(counts.documents) || 0}</span>
+						<span class="kpi-card__label">Impressions</span>
+						<span class="kpi-card__value">${parseInt(counts.impressions) || 0}</span>
+						<span class="kpi-card__meta">${renderTrend(kpis.impressions)}</span>
 					</div>
 					<div class="kpi-card">
-						<span class="kpi-card__label">${escapeHtml(t('dashboard.notes'))}</span>
-						<span class="kpi-card__value">${parseInt(counts.notes) || 0}</span>
+						<span class="kpi-card__label">Sessions Web</span>
+						<span class="kpi-card__value">${parseInt(counts.sessions) || 0}</span>
+						<span class="kpi-card__meta">${renderTrend(kpis.sessions)}</span>
 					</div>
 					<div class="kpi-card kpi-card--accent">
-						<span class="kpi-card__label">${escapeHtml(t('dashboard.kpi_records'))}</span>
-						<span class="kpi-card__value">${parseInt(counts.kpis) || 0}</span>
+						<span class="kpi-card__label">Leads Totales</span>
+						<span class="kpi-card__value">${parseInt(counts.leads) || 0}</span>
+						<span class="kpi-card__meta">${renderTrend(kpis.leads)}</span>
+					</div>
+				</div>
+				<div class="grid grid--2" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:var(--tma-sp-4);margin-top:var(--tma-sp-4);">
+					<div class="card">
+						<h2 class="card__title">Impressions (6 meses)</h2>
+						<canvas id="tma-chart-impressions" height="180"></canvas>
+					</div>
+					<div class="card">
+						<h2 class="card__title">Leads por canal</h2>
+						<canvas id="tma-chart-lead-sources" height="180"></canvas>
 					</div>
 				</div>
 				${renderKpiTable(kpis)}
 			`;
+
+			renderDashboardCharts(history, leadSources);
 
 			// Bind export button.
 			var exportBtn = document.getElementById('tma-export-btn');
@@ -146,6 +167,69 @@
 			}
 		} catch (err) {
 			showError(container, t('error.loading_dashboard') + ': ' + err.message);
+		}
+	}
+
+	function renderTrend(kpi) {
+		if (!kpi) return '→ neutral';
+		const trend = kpi.trend || 'neutral';
+		if (trend === 'up') return '↑ up';
+		if (trend === 'down') return '↓ down';
+		return '→ neutral';
+	}
+
+	async function ensureChartJs() {
+		if (window.Chart) return;
+		await new Promise(function (resolve, reject) {
+			const s = document.createElement('script');
+			s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js';
+			s.onload = resolve;
+			s.onerror = reject;
+			document.head.appendChild(s);
+		});
+	}
+
+	function renderDashboardCharts(history, leadSources) {
+		if (!window.Chart) return;
+
+		const gold = '#B8860B';
+		const dark = '#1A1A1A';
+		const impressions = history.impressions || [];
+		const impLabels = impressions.map(function (x) { return x.period; });
+		const impValues = impressions.map(function (x) { return Number(x.value || 0); });
+
+		const impCanvas = document.getElementById('tma-chart-impressions');
+		if (impCanvas) {
+			new window.Chart(impCanvas, {
+				type: 'line',
+				data: {
+					labels: impLabels,
+					datasets: [{
+						label: 'Impressions',
+						data: impValues,
+						borderColor: gold,
+						backgroundColor: 'rgba(184,134,11,0.15)',
+						tension: 0.3,
+						fill: true,
+					}],
+				},
+				options: { responsive: true, maintainAspectRatio: false },
+			});
+		}
+
+		const leadCanvas = document.getElementById('tma-chart-lead-sources');
+		if (leadCanvas) {
+			new window.Chart(leadCanvas, {
+				type: 'doughnut',
+				data: {
+					labels: leadSources.map(function (x) { return x.label; }),
+					datasets: [{
+						data: leadSources.map(function (x) { return Number(x.value || 0); }),
+						backgroundColor: [gold, dark, '#6b7280', '#c7a24d', '#9ca3af'],
+					}],
+				},
+				options: { responsive: true, maintainAspectRatio: false },
+			});
 		}
 	}
 

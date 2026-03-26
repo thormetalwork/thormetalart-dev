@@ -199,46 +199,135 @@ class TMA_Panel_API {
 	public static function get_dashboard( WP_REST_Request $request ): WP_REST_Response {
 		global $wpdb;
 
-		$latest_period = $wpdb->get_var(
-			"SELECT MAX(period) FROM {$wpdb->prefix}panel_kpis"
+		$kpi_rows = $wpdb->get_results(
+			"SELECT metric, value, period FROM {$wpdb->prefix}panel_kpis ORDER BY period ASC"
 		);
 
-		$kpis = array();
-		if ( $latest_period ) {
-			$rows = $wpdb->get_results(
-				$wpdb->prepare(
-					"SELECT metric, value, category FROM {$wpdb->prefix}panel_kpis WHERE period = %s",
-					$latest_period
-				)
+		$series_by_metric = array();
+		$periods          = array();
+		foreach ( $kpi_rows as $row ) {
+			if ( ! isset( $series_by_metric[ $row->metric ] ) ) {
+				$series_by_metric[ $row->metric ] = array();
+			}
+			$series_by_metric[ $row->metric ][] = array(
+				'period' => $row->period,
+				'value'  => (float) $row->value,
 			);
-			foreach ( $rows as $row ) {
-				$kpis[] = array(
-					'metric'   => $row->metric,
-					'value'    => (float) $row->value,
-					'category' => $row->category,
+			$periods[ $row->period ] = true;
+		}
+
+		$get_latest_pair = static function ( array $series ): array {
+			$count = count( $series );
+			if ( 0 === $count ) {
+				return array( 'latest' => 0.0, 'previous' => 0.0, 'trend' => 'neutral' );
+			}
+			$latest   = (float) $series[ $count - 1 ]['value'];
+			$previous = $count > 1 ? (float) $series[ $count - 2 ]['value'] : $latest;
+			$trend    = 'neutral';
+			if ( $latest > $previous ) {
+				$trend = 'up';
+			} elseif ( $latest < $previous ) {
+				$trend = 'down';
+			}
+			return array(
+				'latest'   => $latest,
+				'previous' => $previous,
+				'trend'    => $trend,
+			);
+		};
+
+		$leads_total = (int) $wpdb->get_var(
+			"SELECT COUNT(*) FROM {$wpdb->prefix}panel_leads"
+		);
+
+		$lead_sources_rows = $wpdb->get_results(
+			"SELECT COALESCE(NULLIF(source,''), 'unknown') AS source, COUNT(*) AS total
+			 FROM {$wpdb->prefix}panel_leads
+			 GROUP BY source
+			 ORDER BY total DESC"
+		);
+		$lead_sources = array();
+		foreach ( $lead_sources_rows as $src ) {
+			$lead_sources[] = array(
+				'label' => $src->source,
+				'value' => (int) $src->total,
+			);
+		}
+
+		$kpi_map = array(
+			'reviews'     => $series_by_metric['reviews'] ?? array(),
+			'impressions' => $series_by_metric['impressions'] ?? array(),
+			'sessions'    => $series_by_metric['sessions'] ?? array(),
+			'leads'       => $series_by_metric['leads'] ?? array(),
+		);
+
+		$has_real_dashboard_kpis = ! empty( $kpi_map['impressions'] ) || ! empty( $kpi_map['sessions'] ) || ! empty( $kpi_map['reviews'] );
+
+		if ( ! $has_real_dashboard_kpis ) {
+			$demo_periods = array( '2025-09', '2025-10', '2025-11', '2025-12', '2026-01', '2026-02' );
+			$kpi_map      = array(
+				'reviews'     => array_map(
+					static fn( $p, $v ) => array( 'period' => $p, 'value' => $v ),
+					$demo_periods,
+					array( 18, 21, 24, 27, 30, 34 )
+				),
+				'impressions' => array_map(
+					static fn( $p, $v ) => array( 'period' => $p, 'value' => $v ),
+					$demo_periods,
+					array( 3200, 3800, 4200, 5100, 5900, 6400 )
+				),
+				'sessions'    => array_map(
+					static fn( $p, $v ) => array( 'period' => $p, 'value' => $v ),
+					$demo_periods,
+					array( 420, 470, 510, 620, 700, 760 )
+				),
+				'leads'       => array_map(
+					static fn( $p, $v ) => array( 'period' => $p, 'value' => $v ),
+					$demo_periods,
+					array( 8, 11, 13, 17, 19, 24 )
+				),
+			);
+			if ( empty( $lead_sources ) ) {
+				$lead_sources = array(
+					array( 'label' => 'google', 'value' => 9 ),
+					array( 'label' => 'instagram', 'value' => 6 ),
+					array( 'label' => 'referral', 'value' => 4 ),
+					array( 'label' => 'website', 'value' => 5 ),
 				);
 			}
 		}
 
-		$leads_count = (int) $wpdb->get_var(
-			"SELECT COUNT(*) FROM {$wpdb->prefix}panel_leads"
+		$cards = array(
+			'reviews'     => $get_latest_pair( $kpi_map['reviews'] ),
+			'impressions' => $get_latest_pair( $kpi_map['impressions'] ),
+			'sessions'    => $get_latest_pair( $kpi_map['sessions'] ),
+			'leads'       => $get_latest_pair( $kpi_map['leads'] ),
 		);
 
-		$docs_count = (int) $wpdb->get_var(
-			"SELECT COUNT(*) FROM {$wpdb->prefix}panel_docs"
+		$history = array(
+			'impressions' => $kpi_map['impressions'],
+			'leads'       => $kpi_map['leads'],
 		);
 
-		$notes_count = (int) $wpdb->get_var(
-			"SELECT COUNT(*) FROM {$wpdb->prefix}panel_notes"
-		);
+		$docs_count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}panel_docs" );
+		$notes_count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}panel_notes" );
 
 		return new WP_REST_Response(
 			array(
-				'kpis'        => $kpis,
-				'leads_count' => $leads_count,
-				'docs_count'  => $docs_count,
-				'notes_count' => $notes_count,
-				'period'      => $latest_period ?? '',
+				'counts'       => array(
+					'reviews'     => (int) $cards['reviews']['latest'],
+					'impressions' => (int) $cards['impressions']['latest'],
+					'sessions'    => (int) $cards['sessions']['latest'],
+					'leads'       => $leads_total > 0 ? $leads_total : (int) $cards['leads']['latest'],
+					'documents'   => $docs_count,
+					'notes'       => $notes_count,
+					'kpis'        => count( $kpi_rows ),
+				),
+				'kpis'         => $cards,
+				'history'      => $history,
+				'lead_sources' => $lead_sources,
+				'is_demo'      => ! $has_real_dashboard_kpis,
+				'periods'      => array_keys( $periods ),
 			),
 			200
 		);

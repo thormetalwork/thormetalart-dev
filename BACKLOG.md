@@ -765,7 +765,7 @@
     - `data/wordpress/wp-content/plugins/tma-panel/assets/js/panel.js` (MODIFIED)
   - **Dependencias:** TICKET-PANEL-004, TICKET-PANEL-006
   - **Prioridad:** P1
-  - **Status:** ⏸️ PENDIENTE
+  - **Status:** 🔄 EN PROGRESO
 
 - [ ] **TICKET-DASH-005: Cron job — fetch periódico de APIs externas (GBP, GA4, IG)**
   - **Fuente:** Eliminación de dependencia en Node.js proxy
