@@ -823,7 +823,7 @@
     - `data/wordpress/wp-content/plugins/tma-panel/assets/js/panel.js` (MODIFIED)
   - **Dependencias:** TICKET-DASH-004
   - **Prioridad:** P2
-  - **Status:** ⏸️ PENDIENTE
+  - **Status:** 🔄 EN PROGRESO
 
 - [ ] **TICKET-DASH-007: Sección Web Analytics (GA4) en panel**
   - **Fuente:** Migración de tab Web del dashboard actual
