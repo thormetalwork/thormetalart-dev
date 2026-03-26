@@ -612,7 +612,7 @@
   - **Status:** ✅ COMPLETADO (2025-07-24)
   - **Notas:** SPA con 5 secciones API-driven, KPI grid, tablas, notes form, badges. 42/42 tests.
 
-- [ ] **TICKET-PANEL-007: i18n ES/EN con diccionario JS**
+- [x] **TICKET-PANEL-007: i18n ES/EN con diccionario JS**
   - **Fuente:** Análisis comparativo RAI Panel — i18n.js (325 líneas, ~160 strings)
   - **Historia de Usuario:** Como usuario del panel, quiero poder cambiar el idioma de la interfaz entre español e inglés.
   - **Criterios de Aceptación:**
@@ -639,7 +639,8 @@
     - `data/wordpress/wp-content/plugins/tma-panel/assets/js/panel.js` (MODIFIED)
   - **Dependencias:** TICKET-PANEL-006
   - **Prioridad:** P2
-  - **Status:** ⏸️ PENDIENTE
+  - **Status:** ✅ COMPLETADO (2025-07-24)
+  - **Notas:** 80+ keys ES/EN, t() function, localStorage persistence, lang switch init. 25/25 tests.
 
 - [ ] **TICKET-PANEL-008: Audit log — registro de acciones + rotación**
   - **Fuente:** Análisis comparativo RAI Panel — class-rai-panel-audit.php
@@ -1096,9 +1097,9 @@
 | 5 — Seguridad | 1 | 1 | 0 | 0 | 100% |
 | 6 — Leads/CRM | 1 | 1 | 0 | 0 | 100% |
 | 7 — Portal Docs | 4 | 4 | 0 | 0 | 100% |
-| 8 — TMA Panel Base | 10 | 6 | 4 | 0 | 60% |
+| 8 — TMA Panel Base | 10 | 7 | 3 | 0 | 70% |
 | 9 — Dashboard Datos Reales | 5 | 0 | 5 | 0 | 0% |
 | 10 — Portal Integrado | 3 | 0 | 3 | 0 | 0% |
 | 11 — Leads Dinámico | 3 | 0 | 3 | 0 | 0% |
 | 12 — Cleanup Docker | 1 | 0 | 1 | 0 | 0% |
-| **TOTAL** | **39** | **23** | **16** | **0** | **59%** |
+| **TOTAL** | **39** | **24** | **15** | **0** | **62%** |
