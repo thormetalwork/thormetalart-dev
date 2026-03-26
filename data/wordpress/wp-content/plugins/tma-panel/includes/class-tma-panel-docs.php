@@ -25,8 +25,21 @@ class TMA_Panel_Docs {
 			wp_mkdir_p( self::CACHE_DIR );
 		}
 
-		$source_dir = dirname( dirname( dirname( dirname( dirname( TMA_PANEL_PATH ) ) ) ) ) . '/portal/docs/';
-		if ( ! is_dir( $source_dir ) ) {
+		$base_dir    = dirname( dirname( dirname( dirname( dirname( TMA_PANEL_PATH ) ) ) ) );
+		$source_dirs = array(
+			$base_dir . '/portal/docs/',
+			$base_dir . '/_archive/portal/docs/',
+		);
+
+		$source_dir = '';
+		foreach ( $source_dirs as $dir ) {
+			if ( is_dir( $dir ) ) {
+				$source_dir = $dir;
+				break;
+			}
+		}
+
+		if ( '' === $source_dir ) {
 			return;
 		}
 
@@ -55,7 +68,7 @@ class TMA_Panel_Docs {
 			return new WP_Error( 'invalid_doc_code', __( 'Invalid document code.', 'thormetalart' ), array( 'status' => 400 ) );
 		}
 
-		$file = self::CACHE_DIR . $clean_code . '.html';
+		$file = self::resolve_cached_file( $clean_code );
 		if ( ! file_exists( $file ) ) {
 			return new WP_Error( 'doc_not_found', __( 'Document not found.', 'thormetalart' ), array( 'status' => 404 ) );
 		}
@@ -70,5 +83,26 @@ class TMA_Panel_Docs {
 			'html'       => $content,
 			'updated_at' => gmdate( 'Y-m-d H:i:s', filemtime( $file ) ),
 		);
+	}
+
+	/**
+	 * Resolve cached document file path by slug.
+	 * Supports both current slug-based names and legacy prefixed names (01_slug.html).
+	 *
+	 * @param string $clean_code Sanitized slug.
+	 * @return string
+	 */
+	private static function resolve_cached_file( string $clean_code ): string {
+		$direct = self::CACHE_DIR . $clean_code . '.html';
+		if ( file_exists( $direct ) ) {
+			return $direct;
+		}
+
+		$matches = glob( self::CACHE_DIR . '*_' . $clean_code . '.html' );
+		if ( ! empty( $matches ) ) {
+			return (string) $matches[0];
+		}
+
+		return $direct;
 	}
 }
