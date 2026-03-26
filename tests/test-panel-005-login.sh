@@ -201,18 +201,15 @@ done
 echo ""
 echo "🌐 HTTP response checks"
 
-LOGIN_STATUS=$(docker exec "$WP_CONTAINER" php -r "
+LOGIN_OUTPUT=$(docker exec "$WP_CONTAINER" php -r "
   \$_SERVER['HTTP_HOST'] = 'panel.thormetalart.com';
   \$_SERVER['REQUEST_URI'] = '/login';
   \$_SERVER['REQUEST_METHOD'] = 'GET';
-  ob_start();
   require '/var/www/html/wp-load.php';
-  \$out = ob_get_clean();
-  echo strlen(\$out) > 100 ? 'OK' : 'FAIL';
-" 2>/dev/null || echo "FAIL")
-[ "$LOGIN_STATUS" = "OK" ] \
+" 2>/dev/null || true)
+echo "$LOGIN_OUTPUT" | grep -q 'Thor Metal Art' \
   && pass "Login page renders content" \
-  || fail "Login page doesn't render ($LOGIN_STATUS)"
+  || fail "Login page doesn't render"
 
 # ─────────────────────────────────────────────────────────────────
 #  RESULTS

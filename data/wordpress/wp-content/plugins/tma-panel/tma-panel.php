@@ -72,11 +72,21 @@ add_action( 'init', function (): void {
 		return;
 	}
 
-	// Not logged in → redirect to login page.
+	// Not logged in → public routes.
 	if ( ! is_user_logged_in() ) {
 		if ( $request_uri === '/login' ) {
 			TMA_Panel_Router::send_security_headers();
 			require_once TMA_PANEL_PATH . 'templates/login.php';
+			exit;
+		}
+		if ( $request_uri === '/forgot-password' ) {
+			TMA_Panel_Router::send_security_headers();
+			require_once TMA_PANEL_PATH . 'templates/forgot-password.php';
+			exit;
+		}
+		if ( $request_uri === '/reset-password' ) {
+			TMA_Panel_Router::send_security_headers();
+			require_once TMA_PANEL_PATH . 'templates/reset-password.php';
 			exit;
 		}
 		wp_safe_redirect( 'https://' . TMA_PANEL_HOST . '/login' );
@@ -139,6 +149,15 @@ function tma_panel_handle_login(): void {
 		wp_send_json_error( 'Nonce inválido.', 403 );
 	}
 
+	// Rate limiting: 5 attempts per 15 minutes per IP.
+	$ip            = sanitize_text_field( $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0' );
+	$transient_key = 'tma_panel_login_attempts_' . md5( $ip );
+	$attempts      = (int) get_transient( $transient_key );
+
+	if ( $attempts >= 5 ) {
+		wp_send_json_error( 'Demasiados intentos. Intenta de nuevo en 15 minutos.' );
+	}
+
 	$log      = sanitize_text_field( wp_unslash( $_POST['log'] ?? '' ) );
 	$pwd      = $_POST['pwd'] ?? '';
 	$remember = ! empty( $_POST['rememberme'] );
@@ -150,14 +169,19 @@ function tma_panel_handle_login(): void {
 	), is_ssl() );
 
 	if ( is_wp_error( $user ) ) {
+		set_transient( $transient_key, $attempts + 1, 15 * MINUTE_IN_SECONDS );
 		wp_send_json_error( 'Credenciales inválidas.' );
 	}
 
 	$valid_roles = array( 'tma_admin', 'tma_client', 'administrator' );
 	if ( ! array_intersect( $valid_roles, $user->roles ) ) {
 		wp_destroy_current_session();
+		set_transient( $transient_key, $attempts + 1, 15 * MINUTE_IN_SECONDS );
 		wp_send_json_error( 'Tu cuenta no tiene permisos para acceder al panel.' );
 	}
+
+	// Clear rate limiter on success.
+	delete_transient( $transient_key );
 
 	wp_send_json_success( array( 'redirect' => 'https://' . TMA_PANEL_HOST . '/' ) );
 }
