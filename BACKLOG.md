@@ -939,7 +939,7 @@
   - **Status:** ✅ COMPLETADO (2026-03-26)
   - **Notas:** Endpoint status por documento, 3 estados con validación, nota obligatoria para cambios, barra global progreso y navegación prev/next. 10/10 tests.
 
-- [ ] **TICKET-PORTAL-007: Sistema de notas bidireccional**
+- [x] **TICKET-PORTAL-007: Sistema de notas bidireccional**
   - **Fuente:** Análisis comparativo RAI Panel — notas por módulo + timeline
   - **Historia de Usuario:** Como Karel, quiero dejar notas sobre documentos, leads o cualquier sección del panel para comunicarme directamente con el equipo.
   - **Criterios de Aceptación:**
@@ -970,7 +970,8 @@
     - `data/wordpress/wp-content/plugins/tma-panel/assets/js/panel.js` (MODIFIED)
   - **Dependencias:** TICKET-PANEL-004
   - **Prioridad:** P1
-  - **Status:** 🔄 EN PROGRESO
+  - **Status:** ✅ COMPLETADO (2026-03-26)
+  - **Notas:** Notas contextualizadas por module/item_id, acción "Dejar nota" desde viewer, timeline con metadata y filtro por rol. 7/7 tests.
 
 ---
 
@@ -1109,7 +1110,7 @@
 | 7 — Portal Docs | 4 | 4 | 0 | 0 | 100% |
 | 8 — TMA Panel Base | 10 | 10 | 0 | 0 | 100% |
 | 9 — Dashboard Datos Reales | 5 | 5 | 0 | 0 | 100% |
-| 10 — Portal Integrado | 3 | 2 | 1 | 0 | 67% |
+| 10 — Portal Integrado | 3 | 3 | 0 | 0 | 100% |
 | 11 — Leads Dinámico | 3 | 0 | 3 | 0 | 0% |
 | 12 — Cleanup Docker | 1 | 0 | 1 | 0 | 0% |
-| **TOTAL** | **39** | **34** | **5** | **0** | **87%** |
+| **TOTAL** | **39** | **35** | **4** | **0** | **90%** |
