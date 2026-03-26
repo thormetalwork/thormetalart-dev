@@ -98,9 +98,6 @@ class TMA_Panel_Leads {
 		global $wpdb;
 		$table = $wpdb->prefix . 'panel_leads';
 
-		self::ensure_value_column();
-		self::ensure_history_table();
-
 		$allowed = array( 'new', 'contacted', 'quoted', 'won', 'lost' );
 		if ( ! in_array( $status, $allowed, true ) ) {
 			return false;
@@ -141,8 +138,6 @@ class TMA_Panel_Leads {
 	 */
 	public static function log_status_change( int $lead_id, string $old_status, string $new_status ): void {
 		global $wpdb;
-		self::ensure_history_table();
-
 		$wpdb->insert(
 			$wpdb->prefix . 'panel_lead_history',
 			array(
@@ -165,8 +160,6 @@ class TMA_Panel_Leads {
 	 */
 	public static function get_lead_history( int $lead_id ): array {
 		global $wpdb;
-		self::ensure_history_table();
-
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT h.id, h.lead_id, h.user_id, h.action, h.old_status, h.new_status, h.created_at,
@@ -203,8 +196,6 @@ class TMA_Panel_Leads {
 	 */
 	public static function get_pipeline_value(): float {
 		global $wpdb;
-		self::ensure_value_column();
-
 		$table = $wpdb->prefix . 'panel_leads';
 		$sum   = $wpdb->get_var( "SELECT COALESCE(SUM(lead_value),0) FROM {$table} WHERE status IN ('new','contacted','quoted','won')" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 

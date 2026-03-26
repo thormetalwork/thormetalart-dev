@@ -17,7 +17,7 @@ class TMA_Panel_Data {
 	 * Current database schema version.
 	 * Increment when adding new migration files.
 	 */
-	private const DB_VERSION = 2;
+	private const DB_VERSION = 3;
 
 	/**
 	 * Option key for tracking applied migration version.

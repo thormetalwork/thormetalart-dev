@@ -471,8 +471,6 @@ class TMA_Panel_API {
 	 */
 	public static function get_documents( WP_REST_Request $request ): WP_REST_Response {
 		global $wpdb;
-		self::ensure_docs_approval_columns();
-
 		$rows = $wpdb->get_results(
 			"SELECT id, title, slug, doc_order, status, visibility, file_url, approved_by, approved_at, change_notes, created_at, updated_at
 			 FROM {$wpdb->prefix}panel_docs
@@ -522,8 +520,6 @@ class TMA_Panel_API {
 	 */
 	public static function update_document_status( WP_REST_Request $request ): WP_REST_Response {
 		global $wpdb;
-		self::ensure_docs_approval_columns();
-
 		$doc_id = (int) $request->get_param( 'id' );
 		$status = sanitize_text_field( (string) $request->get_param( 'status' ) );
 		$notes  = sanitize_text_field( (string) $request->get_param( 'notes' ) );
@@ -671,8 +667,6 @@ class TMA_Panel_API {
 	 */
 	public static function get_notes( WP_REST_Request $request ): WP_REST_Response {
 		global $wpdb;
-		self::ensure_notes_context_columns();
-
 		$is_admin = current_user_can( 'tma_view_audit' );
 
 		if ( $is_admin ) {
@@ -717,8 +711,6 @@ class TMA_Panel_API {
 	 */
 	public static function create_note( WP_REST_Request $request ): WP_REST_Response {
 		global $wpdb;
-		self::ensure_notes_context_columns();
-
 		$title      = $request->get_param( 'title' );
 		$content    = $request->get_param( 'content' );
 		$visibility = $request->get_param( 'visibility' );
@@ -832,3 +824,7 @@ class TMA_Panel_API {
 		);
 	}
 }
+				TMA_Panel_Audit::log( 'lead_status_' . $status, 'lead', $lead_id );
+
+		TMA_Panel_Audit::log( 'doc_status_' . $status, 'document', $doc_id );
+

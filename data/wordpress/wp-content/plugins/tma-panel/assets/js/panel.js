@@ -470,13 +470,16 @@
 				const statusClass = doc.status === 'approved' ? 'badge--success' : (doc.status === 'pending' ? 'badge--warning' : 'badge--info');
 				const code = doc.slug || '';
 				cards += '<article class="card" style="margin-bottom:12px;">'
-					+ '<div style="display:flex;justify-content:space-between;gap:12px;align-items:center;">'
-					+ '<div>'
+					+ '<div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;">'
+					+ '<div style="flex:1;">'
 					+ '<p style="font-size:11px;color:var(--tma-muted);margin:0 0 6px 0;">' + escapeHtml(code) + '</p>'
 					+ '<h3 style="margin:0 0 6px 0;font-size:16px;">' + escapeHtml(doc.title || '') + '</h3>'
 					+ '<p style="margin:0;color:var(--tma-muted);font-size:12px;">Actualizado: ' + formatDate(doc.updated_at) + '</p>'
+					+ (doc.status === 'changes_requested' && doc.notes
+						? '<p style="margin:8px 0 0 0;font-size:12px;color:var(--tma-warning);border-left:3px solid var(--tma-warning);padding-left:8px;">💬 ' + escapeHtml(doc.notes) + '</p>'
+						: '')
 					+ '</div>'
-					+ '<div style="display:flex;align-items:center;gap:8px;">'
+					+ '<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">'
 					+ '<span class="badge ' + statusClass + '">' + escapeHtml(doc.status || '') + '</span>'
 					+ '<button class="btn btn--primary btn-view-doc" data-doc-code="' + escapeHtml(code) + '" data-doc-index="' + idx + '">Ver</button>'
 					+ '</div>'
@@ -518,6 +521,11 @@
 							<button class="btn btn--primary" id="tma-doc-add-note">Dejar nota</button>
 							<textarea id="tma-doc-change-notes" class="input textarea" rows="2" placeholder="Describe cambios (mínimo 10 caracteres)" style="display:none;min-width:320px;"></textarea>
 							<button class="btn btn--accent" id="tma-doc-save-changes" style="display:none;">Guardar cambios</button>
+													<div id="tma-doc-note-form" style="display:none;gap:6px;align-items:flex-start;width:100%;margin-top:6px;">
+														<textarea id="tma-doc-note-text" class="input textarea" rows="2" placeholder="Escribe una nota sobre este documento..." style="flex:1;min-width:240px;"></textarea>
+														<button class="btn btn--primary" id="tma-doc-save-note">Guardar</button>
+														<button class="btn" id="tma-doc-cancel-note">Cancelar</button>
+													</div>
 						</div>
 						<div id="tma-doc-viewer-host" style="position:relative;flex:1;overflow:auto;background:#f6f7f8;"></div>
 					</div>
@@ -561,7 +569,33 @@
 
 			const addNoteBtn = document.getElementById('tma-doc-add-note');
 			if (addNoteBtn) {
-				addNoteBtn.addEventListener('click', function () { addDocumentNote(); });
+				addNoteBtn.addEventListener('click', function () {
+					var noteForm = document.getElementById('tma-doc-note-form');
+					if (noteForm) noteForm.style.display = noteForm.style.display === 'none' ? 'flex' : 'none';
+				});
+						const saveNoteBtn = document.getElementById('tma-doc-save-note');
+						if (saveNoteBtn) {
+							saveNoteBtn.addEventListener('click', async function () {
+								var noteTextEl = document.getElementById('tma-doc-note-text');
+								var content = noteTextEl ? noteTextEl.value.trim() : '';
+								if (!content) { alert('La nota no puede estar vacía.'); return; }
+								try {
+									await addDocumentNote(content);
+									if (noteTextEl) noteTextEl.value = '';
+									var noteForm = document.getElementById('tma-doc-note-form');
+									if (noteForm) noteForm.style.display = 'none';
+								} catch (err) {
+									alert('Error al guardar nota: ' + getErrorMessage(err));
+								}
+							});
+						}
+						const cancelNoteBtn = document.getElementById('tma-doc-cancel-note');
+						if (cancelNoteBtn) {
+							cancelNoteBtn.addEventListener('click', function () {
+								var noteForm = document.getElementById('tma-doc-note-form');
+								if (noteForm) noteForm.style.display = 'none';
+							});
+						}
 			}
 		} catch (err) {
 			showError(container, t('error.loading_documents') + ': ' + getErrorMessage(err));
@@ -623,17 +657,15 @@
 		}
 	}
 
-	async function addDocumentNote() {
+	async function addDocumentNote(content) {
 		if (currentDocIndex < 0 || !docsState[currentDocIndex]) return;
 		const doc = docsState[currentDocIndex];
-		const content = window.prompt('Escribe tu nota para este documento:');
-		if (!content || !content.trim()) return;
 		await api('/notes', {
 			method: 'POST',
 			body: JSON.stringify({
 				title: 'Nota sobre ' + (doc.slug || 'documento'),
 				content: content.trim(),
-				visibility: 'shared',
+				visibility: 'client',
 				module: 'documents',
 				item_id: doc.id,
 			}),
@@ -707,23 +739,21 @@
 
 			let rows = '';
 			leads.forEach(function (lead) {
-				const stageClass = {
-					new: 'badge--info',
-					contacted: 'badge--warning',
-					quoted: 'badge--accent',
-					won: 'badge--success',
-					lost: 'badge--danger',
-				}[lead.status] || 'badge--info';
+				const leadId = Number(lead.id || 0);
+					const currentValue = parseFloat(lead.lead_value) || 0;
+					const statusOptions = ['new', 'contacted', 'quoted', 'won', 'lost'].map(function (s) {
+						return '<option value="' + s + '"' + (s === lead.status ? ' selected' : '') + '>' + escapeHtml(s) + '</option>';
+					}).join('');
 
-				rows += '<tr>'
-					+ '<td>' + escapeHtml(lead.name || '') + '</td>'
-					+ '<td>' + escapeHtml(lead.email || '') + '</td>'
-					+ '<td>' + escapeHtml(lead.source || '') + '</td>'
-					+ '<td><span class="badge ' + stageClass + '">' + escapeHtml(lead.status || '') + '</span></td>'
-					+ '<td>$' + (parseFloat(lead.lead_value) || 0).toLocaleString() + '</td>'
-					+ '<td>' + formatDate(lead.created_at) + '</td>'
-					+ '<td><button class="btn btn--small btn--ghost js-view-history" data-lead-id="' + Number(lead.id || 0) + '">Ver historial</button></td>'
-					+ '</tr>';
+					rows += '<tr>'
+						+ '<td>' + escapeHtml(lead.name || '') + '</td>'
+						+ '<td>' + escapeHtml(lead.email || '') + '</td>'
+						+ '<td>' + escapeHtml(lead.source || '') + '</td>'
+						+ '<td><select class="lead-status-select input input--select" data-lead-id="' + leadId + '" data-lead-value="' + currentValue + '" style="font-size:12px;padding:4px 8px;min-height:32px;">' + statusOptions + '</select></td>'
+						+ '<td>$' + currentValue.toLocaleString() + '</td>'
+						+ '<td>' + formatDate(lead.created_at) + '</td>'
+						+ '<td><button class="btn btn--small btn--ghost js-view-history" data-lead-id="' + leadId + '">Ver historial</button></td>'
+						+ '</tr>';
 			});
 
 			container.innerHTML = `
@@ -746,6 +776,28 @@
 				btn.addEventListener('click', async function () {
 					const leadId = Number(btn.getAttribute('data-lead-id') || 0);
 					await renderLeadHistoryTimeline(container, leadId);
+				});
+			});
+			container.querySelectorAll('.lead-status-select').forEach(function (sel) {
+				var prevValue = sel.value;
+				sel.addEventListener('change', async function () {
+					var id = Number(sel.dataset.leadId || 0);
+					var val = parseFloat(sel.dataset.leadValue || 0);
+					sel.disabled = true;
+					try {
+						await api('/leads/' + id, {
+							method: 'POST',
+							body: JSON.stringify({ status: sel.value, lead_value: val })
+						});
+						prevValue = sel.value;
+						sel.style.borderColor = 'var(--tma-success)';
+						setTimeout(function () { sel.style.borderColor = ''; }, 1500);
+					} catch (err) {
+						alert('Error actualizando lead: ' + getErrorMessage(err));
+						sel.value = prevValue;
+					} finally {
+						sel.disabled = false;
+					}
 				});
 			});
 		} catch (err) {
