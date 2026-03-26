@@ -738,7 +738,7 @@
 
 > **Objetivo:** Reemplazar datos demo del dashboard actual con datos reales persistentes en DB, consultados via REST API del plugin.
 
-- [ ] **TICKET-DASH-004: Dashboard section — KPIs desde DB**
+- [x] **TICKET-DASH-004: Dashboard section — KPIs desde DB**
   - **Fuente:** Migración del dashboard estático actual
   - **Historia de Usuario:** Como Karel, quiero ver mis métricas de negocio reales en el dashboard para tomar decisiones informadas.
   - **Criterios de Aceptación:**
@@ -765,7 +765,8 @@
     - `data/wordpress/wp-content/plugins/tma-panel/assets/js/panel.js` (MODIFIED)
   - **Dependencias:** TICKET-PANEL-004, TICKET-PANEL-006
   - **Prioridad:** P1
-  - **Status:** 🔄 EN PROGRESO
+  - **Status:** ✅ COMPLETADO (2026-03-26)
+  - **Notas:** KPI cards reales + tendencia (up/down/neutral), gráficos Chart.js (impressions y canales), fallback demo visible. 10/10 tests.
 
 - [ ] **TICKET-DASH-005: Cron job — fetch periódico de APIs externas (GBP, GA4, IG)**
   - **Fuente:** Eliminación de dependencia en Node.js proxy
@@ -1101,8 +1102,8 @@
 | 6 — Leads/CRM | 1 | 1 | 0 | 0 | 100% |
 | 7 — Portal Docs | 4 | 4 | 0 | 0 | 100% |
 | 8 — TMA Panel Base | 10 | 10 | 0 | 0 | 100% |
-| 9 — Dashboard Datos Reales | 5 | 0 | 5 | 0 | 0% |
+| 9 — Dashboard Datos Reales | 5 | 1 | 4 | 0 | 20% |
 | 10 — Portal Integrado | 3 | 0 | 3 | 0 | 0% |
 | 11 — Leads Dinámico | 3 | 0 | 3 | 0 | 0% |
 | 12 — Cleanup Docker | 1 | 0 | 1 | 0 | 0% |
-| **TOTAL** | **39** | **27** | **12** | **0** | **69%** |
+| **TOTAL** | **39** | **28** | **11** | **0** | **72%** |
