@@ -438,17 +438,19 @@
 	/* ═══════════════════════════════════════════════════════════════
 	   Section: Documents
 	   ═══════════════════════════════════════════════════════════════ */
+	let docsState = [];
+	let currentDocIndex = -1;
 
 	async function renderDocuments(container) {
 		try {
-			const docs = await api('/documents');
-			if (!docs.length) {
+			docsState = await api('/documents');
+			if (!docsState.length) {
 				container.innerHTML = '<div class="card"><p style="color:var(--tma-muted);">' + escapeHtml(t('documents.no_docs')) + '</p></div>';
 				return;
 			}
 
 			let cards = '';
-			docs.forEach(function (doc) {
+			docsState.forEach(function (doc, idx) {
 				const statusClass = doc.status === 'approved' ? 'badge--success' : (doc.status === 'pending' ? 'badge--warning' : 'badge--info');
 				const code = doc.slug || '';
 				cards += '<article class="card" style="margin-bottom:12px;">'
@@ -460,22 +462,45 @@
 					+ '</div>'
 					+ '<div style="display:flex;align-items:center;gap:8px;">'
 					+ '<span class="badge ' + statusClass + '">' + escapeHtml(doc.status || '') + '</span>'
-					+ '<button class="btn btn--primary btn-view-doc" data-doc-code="' + escapeHtml(code) + '">Ver</button>'
+					+ '<button class="btn btn--primary btn-view-doc" data-doc-code="' + escapeHtml(code) + '" data-doc-index="' + idx + '">Ver</button>'
 					+ '</div>'
 					+ '</div>'
 					+ '</article>';
 			});
 
+			const approvedCount = docsState.filter(function (d) { return d.status === 'approved'; }).length;
+			const total = docsState.length;
+			const percent = total > 0 ? Math.round((approvedCount / total) * 100) : 0;
+
 			container.innerHTML = `
 				<div class="card">
 					<h2 class="card__title">${escapeHtml(t('documents.title'))}</h2>
+					<div style="margin:0 0 16px 0;">
+						<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--tma-muted);margin-bottom:6px;">
+							<span>Progreso aprobación</span>
+							<strong>${approvedCount}/${total} (${percent}%)</strong>
+						</div>
+						<div style="height:8px;background:#e5e7eb;border-radius:999px;overflow:hidden;">
+							<div style="height:100%;background:#B8860B;width:${percent}%;"></div>
+						</div>
+					</div>
 					<div>${cards}</div>
 				</div>
 				<div id="tma-doc-viewer-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:9999;padding:24px;">
 					<div style="height:100%;max-width:1100px;margin:0 auto;background:#fff;border-radius:10px;overflow:hidden;display:flex;flex-direction:column;">
 						<div style="padding:10px 14px;border-bottom:1px solid #ddd;display:flex;justify-content:space-between;align-items:center;">
 							<strong id="tma-doc-viewer-title">Documento</strong>
-							<button class="btn" id="tma-doc-viewer-close">Cerrar</button>
+							<div style="display:flex;gap:8px;align-items:center;">
+								<button class="btn" id="tma-doc-prev">Anterior</button>
+								<button class="btn" id="tma-doc-next">Siguiente</button>
+								<button class="btn" id="tma-doc-viewer-close">Cerrar</button>
+							</div>
+						</div>
+						<div style="padding:10px 14px;border-bottom:1px solid #eee;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+							<button class="btn btn--success" id="tma-doc-approve">Aprobado</button>
+							<button class="btn btn--warning" id="tma-doc-changes">Con cambios</button>
+							<textarea id="tma-doc-change-notes" class="input textarea" rows="2" placeholder="Describe cambios (mínimo 10 caracteres)" style="display:none;min-width:320px;"></textarea>
+							<button class="btn btn--accent" id="tma-doc-save-changes" style="display:none;">Guardar cambios</button>
 						</div>
 						<div id="tma-doc-viewer-host" style="position:relative;flex:1;overflow:auto;background:#f6f7f8;"></div>
 					</div>
@@ -484,15 +509,62 @@
 
 			container.querySelectorAll('.btn-view-doc').forEach(function (btn) {
 				btn.addEventListener('click', function () {
+					currentDocIndex = parseInt(btn.dataset.docIndex || '-1', 10);
 					openDocumentViewer(btn.dataset.docCode || '', btn.closest('article') ? btn.closest('article').querySelector('h3').textContent : 'Documento');
 				});
 			});
 
 			const closeBtn = document.getElementById('tma-doc-viewer-close');
 			if (closeBtn) closeBtn.addEventListener('click', closeDocumentViewer);
+			const prevBtn = document.getElementById('tma-doc-prev');
+			if (prevBtn) prevBtn.addEventListener('click', function () { navigateDoc(-1); });
+			const nextBtn = document.getElementById('tma-doc-next');
+			if (nextBtn) nextBtn.addEventListener('click', function () { navigateDoc(1); });
+
+			const approveBtn = document.getElementById('tma-doc-approve');
+			if (approveBtn) approveBtn.addEventListener('click', function () { saveDocStatus('approved', ''); });
+			const changesBtn = document.getElementById('tma-doc-changes');
+			if (changesBtn) {
+				changesBtn.addEventListener('click', function () {
+					document.getElementById('tma-doc-change-notes').style.display = 'block';
+					document.getElementById('tma-doc-save-changes').style.display = 'inline-flex';
+				});
+			}
+			const saveChangesBtn = document.getElementById('tma-doc-save-changes');
+			if (saveChangesBtn) {
+				saveChangesBtn.addEventListener('click', function () {
+					const notes = document.getElementById('tma-doc-change-notes').value || '';
+					if (notes.trim().length < 10) {
+						alert('La nota debe tener al menos 10 caracteres.');
+						return;
+					}
+					saveDocStatus('changes_requested', notes.trim());
+				});
+			}
 		} catch (err) {
 			showError(container, t('error.loading_documents') + ': ' + err.message);
 		}
+	}
+
+	function navigateDoc(direction) {
+		if (!docsState.length || currentDocIndex < 0) return;
+		const nextIndex = currentDocIndex + direction;
+		if (nextIndex < 0 || nextIndex >= docsState.length) return;
+		currentDocIndex = nextIndex;
+		const doc = docsState[currentDocIndex];
+		openDocumentViewer(doc.slug || '', doc.title || 'Documento');
+	}
+
+	async function saveDocStatus(status, notes) {
+		if (currentDocIndex < 0 || !docsState[currentDocIndex]) return;
+		const doc = docsState[currentDocIndex];
+		await api('/documents/' + doc.id + '/status', {
+			method: 'POST',
+			body: JSON.stringify({ status: status, notes: notes || '' })
+		});
+		docsState[currentDocIndex].status = status;
+		alert(status === 'approved' ? 'Documento aprobado.' : 'Documento marcado con cambios.');
+		renderDocuments(document.getElementById('tma-content'));
 	}
 
 	async function openDocumentViewer(code, title) {
@@ -533,6 +605,7 @@
 		const host = document.getElementById('tma-doc-viewer-host');
 		if (modal) modal.style.display = 'none';
 		if (host) host.innerHTML = '';
+		currentDocIndex = -1;
 	}
 
 	/* ═══════════════════════════════════════════════════════════════
