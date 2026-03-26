@@ -28,13 +28,23 @@ define( 'TMA_PANEL_HOST', 'panel.thormetalart.com' );
 
 require_once TMA_PANEL_PATH . 'includes/class-tma-panel-router.php';
 require_once TMA_PANEL_PATH . 'includes/class-tma-panel-roles.php';
+require_once TMA_PANEL_PATH . 'includes/class-tma-panel-data.php';
 
 /* ═══════════════════════════════════════════════════════════════════
    Activation / Deactivation
    ═══════════════════════════════════════════════════════════════════ */
 
-register_activation_hook( __FILE__, array( 'TMA_Panel_Roles', 'activate' ) );
+register_activation_hook( __FILE__, function (): void {
+	TMA_Panel_Roles::activate();
+	TMA_Panel_Data::maybe_migrate();
+} );
 register_deactivation_hook( __FILE__, array( 'TMA_Panel_Roles', 'deactivate' ) );
+
+/* ═══════════════════════════════════════════════════════════════════
+   Auto-migrate on admin_init (for updates without reactivation)
+   ═══════════════════════════════════════════════════════════════════ */
+
+add_action( 'admin_init', array( 'TMA_Panel_Data', 'maybe_migrate' ) );
 
 /* ═══════════════════════════════════════════════════════════════════
    Init — Router intercepts panel domain before WP query resolution
