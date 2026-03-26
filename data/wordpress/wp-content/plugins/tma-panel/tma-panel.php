@@ -60,6 +60,52 @@ add_action( 'init', array( 'TMA_Panel_Audit', 'schedule_cleanup' ) );
 add_action( 'tma_panel_audit_cleanup', array( 'TMA_Panel_Audit', 'cleanup' ) );
 
 /* ═══════════════════════════════════════════════════════════════════
+   Security — Hide admin bar, block wp-admin, session timeout, CORS
+   ═══════════════════════════════════════════════════════════════════ */
+
+// Hide admin bar for tma_admin and tma_client roles.
+add_action( 'after_setup_theme', function (): void {
+	if ( ! is_user_logged_in() ) {
+		return;
+	}
+	$user  = wp_get_current_user();
+	$roles = array( 'tma_admin', 'tma_client' );
+	if ( array_intersect( $roles, $user->roles ) ) {
+		show_admin_bar( false );
+	}
+} );
+
+// Block wp-admin access for tma_client / tma_admin (redirect to panel).
+add_action( 'admin_init', function (): void {
+	if ( wp_doing_ajax() || wp_doing_cron() ) {
+		return;
+	}
+	$user        = wp_get_current_user();
+	$tma_roles   = array( 'tma_admin', 'tma_client' );
+	if ( $user->ID && array_intersect( $tma_roles, $user->roles )
+		&& ! array_intersect( array( 'administrator' ), $user->roles ) ) {
+		wp_safe_redirect( 'https://' . TMA_PANEL_HOST . '/' );
+		exit;
+	}
+} );
+
+// Session timeout: 12 hours for TMA roles.
+add_filter( 'auth_cookie_expiration', function ( int $expiration, int $user_id ): int {
+	$user      = get_userdata( $user_id );
+	$tma_roles = array( 'tma_admin', 'tma_client' );
+	if ( $user && array_intersect( $tma_roles, $user->roles ) ) {
+		return 12 * HOUR_IN_SECONDS;
+	}
+	return $expiration;
+}, 10, 2 );
+
+// CORS: allow panel domain for REST API.
+add_filter( 'allowed_http_origins', function ( array $origins ): array {
+	$origins[] = 'https://' . TMA_PANEL_HOST;
+	return $origins;
+} );
+
+/* ═══════════════════════════════════════════════════════════════════
    REST API — Register tma-panel/v1 endpoints
    ═══════════════════════════════════════════════════════════════════ */
 
