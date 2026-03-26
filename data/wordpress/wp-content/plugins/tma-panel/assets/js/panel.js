@@ -113,6 +113,11 @@
 			const counts = data.counts || {};
 
 			container.innerHTML = `
+				<div class="dashboard-actions" style="display:flex;justify-content:flex-end;margin-bottom:var(--tma-sp-3);">
+					<button class="btn btn--accent" id="tma-export-btn">
+						📋 ${escapeHtml(t('dashboard.export') || 'Exportar resumen')}
+					</button>
+				</div>
 				<div class="kpi-grid">
 					<div class="kpi-card">
 						<span class="kpi-card__label">${escapeHtml(t('dashboard.leads'))}</span>
@@ -133,8 +138,48 @@
 				</div>
 				${renderKpiTable(kpis)}
 			`;
+
+			// Bind export button.
+			var exportBtn = document.getElementById('tma-export-btn');
+			if (exportBtn) {
+				exportBtn.addEventListener('click', handleExport);
+			}
 		} catch (err) {
 			showError(container, t('error.loading_dashboard') + ': ' + err.message);
+		}
+	}
+
+	async function handleExport() {
+		var btn = document.getElementById('tma-export-btn');
+		if (btn) btn.disabled = true;
+		try {
+			var data = await api('/export');
+			var text = (data && typeof data.summary === 'string') ? data.summary : '';
+			if (!text) {
+				throw new Error('Export summary is empty');
+			}
+			if (navigator.clipboard && navigator.clipboard.writeText) {
+				await navigator.clipboard.writeText(text);
+			} else {
+				var ta = document.createElement('textarea');
+				ta.value = text;
+				ta.style.position = 'fixed';
+				ta.style.left = '-9999px';
+				document.body.appendChild(ta);
+				ta.select();
+				document.execCommand('copy');
+				document.body.removeChild(ta);
+			}
+			if (btn) {
+				btn.textContent = '✅ ' + (t('dashboard.exported') || 'Copiado');
+				setTimeout(function () {
+					btn.textContent = '📋 ' + (t('dashboard.export') || 'Exportar resumen');
+					btn.disabled = false;
+				}, 2000);
+			}
+		} catch (err) {
+			if (btn) { btn.disabled = false; }
+			alert((t('error.export_failed') || 'Error al exportar') + ': ' + err.message);
 		}
 	}
 

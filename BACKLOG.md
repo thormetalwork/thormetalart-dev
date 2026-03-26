@@ -729,7 +729,7 @@
     - `data/wordpress/wp-content/plugins/tma-panel/includes/class-tma-panel-export.php` (NEW)
   - **Dependencias:** TICKET-PANEL-004
   - **Prioridad:** P3
-  - **Status:** ⏸️ PENDIENTE
+  - **Status:** 🔄 EN PROGRESO
 
 ---
 

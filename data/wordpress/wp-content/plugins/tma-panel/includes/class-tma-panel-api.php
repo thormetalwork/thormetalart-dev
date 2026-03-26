@@ -424,24 +424,15 @@ class TMA_Panel_API {
 	 * GET /export — exportable data summary.
 	 */
 	public static function get_export( WP_REST_Request $request ): WP_REST_Response {
-		global $wpdb;
-
-		$leads = $wpdb->get_results(
-			"SELECT id, name, email, phone, source, status, created_at
-			 FROM {$wpdb->prefix}panel_leads
-			 ORDER BY created_at DESC"
-		);
-
-		$kpis = $wpdb->get_results(
-			"SELECT metric, value, period, category
-			 FROM {$wpdb->prefix}panel_kpis
-			 ORDER BY period ASC, metric ASC"
-		);
+		$summary = '';
+		if ( class_exists( 'TMA_Panel_Export' ) ) {
+			$summary = TMA_Panel_Export::generate_summary();
+		}
 
 		return new WP_REST_Response(
 			array(
-				'leads' => $leads,
-				'kpis'  => $kpis,
+				'summary'      => $summary,
+				'generated_at' => wp_date( 'c' ),
 			),
 			200
 		);

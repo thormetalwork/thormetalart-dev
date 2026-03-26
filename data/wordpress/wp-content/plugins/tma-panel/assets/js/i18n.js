@@ -50,6 +50,8 @@
 			'dashboard.latest': 'Último',
 			'dashboard.previous': 'Anterior',
 			'dashboard.no_kpis': 'No hay KPIs registrados.',
+			'dashboard.export': 'Exportar resumen',
+			'dashboard.exported': 'Copiado',
 
 			// Documents
 			'documents.title': 'Documentos del Proyecto',
@@ -95,6 +97,7 @@
 			'error.loading_leads': 'Error cargando leads',
 			'error.loading_notes': 'Error cargando notas',
 			'error.loading_audit': 'Error cargando audit log',
+			'error.export_failed': 'Error al exportar',
 		},
 
 		en: {
@@ -132,6 +135,8 @@
 			'dashboard.latest': 'Latest',
 			'dashboard.previous': 'Previous',
 			'dashboard.no_kpis': 'No KPI records found.',
+			'dashboard.export': 'Export summary',
+			'dashboard.exported': 'Copied',
 
 			// Documents
 			'documents.title': 'Project Documents',
@@ -177,6 +182,7 @@
 			'error.loading_leads': 'Error loading leads',
 			'error.loading_notes': 'Error loading notes',
 			'error.loading_audit': 'Error loading audit log',
+			'error.export_failed': 'Export failed',
 		},
 	};
 
