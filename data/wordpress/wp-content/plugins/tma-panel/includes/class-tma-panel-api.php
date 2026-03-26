@@ -550,6 +550,10 @@ class TMA_Panel_API {
 			return new WP_REST_Response( array( 'message' => __( 'Could not update document.', 'thormetalart' ) ), 500 );
 		}
 
+		if ( class_exists( 'TMA_Panel_Audit' ) ) {
+			TMA_Panel_Audit::log( 'doc_status_' . $status, 'document', $doc_id );
+		}
+
 		return new WP_REST_Response(
 			array(
 				'id'          => $doc_id,
@@ -637,6 +641,10 @@ class TMA_Panel_API {
 				array( 'message' => __( 'Could not update lead.', 'thormetalart' ) ),
 				400
 			);
+		}
+
+		if ( class_exists( 'TMA_Panel_Audit' ) ) {
+			TMA_Panel_Audit::log( 'lead_status_' . $status, 'lead', $lead_id );
 		}
 
 		return new WP_REST_Response(
@@ -824,7 +832,4 @@ class TMA_Panel_API {
 		);
 	}
 }
-				TMA_Panel_Audit::log( 'lead_status_' . $status, 'lead', $lead_id );
-
-		TMA_Panel_Audit::log( 'doc_status_' . $status, 'document', $doc_id );
 
