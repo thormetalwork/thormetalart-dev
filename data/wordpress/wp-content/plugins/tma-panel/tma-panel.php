@@ -27,6 +27,14 @@ define( 'TMA_PANEL_HOST', 'panel.thormetalart.com' );
    ═══════════════════════════════════════════════════════════════════ */
 
 require_once TMA_PANEL_PATH . 'includes/class-tma-panel-router.php';
+require_once TMA_PANEL_PATH . 'includes/class-tma-panel-roles.php';
+
+/* ═══════════════════════════════════════════════════════════════════
+   Activation / Deactivation
+   ═══════════════════════════════════════════════════════════════════ */
+
+register_activation_hook( __FILE__, array( 'TMA_Panel_Roles', 'activate' ) );
+register_deactivation_hook( __FILE__, array( 'TMA_Panel_Roles', 'deactivate' ) );
 
 /* ═══════════════════════════════════════════════════════════════════
    Init — Router intercepts panel domain before WP query resolution
