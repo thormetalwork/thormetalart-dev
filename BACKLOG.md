@@ -979,7 +979,7 @@
 
 > **Objetivo:** Migrar leads hardcoded a sistema CRUD con persistencia, conectado al formulario de contacto existente (TICKET-LEAD-001).
 
-- [ ] **TICKET-LEAD-002: Migrar leads a tma_panel_leads con CRUD completo**
+- [x] **TICKET-LEAD-002: Migrar leads a tma_panel_leads con CRUD completo**
   - **Fuente:** Análisis comparativo RAI Panel + formulario existente (tma-contact-form.php)
   - **Historia de Usuario:** Como Karel, quiero gestionar mis leads en el panel para actualizar estados y ver el valor del pipeline.
   - **Criterios de Aceptación:**
@@ -1014,7 +1014,8 @@
     - `data/wordpress/wp-content/mu-plugins/tma-contact-form.php` (MODIFIED) — hook para crear lead en tma_panel_leads
   - **Dependencias:** TICKET-PANEL-004, TICKET-LEAD-001
   - **Prioridad:** P1
-  - **Status:** ⏸️ PENDIENTE
+  - **Status:** ✅ COMPLETADO (2026-03-26)
+  - **Notas:** Clase TMA_Panel_Leads + migración desde tma_leads, endpoint POST /leads/{id} para status/value, y hook del formulario (tma_panel_create_lead) hacia panel_leads. 8/8 tests.
 
 - [ ] **TICKET-LEAD-003: Historial de cambios por lead**
   - **Fuente:** Mejores prácticas CRM
@@ -1111,6 +1112,6 @@
 | 8 — TMA Panel Base | 10 | 10 | 0 | 0 | 100% |
 | 9 — Dashboard Datos Reales | 5 | 5 | 0 | 0 | 100% |
 | 10 — Portal Integrado | 3 | 3 | 0 | 0 | 100% |
-| 11 — Leads Dinámico | 3 | 0 | 3 | 0 | 0% |
+| 11 — Leads Dinámico | 3 | 1 | 2 | 0 | 33% |
 | 12 — Cleanup Docker | 1 | 0 | 1 | 0 | 0% |
-| **TOTAL** | **39** | **35** | **4** | **0** | **90%** |
+| **TOTAL** | **39** | **36** | **3** | **0** | **92%** |
