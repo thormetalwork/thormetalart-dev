@@ -642,7 +642,7 @@
   - **Status:** ✅ COMPLETADO (2025-07-24)
   - **Notas:** 80+ keys ES/EN, t() function, localStorage persistence, lang switch init. 25/25 tests.
 
-- [ ] **TICKET-PANEL-008: Audit log — registro de acciones + rotación**
+- [x] **TICKET-PANEL-008: Audit log — registro de acciones + rotación**
   - **Fuente:** Análisis comparativo RAI Panel — class-rai-panel-audit.php
   - **Historia de Usuario:** Como admin, quiero un log de todas las acciones del panel para saber quién hizo qué y detectar comportamiento sospechoso.
   - **Criterios de Aceptación:**
@@ -672,7 +672,8 @@
     - `data/wordpress/wp-content/plugins/tma-panel/includes/class-tma-panel-audit.php` (NEW)
   - **Dependencias:** TICKET-PANEL-003
   - **Prioridad:** P1
-  - **Status:** ⏸️ PENDIENTE
+  - **Status:** ✅ COMPLETADO (2025-07-24)
+  - **Notas:** TMA_Panel_Audit class, log/get_entries/cleanup, cron diario 90 días, IP+UA en details JSON. 15/15 tests.
 
 - [ ] **TICKET-PANEL-009: Security hardening — headers, CORS, session, wp-admin block**
   - **Fuente:** Análisis comparativo RAI Panel — SEC-001 a SEC-007 + PANEL-014
@@ -1097,9 +1098,9 @@
 | 5 — Seguridad | 1 | 1 | 0 | 0 | 100% |
 | 6 — Leads/CRM | 1 | 1 | 0 | 0 | 100% |
 | 7 — Portal Docs | 4 | 4 | 0 | 0 | 100% |
-| 8 — TMA Panel Base | 10 | 7 | 3 | 0 | 70% |
+| 8 — TMA Panel Base | 10 | 8 | 2 | 0 | 80% |
 | 9 — Dashboard Datos Reales | 5 | 0 | 5 | 0 | 0% |
 | 10 — Portal Integrado | 3 | 0 | 3 | 0 | 0% |
 | 11 — Leads Dinámico | 3 | 0 | 3 | 0 | 0% |
 | 12 — Cleanup Docker | 1 | 0 | 1 | 0 | 0% |
-| **TOTAL** | **39** | **24** | **15** | **0** | **62%** |
+| **TOTAL** | **39** | **25** | **14** | **0** | **64%** |
