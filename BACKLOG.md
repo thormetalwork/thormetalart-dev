@@ -801,7 +801,7 @@
     - `data/wordpress/wp-content/plugins/tma-panel/includes/class-tma-panel-cron.php` (NEW)
   - **Dependencias:** TICKET-PANEL-003
   - **Prioridad:** P1
-  - **Status:** ⏸️ PENDIENTE
+  - **Status:** 🔄 EN PROGRESO
 
 - [ ] **TICKET-DASH-006: Sección Google Business Profile en panel**
   - **Fuente:** Migración de tab GBP del dashboard actual
