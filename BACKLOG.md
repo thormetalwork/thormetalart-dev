@@ -462,7 +462,7 @@
   - **Completado:** 2026-03-26
   - **Notas de cierre:** tma_admin (11 caps: read, upload, edit + 8 panel caps). tma_client (6 caps: read + 5 panel caps, sin audit/toggle/kpis). Administrator hereda caps del panel. 32 tests pasan.
 
-- [ ] **TICKET-PANEL-003: Custom tables + migration system**
+- [x] **TICKET-PANEL-003: Custom tables + migration system**
   - **Fuente:** Análisis comparativo RAI Panel — class-rai-panel-data.php + migrations/
   - **Historia de Usuario:** Como desarrollador, quiero tablas custom con sistema de migrations para persistir datos del panel (leads, notas, KPIs, audit, documentos).
   - **Criterios de Aceptación:**
@@ -490,7 +490,8 @@
     - `data/wordpress/wp-content/plugins/tma-panel/migrations/001-initial.php` (NEW)
   - **Dependencias:** TICKET-PANEL-001
   - **Prioridad:** P0
-  - **Status:** 🔄 EN PROGRESO
+  - **Status:** ✅ COMPLETADO (2026-03-26)
+  - **Notas:** 5 tablas con dbDelta, migration runner versionado, 13 docs + 36 KPIs seed. 40/40 tests.
 
 - [ ] **TICKET-PANEL-004: REST API endpoints base**
   - **Fuente:** Análisis comparativo RAI Panel — class-rai-panel-api.php
@@ -1092,9 +1093,9 @@
 | 5 — Seguridad | 1 | 1 | 0 | 0 | 100% |
 | 6 — Leads/CRM | 1 | 1 | 0 | 0 | 100% |
 | 7 — Portal Docs | 4 | 4 | 0 | 0 | 100% |
-| 8 — TMA Panel Base | 10 | 2 | 8 | 0 | 20% |
+| 8 — TMA Panel Base | 10 | 3 | 7 | 0 | 30% |
 | 9 — Dashboard Datos Reales | 5 | 0 | 5 | 0 | 0% |
 | 10 — Portal Integrado | 3 | 0 | 3 | 0 | 0% |
 | 11 — Leads Dinámico | 3 | 0 | 3 | 0 | 0% |
 | 12 — Cleanup Docker | 1 | 0 | 1 | 0 | 0% |
-| **TOTAL** | **39** | **19** | **20** | **0** | **49%** |
+| **TOTAL** | **39** | **20** | **19** | **0** | **51%** |
