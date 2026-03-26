@@ -905,7 +905,7 @@
   - **Status:** ✅ COMPLETADO (2026-03-26)
   - **Notas:** Clase docs + cache/html migrado, endpoint protegido /documents/{code}/content, viewer Shadow DOM con watermark y anti-copy. 13/13 tests.
 
-- [ ] **TICKET-PORTAL-006: Sistema de aprobación de documentos**
+- [x] **TICKET-PORTAL-006: Sistema de aprobación de documentos**
   - **Fuente:** Análisis comparativo RAI Panel — UX de aprobación por documento
   - **Historia de Usuario:** Como Karel, quiero poder marcar cada documento como aprobado o con cambios para que el equipo sepa qué necesita corrección.
   - **Criterios de Aceptación:**
@@ -936,7 +936,8 @@
     - `data/wordpress/wp-content/plugins/tma-panel/assets/js/panel.js` (MODIFIED)
   - **Dependencias:** TICKET-PORTAL-005
   - **Prioridad:** P1
-  - **Status:** 🔄 EN PROGRESO
+  - **Status:** ✅ COMPLETADO (2026-03-26)
+  - **Notas:** Endpoint status por documento, 3 estados con validación, nota obligatoria para cambios, barra global progreso y navegación prev/next. 10/10 tests.
 
 - [ ] **TICKET-PORTAL-007: Sistema de notas bidireccional**
   - **Fuente:** Análisis comparativo RAI Panel — notas por módulo + timeline
@@ -1108,7 +1109,7 @@
 | 7 — Portal Docs | 4 | 4 | 0 | 0 | 100% |
 | 8 — TMA Panel Base | 10 | 10 | 0 | 0 | 100% |
 | 9 — Dashboard Datos Reales | 5 | 5 | 0 | 0 | 100% |
-| 10 — Portal Integrado | 3 | 1 | 2 | 0 | 33% |
+| 10 — Portal Integrado | 3 | 2 | 1 | 0 | 67% |
 | 11 — Leads Dinámico | 3 | 0 | 3 | 0 | 0% |
 | 12 — Cleanup Docker | 1 | 0 | 1 | 0 | 0% |
-| **TOTAL** | **39** | **33** | **6** | **0** | **85%** |
+| **TOTAL** | **39** | **34** | **5** | **0** | **87%** |
