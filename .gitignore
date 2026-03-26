@@ -1,5 +1,13 @@
-# Data volumes
-data/
+# Data volumes (ignore everything except our custom code)
+data/*
+!data/wordpress/
+data/wordpress/*
+!data/wordpress/wp-content/
+data/wordpress/wp-content/*
+!data/wordpress/wp-content/plugins/
+!data/wordpress/wp-content/mu-plugins/
+data/wordpress/wp-content/plugins/*
+!data/wordpress/wp-content/plugins/tma-panel/
 
 # Environment
 .env
