@@ -52,6 +52,8 @@
 			'dashboard.no_kpis': 'No hay KPIs registrados.',
 			'dashboard.export': 'Exportar resumen',
 			'dashboard.exported': 'Copiado',
+			'dashboard.auto_refresh_in': 'Autoactualizacion en {{s}}s',
+			'dashboard.refresh_now': 'Actualizar ahora',
 
 			// Documents
 			'documents.title': 'Documentos del Proyecto',
@@ -137,6 +139,8 @@
 			'dashboard.no_kpis': 'No KPI records found.',
 			'dashboard.export': 'Export summary',
 			'dashboard.exported': 'Copied',
+			'dashboard.auto_refresh_in': 'Auto-refresh in {{s}}s',
+			'dashboard.refresh_now': 'Refresh now',
 
 			// Documents
 			'documents.title': 'Project Documents',

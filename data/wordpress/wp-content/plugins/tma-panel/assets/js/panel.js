@@ -13,6 +13,9 @@
 
 	const { apiBase, nonce, user } = window.TMA_PANEL;
 	const t = window.TMA_i18n ? window.TMA_i18n.t : function (key) { return key; };
+	const DASHBOARD_REFRESH_SECONDS = 120;
+	let dashboardRefreshInterval = null;
+	let dashboardRefreshRemaining = DASHBOARD_REFRESH_SECONDS;
 
 	/* ═══════════════════════════════════════════════════════════════
 	   API Helper
@@ -71,6 +74,48 @@
 		return fallback || 'Error desconocido.';
 	}
 
+	function clearDashboardAutoRefresh() {
+		if (dashboardRefreshInterval) {
+			clearInterval(dashboardRefreshInterval);
+			dashboardRefreshInterval = null;
+		}
+	}
+
+	function getDashboardRefreshLabel(seconds) {
+		const template = t('dashboard.auto_refresh_in') || 'Autoactualizacion en {{s}}s';
+		return template.replace('{{s}}', String(seconds));
+	}
+
+	function updateDashboardRefreshCounter() {
+		const counter = document.getElementById('tma-refresh-countdown');
+		if (!counter) {
+			return;
+		}
+		counter.textContent = getDashboardRefreshLabel(dashboardRefreshRemaining);
+	}
+
+	function startDashboardAutoRefresh(container) {
+		clearDashboardAutoRefresh();
+		dashboardRefreshRemaining = DASHBOARD_REFRESH_SECONDS;
+		updateDashboardRefreshCounter();
+
+		dashboardRefreshInterval = setInterval(async function () {
+			if ((location.hash || '#dashboard') !== '#dashboard') {
+				clearDashboardAutoRefresh();
+				return;
+			}
+
+			dashboardRefreshRemaining -= 1;
+			if (dashboardRefreshRemaining <= 0) {
+				clearDashboardAutoRefresh();
+				await renderDashboard(container);
+				return;
+			}
+
+			updateDashboardRefreshCounter();
+		}, 1000);
+	}
+
 	/* ═══════════════════════════════════════════════════════════════
 	   Router (hash-based)
 	   ═══════════════════════════════════════════════════════════════ */
@@ -92,6 +137,7 @@
 	};
 
 	function navigate() {
+		clearDashboardAutoRefresh();
 		const hash = (location.hash || '#dashboard').slice(1);
 		const section = routes[hash] ? hash : 'dashboard';
 		const render = routes[section];
@@ -121,6 +167,7 @@
 
 	async function renderDashboard(container) {
 		try {
+			clearDashboardAutoRefresh();
 			await ensureChartJs();
 			const data = await api('/dashboard');
 			const kpis = data.kpis || {};
@@ -137,6 +184,10 @@
 			container.innerHTML = `
 				<div class="dashboard-actions" style="display:flex;justify-content:flex-end;margin-bottom:var(--tma-sp-3);">
 					${isDemo ? '<span class="badge badge--warning" style="margin-right:auto;">(Datos de ejemplo)</span>' : ''}
+					<span class="badge badge--info" id="tma-refresh-countdown" style="margin-right:8px;">${escapeHtml(getDashboardRefreshLabel(DASHBOARD_REFRESH_SECONDS))}</span>
+					<button class="btn btn--ghost" id="tma-refresh-now" style="margin-right:8px;">
+						↻ ${escapeHtml(t('dashboard.refresh_now') || 'Actualizar ahora')}
+					</button>
 					<button class="btn btn--accent" id="tma-export-btn">
 						📋 ${escapeHtml(t('dashboard.export') || 'Exportar resumen')}
 					</button>
@@ -187,7 +238,17 @@
 			if (exportBtn) {
 				exportBtn.addEventListener('click', handleExport);
 			}
+
+			var refreshNowBtn = document.getElementById('tma-refresh-now');
+			if (refreshNowBtn) {
+				refreshNowBtn.addEventListener('click', function () {
+					renderDashboard(container);
+				});
+			}
+
+			startDashboardAutoRefresh(container);
 		} catch (err) {
+			clearDashboardAutoRefresh();
 			showError(container, t('error.loading_dashboard') + ': ' + getErrorMessage(err, 'Recurso bloqueado o no disponible.'));
 		}
 	}
