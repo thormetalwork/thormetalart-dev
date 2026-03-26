@@ -528,7 +528,7 @@
   - **Status:** ✅ COMPLETADO (2026-03-26)
   - **Notas:** 6 endpoints tma-panel/v1, auth 401/403, sanitize+prepare, POST /notes. 34/34 tests.
 
-- [ ] **TICKET-PANEL-005: Login template custom branded**
+- [x] **TICKET-PANEL-005: Login template custom branded**
   - **Fuente:** Análisis comparativo RAI Panel — templates/login.php, SEC-003 a SEC-009
   - **Historia de Usuario:** Como usuario del panel, quiero ver un formulario de login branded cuando accedo sin autenticar, para que la experiencia sea profesional y no exponga WordPress.
   - **Criterios de Aceptación:**
@@ -569,7 +569,8 @@
     - `data/wordpress/wp-content/plugins/tma-panel/templates/reset-password.php` (NEW)
   - **Dependencias:** TICKET-PANEL-001, TICKET-PANEL-002
   - **Prioridad:** P0
-  - **Status:** 🔄 EN PROGRESO
+  - **Status:** ✅ COMPLETADO (2025-07-24)
+  - **Notas:** Login branded dark/gold, forgot/reset password, rate limiting 5 intentos/15 min transients, 26/26 tests.
 
 - [ ] **TICKET-PANEL-006: Frontend SPA shell + sidebar + navegación**
   - **Fuente:** Análisis comparativo RAI Panel — panel.php + panel.js + panel.css
@@ -1094,9 +1095,9 @@
 | 5 — Seguridad | 1 | 1 | 0 | 0 | 100% |
 | 6 — Leads/CRM | 1 | 1 | 0 | 0 | 100% |
 | 7 — Portal Docs | 4 | 4 | 0 | 0 | 100% |
-| 8 — TMA Panel Base | 10 | 4 | 6 | 0 | 40% |
+| 8 — TMA Panel Base | 10 | 5 | 5 | 0 | 50% |
 | 9 — Dashboard Datos Reales | 5 | 0 | 5 | 0 | 0% |
 | 10 — Portal Integrado | 3 | 0 | 3 | 0 | 0% |
 | 11 — Leads Dinámico | 3 | 0 | 3 | 0 | 0% |
 | 12 — Cleanup Docker | 1 | 0 | 1 | 0 | 0% |
-| **TOTAL** | **39** | **21** | **18** | **0** | **54%** |
+| **TOTAL** | **39** | **22** | **17** | **0** | **56%** |
