@@ -675,7 +675,7 @@
   - **Status:** ✅ COMPLETADO (2025-07-24)
   - **Notas:** TMA_Panel_Audit class, log/get_entries/cleanup, cron diario 90 días, IP+UA en details JSON. 15/15 tests.
 
-- [ ] **TICKET-PANEL-009: Security hardening — headers, CORS, session, wp-admin block**
+- [x] **TICKET-PANEL-009: Security hardening — headers, CORS, session, wp-admin block**
   - **Fuente:** Análisis comparativo RAI Panel — SEC-001 a SEC-007 + PANEL-014
   - **Historia de Usuario:** Como desarrollador, quiero que el panel tenga headers de seguridad, CORS y sesiones configuradas para proteger contra ataques.
   - **Criterios de Aceptación:**
@@ -706,7 +706,8 @@
     - `data/wordpress/wp-content/plugins/tma-panel/tma-panel.php` (MODIFIED)
   - **Dependencias:** TICKET-PANEL-001, TICKET-PANEL-002
   - **Prioridad:** P0
-  - **Status:** 🔄 EN PROGRESO
+  - **Status:** ✅ COMPLETADO (2026-03-26)
+  - **Notas:** CSP header, admin bar hide, session 12h, CORS, wp-admin redirect. 18/18 tests.
 
 - [ ] **TICKET-PANEL-010: Export resumen del proyecto**
   - **Fuente:** Análisis comparativo RAI Panel — class-rai-panel-export.php
@@ -1098,9 +1099,9 @@
 | 5 — Seguridad | 1 | 1 | 0 | 0 | 100% |
 | 6 — Leads/CRM | 1 | 1 | 0 | 0 | 100% |
 | 7 — Portal Docs | 4 | 4 | 0 | 0 | 100% |
-| 8 — TMA Panel Base | 10 | 8 | 2 | 0 | 80% |
+| 8 — TMA Panel Base | 10 | 9 | 1 | 0 | 90% |
 | 9 — Dashboard Datos Reales | 5 | 0 | 5 | 0 | 0% |
 | 10 — Portal Integrado | 3 | 0 | 3 | 0 | 0% |
 | 11 — Leads Dinámico | 3 | 0 | 3 | 0 | 0% |
 | 12 — Cleanup Docker | 1 | 0 | 1 | 0 | 0% |
-| **TOTAL** | **39** | **25** | **14** | **0** | **64%** |
+| **TOTAL** | **39** | **26** | **13** | **0** | **67%** |
