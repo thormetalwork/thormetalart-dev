@@ -32,6 +32,7 @@ require_once TMA_PANEL_PATH . 'includes/class-tma-panel-data.php';
 require_once TMA_PANEL_PATH . 'includes/class-tma-panel-api.php';
 require_once TMA_PANEL_PATH . 'includes/class-tma-panel-audit.php';
 require_once TMA_PANEL_PATH . 'includes/class-tma-panel-export.php';
+require_once TMA_PANEL_PATH . 'includes/class-tma-panel-cron.php';
 
 /* ═══════════════════════════════════════════════════════════════════
    Activation / Deactivation
@@ -41,10 +42,12 @@ register_activation_hook( __FILE__, function (): void {
 	TMA_Panel_Roles::activate();
 	TMA_Panel_Data::maybe_migrate();
 	TMA_Panel_Audit::schedule_cleanup();
+	TMA_Panel_Cron::schedule_event();
 } );
 register_deactivation_hook( __FILE__, function (): void {
 	TMA_Panel_Roles::deactivate();
 	TMA_Panel_Audit::unschedule_cleanup();
+	TMA_Panel_Cron::unschedule_event();
 } );
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -59,6 +62,13 @@ add_action( 'admin_init', array( 'TMA_Panel_Data', 'maybe_migrate' ) );
 
 add_action( 'init', array( 'TMA_Panel_Audit', 'schedule_cleanup' ) );
 add_action( 'tma_panel_audit_cleanup', array( 'TMA_Panel_Audit', 'cleanup' ) );
+
+/* ═══════════════════════════════════════════════════════════════════
+	External APIs cron scheduling + sync hook
+	═══════════════════════════════════════════════════════════════════ */
+
+add_action( 'init', array( 'TMA_Panel_Cron', 'schedule_event' ) );
+add_action( 'tma_panel_sync_external_kpis', array( 'TMA_Panel_Cron', 'sync_all_sources' ) );
 
 /* ═══════════════════════════════════════════════════════════════════
    Security — Hide admin bar, block wp-admin, session timeout, CORS
