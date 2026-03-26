@@ -768,7 +768,7 @@
   - **Status:** ✅ COMPLETADO (2026-03-26)
   - **Notas:** KPI cards reales + tendencia (up/down/neutral), gráficos Chart.js (impressions y canales), fallback demo visible. 10/10 tests.
 
-- [ ] **TICKET-DASH-005: Cron job — fetch periódico de APIs externas (GBP, GA4, IG)**
+- [x] **TICKET-DASH-005: Cron job — fetch periódico de APIs externas (GBP, GA4, IG)**
   - **Fuente:** Eliminación de dependencia en Node.js proxy
   - **Historia de Usuario:** Como sistema, quiero consultar APIs externas periódicamente y guardar en DB para que el dashboard no dependa de llamadas en tiempo real.
   - **Criterios de Aceptación:**
@@ -801,7 +801,8 @@
     - `data/wordpress/wp-content/plugins/tma-panel/includes/class-tma-panel-cron.php` (NEW)
   - **Dependencias:** TICKET-PANEL-003
   - **Prioridad:** P1
-  - **Status:** 🔄 EN PROGRESO
+  - **Status:** ✅ COMPLETADO (2026-03-26)
+  - **Notas:** Cron diario tma_panel_sync_external_kpis, sync GBP/GA4/Instagram hacia panel_kpis, warnings por keys faltantes sin fallar. 14/14 tests.
 
 - [ ] **TICKET-DASH-006: Sección Google Business Profile en panel**
   - **Fuente:** Migración de tab GBP del dashboard actual
@@ -1102,8 +1103,8 @@
 | 6 — Leads/CRM | 1 | 1 | 0 | 0 | 100% |
 | 7 — Portal Docs | 4 | 4 | 0 | 0 | 100% |
 | 8 — TMA Panel Base | 10 | 10 | 0 | 0 | 100% |
-| 9 — Dashboard Datos Reales | 5 | 1 | 4 | 0 | 20% |
+| 9 — Dashboard Datos Reales | 5 | 2 | 3 | 0 | 40% |
 | 10 — Portal Integrado | 3 | 0 | 3 | 0 | 0% |
 | 11 — Leads Dinámico | 3 | 0 | 3 | 0 | 0% |
 | 12 — Cleanup Docker | 1 | 0 | 1 | 0 | 0% |
-| **TOTAL** | **39** | **28** | **11** | **0** | **72%** |
+| **TOTAL** | **39** | **29** | **10** | **0** | **74%** |
