@@ -525,7 +525,7 @@
     - `data/wordpress/wp-content/plugins/tma-panel/includes/class-tma-panel-api.php` (NEW)
   - **Dependencias:** TICKET-PANEL-002, TICKET-PANEL-003
   - **Prioridad:** P0
-  - **Status:** ⏸️ PENDIENTE
+  - **Status:** 🔄 EN PROGRESO
 
 - [ ] **TICKET-PANEL-005: Login template custom branded**
   - **Fuente:** Análisis comparativo RAI Panel — templates/login.php, SEC-003 a SEC-009

@@ -29,6 +29,7 @@ define( 'TMA_PANEL_HOST', 'panel.thormetalart.com' );
 require_once TMA_PANEL_PATH . 'includes/class-tma-panel-router.php';
 require_once TMA_PANEL_PATH . 'includes/class-tma-panel-roles.php';
 require_once TMA_PANEL_PATH . 'includes/class-tma-panel-data.php';
+require_once TMA_PANEL_PATH . 'includes/class-tma-panel-api.php';
 
 /* ═══════════════════════════════════════════════════════════════════
    Activation / Deactivation
@@ -45,6 +46,12 @@ register_deactivation_hook( __FILE__, array( 'TMA_Panel_Roles', 'deactivate' ) )
    ═══════════════════════════════════════════════════════════════════ */
 
 add_action( 'admin_init', array( 'TMA_Panel_Data', 'maybe_migrate' ) );
+
+/* ═══════════════════════════════════════════════════════════════════
+   REST API — Register tma-panel/v1 endpoints
+   ═══════════════════════════════════════════════════════════════════ */
+
+add_action( 'rest_api_init', array( 'TMA_Panel_API', 'register_routes' ) );
 
 /* ═══════════════════════════════════════════════════════════════════
    Init — Router intercepts panel domain before WP query resolution
