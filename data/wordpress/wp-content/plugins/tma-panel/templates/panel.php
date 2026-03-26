@@ -95,6 +95,9 @@ $nonce        = wp_create_nonce( 'wp_rest' );
 		</main>
 	</div>
 
+	<!-- i18n Dictionary -->
+	<script src="<?php echo esc_url( TMA_PANEL_URL . 'assets/js/i18n.js' ); ?>?v=<?php echo esc_attr( TMA_PANEL_VERSION ); ?>"></script>
+
 	<!-- Panel JS -->
 	<script src="<?php echo esc_url( TMA_PANEL_URL . 'assets/js/panel.js' ); ?>?v=<?php echo esc_attr( TMA_PANEL_VERSION ); ?>"></script>
 </body>

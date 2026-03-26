@@ -37,11 +37,11 @@ I18N="$PLUGIN_DIR/assets/js/i18n.js"
 
 if [ -f "$I18N" ]; then
   # Has ES and EN translations
-  grep -q "'es'\|\"es\"" "$I18N" \
+  grep -q "'es'\|\"es\"\|\bes:" "$I18N" \
     && pass "Has ES translations" \
     || fail "Missing ES translations"
 
-  grep -q "'en'\|\"en\"" "$I18N" \
+  grep -q "'en'\|\"en\"\|\ben:" "$I18N" \
     && pass "Has EN translations" \
     || fail "Missing EN translations"
 
