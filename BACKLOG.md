@@ -709,7 +709,7 @@
   - **Status:** ✅ COMPLETADO (2026-03-26)
   - **Notas:** CSP header, admin bar hide, session 12h, CORS, wp-admin redirect. 18/18 tests.
 
-- [ ] **TICKET-PANEL-010: Export resumen del proyecto**
+- [x] **TICKET-PANEL-010: Export resumen del proyecto**
   - **Fuente:** Análisis comparativo RAI Panel — class-rai-panel-export.php
   - **Historia de Usuario:** Como usuario del panel, quiero exportar un resumen consolidado del estado del proyecto para tener registro offline.
   - **Criterios de Aceptación:**
@@ -729,7 +729,8 @@
     - `data/wordpress/wp-content/plugins/tma-panel/includes/class-tma-panel-export.php` (NEW)
   - **Dependencias:** TICKET-PANEL-004
   - **Prioridad:** P3
-  - **Status:** 🔄 EN PROGRESO
+  - **Status:** ✅ COMPLETADO (2026-03-26)
+  - **Notas:** Export class en texto plano, endpoint /export con summary, botón dashboard + clipboard, i18n export. 17/17 tests.
 
 ---
 
@@ -1099,9 +1100,9 @@
 | 5 — Seguridad | 1 | 1 | 0 | 0 | 100% |
 | 6 — Leads/CRM | 1 | 1 | 0 | 0 | 100% |
 | 7 — Portal Docs | 4 | 4 | 0 | 0 | 100% |
-| 8 — TMA Panel Base | 10 | 9 | 1 | 0 | 90% |
+| 8 — TMA Panel Base | 10 | 10 | 0 | 0 | 100% |
 | 9 — Dashboard Datos Reales | 5 | 0 | 5 | 0 | 0% |
 | 10 — Portal Integrado | 3 | 0 | 3 | 0 | 0% |
 | 11 — Leads Dinámico | 3 | 0 | 3 | 0 | 0% |
 | 12 — Cleanup Docker | 1 | 0 | 1 | 0 | 0% |
-| **TOTAL** | **39** | **26** | **13** | **0** | **67%** |
+| **TOTAL** | **39** | **27** | **12** | **0** | **69%** |
