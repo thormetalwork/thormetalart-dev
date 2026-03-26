@@ -11,8 +11,8 @@ COMPOSE="/srv/stacks/thormetalart/docker-compose.yml"
 PASS=0
 FAIL=0
 
-pass() { echo "  ✅ PASS: $1"; ((PASS++)); }
-fail() { echo "  ❌ FAIL: $1"; ((FAIL++)); }
+pass() { echo "  ✅ PASS: $1"; PASS=$((PASS + 1)); }
+fail() { echo "  ❌ FAIL: $1"; FAIL=$((FAIL + 1)); }
 
 echo "══════════════════════════════════════════════════"
 echo " TICKET-PANEL-001 — Plugin Scaffold Tests"

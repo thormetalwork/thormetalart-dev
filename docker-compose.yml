@@ -67,12 +67,12 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=traefik-public"
-      - "traefik.http.routers.thormetalart.rule=Host(`thormetalart.com`) || Host(`www.thormetalart.com`)"
+      - "traefik.http.routers.thormetalart.rule=Host(`thormetalart.com`) || Host(`www.thormetalart.com`) || Host(`panel.thormetalart.com`)"
       - "traefik.http.routers.thormetalart.entrypoints=websecure"
       - "traefik.http.routers.thormetalart.tls=true"
       - "traefik.http.routers.thormetalart.tls.certresolver=letsencrypt"
       - "traefik.http.routers.thormetalart.tls.domains[0].main=thormetalart.com"
-      - "traefik.http.routers.thormetalart.tls.domains[0].sans=www.thormetalart.com"
+      - "traefik.http.routers.thormetalart.tls.domains[0].sans=www.thormetalart.com,panel.thormetalart.com"
       - "traefik.http.routers.thormetalart.middlewares=security-headers@file,rate-limit@file"
       - "traefik.http.services.thormetalart.loadbalancer.server.port=80"
 
