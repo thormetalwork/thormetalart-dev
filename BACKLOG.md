@@ -1057,7 +1057,7 @@
     - `data/wordpress/wp-content/plugins/tma-panel/assets/js/panel.js` (MODIFIED)
   - **Dependencias:** TICKET-LEAD-002
   - **Prioridad:** P3
-  - **Status:** 🔄 EN PROGRESO
+  - **Status:** ⏸️ PENDIENTE
 
 ---
 
