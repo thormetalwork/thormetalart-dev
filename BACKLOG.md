@@ -1042,23 +1042,13 @@
 - [ ] **TICKET-LEAD-004: Alertas de leads de alto valor**
   - **Fuente:** Requisito de negocio
   - **Historia de Usuario:** Como Karel, quiero recibir alertas cuando llega un lead de alto valor para darle atención inmediata.
-  - **Criterios de Aceptación:**
-    ```gherkin
-    Scenario: Alerta en dashboard
-      Given leads con estado "new" y value > $0
-      When cargo el dashboard
-      Then veo alerta: "X lead(s) nuevos requieren atención"
-
-    Scenario: Email de notificación (opcional)
-      Given nuevo lead creado desde formulario
-      When el lead tiene servicio "Custom Gates" o "Art & Commissions"
-      Then se envía email a Karel con datos básicos del lead
-    ```
+  - **Criterios de Aceptación:
+    
   - **Archivos:**
-    - `data/wordpress/wp-content/plugins/tma-panel/assets/js/panel.js` (MODIFIED)
+    -  (MODIFIED)
   - **Dependencias:** TICKET-LEAD-002
   - **Prioridad:** P3
-  - **Status:** ⏸️ PENDIENTE
+  - **Status:** 🔄 EN PROGRESO
 
 ---
 
