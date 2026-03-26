@@ -266,6 +266,17 @@ function tma_handle_lead_submission() {
         wp_send_json_error( [ 'message' => $labels['error'] ], 500 );
     }
 
+    do_action(
+        'tma_panel_create_lead',
+        [
+            'name'    => $name,
+            'email'   => $email,
+            'phone'   => $phone,
+            'source'  => $utm_source ?: 'web',
+            'message' => $message,
+        ]
+    );
+
     // Set rate limit transient (3 minutes).
     set_transient( $rate_key, 1, 3 * MINUTE_IN_SECONDS );
 

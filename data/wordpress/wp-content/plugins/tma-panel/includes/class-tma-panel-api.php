@@ -85,6 +85,26 @@ class TMA_Panel_API {
 			)
 		);
 
+		register_rest_route(
+			self::NAMESPACE,
+			'/leads/(?P<id>\\d+)',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( __CLASS__, 'update_lead' ),
+				'permission_callback' => array( __CLASS__, 'check_panel_access' ),
+				'args'                => array(
+					'status' => array(
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'lead_value' => array(
+						'required'          => false,
+						'sanitize_callback' => 'floatval',
+					),
+				),
+			)
+		);
+
 		// ── Notes (GET + POST) ──
 		register_rest_route(
 			self::NAMESPACE,
@@ -549,9 +569,12 @@ class TMA_Panel_API {
 	 */
 	public static function get_leads( WP_REST_Request $request ): WP_REST_Response {
 		global $wpdb;
+		if ( class_exists( 'TMA_Panel_Leads' ) ) {
+			TMA_Panel_Leads::get_pipeline_value();
+		}
 
 		$rows = $wpdb->get_results(
-			"SELECT id, name, email, phone, source, status, notes, assigned_to, created_at, updated_at
+			"SELECT id, name, email, phone, source, status, notes, assigned_to, lead_value, created_at, updated_at
 			 FROM {$wpdb->prefix}panel_leads
 			 ORDER BY created_at DESC"
 		);
@@ -567,12 +590,46 @@ class TMA_Panel_API {
 				'status'      => $row->status,
 				'notes'       => $row->notes,
 				'assigned_to' => (int) $row->assigned_to,
+				'lead_value'  => isset( $row->lead_value ) ? (float) $row->lead_value : 0.0,
 				'created_at'  => $row->created_at,
 				'updated_at'  => $row->updated_at,
 			);
 		}
 
 		return new WP_REST_Response( $leads, 200 );
+	}
+
+	/**
+	 * POST /leads/{id} — update lead status/value.
+	 */
+	public static function update_lead( WP_REST_Request $request ): WP_REST_Response {
+		$lead_id = (int) $request['id'];
+		$status  = (string) $request->get_param( 'status' );
+		$value   = (float) $request->get_param( 'lead_value' );
+
+		if ( ! class_exists( 'TMA_Panel_Leads' ) ) {
+			return new WP_REST_Response(
+				array( 'message' => __( 'Leads service unavailable.', 'thormetalart' ) ),
+				500
+			);
+		}
+
+		$ok = TMA_Panel_Leads::update_lead( $lead_id, $status, $value );
+		if ( ! $ok ) {
+			return new WP_REST_Response(
+				array( 'message' => __( 'Could not update lead.', 'thormetalart' ) ),
+				400
+			);
+		}
+
+		return new WP_REST_Response(
+			array(
+				'id'         => $lead_id,
+				'status'     => $status,
+				'lead_value' => $value,
+			),
+			200
+		);
 	}
 
 	/**

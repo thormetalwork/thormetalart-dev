@@ -34,6 +34,7 @@ require_once TMA_PANEL_PATH . 'includes/class-tma-panel-audit.php';
 require_once TMA_PANEL_PATH . 'includes/class-tma-panel-export.php';
 require_once TMA_PANEL_PATH . 'includes/class-tma-panel-cron.php';
 require_once TMA_PANEL_PATH . 'includes/class-tma-panel-docs.php';
+require_once TMA_PANEL_PATH . 'includes/class-tma-panel-leads.php';
 
 /* ═══════════════════════════════════════════════════════════════════
    Activation / Deactivation
@@ -45,6 +46,7 @@ register_activation_hook( __FILE__, function (): void {
 	TMA_Panel_Audit::schedule_cleanup();
 	TMA_Panel_Cron::schedule_event();
 	TMA_Panel_Docs::migrate_portal_docs_to_cache();
+	TMA_Panel_Leads::migrate_from_tma_leads();
 } );
 register_deactivation_hook( __FILE__, function (): void {
 	TMA_Panel_Roles::deactivate();
@@ -123,6 +125,18 @@ add_filter( 'allowed_http_origins', function ( array $origins ): array {
    ═══════════════════════════════════════════════════════════════════ */
 
 add_action( 'rest_api_init', array( 'TMA_Panel_API', 'register_routes' ) );
+
+// Sync leads from MU contact form into panel_leads.
+add_action(
+	'tma_panel_create_lead',
+	function ( array $lead_data ): void {
+		if ( class_exists( 'TMA_Panel_Leads' ) ) {
+			TMA_Panel_Leads::create_from_contact( $lead_data );
+		}
+	},
+	10,
+	1
+);
 
 /* ═══════════════════════════════════════════════════════════════════
    Init — Router intercepts panel domain before WP query resolution
