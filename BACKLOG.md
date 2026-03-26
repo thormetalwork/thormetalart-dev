@@ -458,7 +458,7 @@
     - `data/wordpress/wp-content/plugins/tma-panel/includes/class-tma-panel-roles.php` (NEW)
   - **Dependencias:** TICKET-PANEL-001
   - **Prioridad:** P0
-  - **Status:** ⏸️ PENDIENTE
+  - **Status:** 🔄 EN PROGRESO
 
 - [ ] **TICKET-PANEL-003: Custom tables + migration system**
   - **Fuente:** Análisis comparativo RAI Panel — class-rai-panel-data.php + migrations/
