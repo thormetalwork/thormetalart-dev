@@ -490,7 +490,7 @@
     - `data/wordpress/wp-content/plugins/tma-panel/migrations/001-initial.php` (NEW)
   - **Dependencias:** TICKET-PANEL-001
   - **Prioridad:** P0
-  - **Status:** ⏸️ PENDIENTE
+  - **Status:** 🔄 EN PROGRESO
 
 - [ ] **TICKET-PANEL-004: REST API endpoints base**
   - **Fuente:** Análisis comparativo RAI Panel — class-rai-panel-api.php
