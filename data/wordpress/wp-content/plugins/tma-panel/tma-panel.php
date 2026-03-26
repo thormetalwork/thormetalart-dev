@@ -31,6 +31,7 @@ require_once TMA_PANEL_PATH . 'includes/class-tma-panel-roles.php';
 require_once TMA_PANEL_PATH . 'includes/class-tma-panel-data.php';
 require_once TMA_PANEL_PATH . 'includes/class-tma-panel-api.php';
 require_once TMA_PANEL_PATH . 'includes/class-tma-panel-audit.php';
+require_once TMA_PANEL_PATH . 'includes/class-tma-panel-export.php';
 
 /* ═══════════════════════════════════════════════════════════════════
    Activation / Deactivation
