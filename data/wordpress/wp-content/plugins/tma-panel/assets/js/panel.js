@@ -12,6 +12,7 @@
 	'use strict';
 
 	const { apiBase, nonce, user } = window.TMA_PANEL;
+	const t = window.TMA_i18n ? window.TMA_i18n.t : function (key) { return key; };
 
 	/* ═══════════════════════════════════════════════════════════════
 	   API Helper
@@ -69,12 +70,12 @@
 		audit: renderAudit,
 	};
 
-	const sectionTitles = {
-		dashboard: 'Dashboard',
-		documents: 'Documentos',
-		leads: 'Leads',
-		notes: 'Notas',
-		audit: 'Audit Log',
+	const sectionTitleKeys = {
+		dashboard: 'nav.dashboard',
+		documents: 'nav.documents',
+		leads: 'nav.leads',
+		notes: 'nav.notes',
+		audit: 'nav.audit',
 	};
 
 	function navigate() {
@@ -90,7 +91,7 @@
 		// Update page title.
 		const title = document.getElementById('tma-page-title');
 		if (title) {
-			title.textContent = sectionTitles[section] || section;
+			title.textContent = t(sectionTitleKeys[section] || section);
 		}
 
 		// Render section.
@@ -114,32 +115,32 @@
 			container.innerHTML = `
 				<div class="kpi-grid">
 					<div class="kpi-card">
-						<span class="kpi-card__label">Leads</span>
+						<span class="kpi-card__label">${escapeHtml(t('dashboard.leads'))}</span>
 						<span class="kpi-card__value">${parseInt(counts.leads) || 0}</span>
 					</div>
 					<div class="kpi-card">
-						<span class="kpi-card__label">Documentos</span>
+						<span class="kpi-card__label">${escapeHtml(t('dashboard.documents'))}</span>
 						<span class="kpi-card__value">${parseInt(counts.documents) || 0}</span>
 					</div>
 					<div class="kpi-card">
-						<span class="kpi-card__label">Notas</span>
+						<span class="kpi-card__label">${escapeHtml(t('dashboard.notes'))}</span>
 						<span class="kpi-card__value">${parseInt(counts.notes) || 0}</span>
 					</div>
 					<div class="kpi-card kpi-card--accent">
-						<span class="kpi-card__label">KPI Records</span>
+						<span class="kpi-card__label">${escapeHtml(t('dashboard.kpi_records'))}</span>
 						<span class="kpi-card__value">${parseInt(counts.kpis) || 0}</span>
 					</div>
 				</div>
 				${renderKpiTable(kpis)}
 			`;
 		} catch (err) {
-			showError(container, 'Error cargando dashboard: ' + err.message);
+			showError(container, t('error.loading_dashboard') + ': ' + err.message);
 		}
 	}
 
 	function renderKpiTable(kpis) {
 		const entries = Object.entries(kpis);
-		if (!entries.length) return '<div class="card"><p style="color:var(--tma-muted);">No hay KPIs registrados.</p></div>';
+		if (!entries.length) return '<div class="card"><p style="color:var(--tma-muted);">' + escapeHtml(t('dashboard.no_kpis')) + '</p></div>';
 
 		let rows = '';
 		entries.forEach(function (entry) {
@@ -150,10 +151,10 @@
 
 		return `
 			<div class="card" style="margin-top:var(--tma-sp-4);">
-				<h2 class="card__title">KPIs</h2>
+				<h2 class="card__title">${escapeHtml(t('dashboard.kpis'))}</h2>
 				<div class="table-wrap">
 					<table class="table">
-						<thead><tr><th>Métrica</th><th>Último</th><th>Anterior</th></tr></thead>
+						<thead><tr><th>${escapeHtml(t('dashboard.metric'))}</th><th>${escapeHtml(t('dashboard.latest'))}</th><th>${escapeHtml(t('dashboard.previous'))}</th></tr></thead>
 						<tbody>${rows}</tbody>
 					</table>
 				</div>
@@ -169,7 +170,7 @@
 		try {
 			const docs = await api('/documents');
 			if (!docs.length) {
-				container.innerHTML = '<div class="card"><p style="color:var(--tma-muted);">No hay documentos.</p></div>';
+				container.innerHTML = '<div class="card"><p style="color:var(--tma-muted);">' + escapeHtml(t('documents.no_docs')) + '</p></div>';
 				return;
 			}
 
@@ -186,17 +187,17 @@
 
 			container.innerHTML = `
 				<div class="card">
-					<h2 class="card__title">Documentos del Proyecto</h2>
+					<h2 class="card__title">${escapeHtml(t('documents.title'))}</h2>
 					<div class="table-wrap">
 						<table class="table">
-							<thead><tr><th>Título</th><th>Tipo</th><th>Estado</th><th>Actualizado</th></tr></thead>
+							<thead><tr><th>${escapeHtml(t('documents.doc_title'))}</th><th>${escapeHtml(t('documents.type'))}</th><th>${escapeHtml(t('documents.status'))}</th><th>${escapeHtml(t('documents.updated'))}</th></tr></thead>
 							<tbody>${rows}</tbody>
 						</table>
 					</div>
 				</div>
 			`;
 		} catch (err) {
-			showError(container, 'Error cargando documentos: ' + err.message);
+			showError(container, t('error.loading_documents') + ': ' + err.message);
 		}
 	}
 
@@ -208,7 +209,7 @@
 		try {
 			const leads = await api('/leads');
 			if (!leads.length) {
-				container.innerHTML = '<div class="card"><p style="color:var(--tma-muted);">No hay leads registrados.</p></div>';
+				container.innerHTML = '<div class="card"><p style="color:var(--tma-muted);">' + escapeHtml(t('leads.no_leads')) + '</p></div>';
 				return;
 			}
 
@@ -234,17 +235,17 @@
 
 			container.innerHTML = `
 				<div class="card">
-					<h2 class="card__title">Pipeline de Leads</h2>
+					<h2 class="card__title">${escapeHtml(t('leads.title'))}</h2>
 					<div class="table-wrap">
 						<table class="table">
-							<thead><tr><th>Nombre</th><th>Email</th><th>Origen</th><th>Etapa</th><th>Valor</th><th>Fecha</th></tr></thead>
+							<thead><tr><th>${escapeHtml(t('leads.name'))}</th><th>${escapeHtml(t('leads.email'))}</th><th>${escapeHtml(t('leads.source'))}</th><th>${escapeHtml(t('leads.stage'))}</th><th>${escapeHtml(t('leads.value'))}</th><th>${escapeHtml(t('leads.date'))}</th></tr></thead>
 							<tbody>${rows}</tbody>
 						</table>
 					</div>
 				</div>
 			`;
 		} catch (err) {
-			showError(container, 'Error cargando leads: ' + err.message);
+			showError(container, t('error.loading_leads') + ': ' + err.message);
 		}
 	}
 
@@ -260,11 +261,12 @@
 			if (notes.length) {
 				notes.forEach(function (note) {
 					const vis = note.visibility === 'internal' ? 'badge--warning' : 'badge--info';
+					const visLabel = note.visibility === 'internal' ? t('notes.internal') : t('notes.shared');
 					notesList += `
 						<div class="note-item">
 							<div class="note-item__header">
-								<strong>${escapeHtml(note.title || 'Sin título')}</strong>
-								<span class="badge ${vis}">${escapeHtml(note.visibility || '')}</span>
+								<strong>${escapeHtml(note.title || t('notes.no_title'))}</strong>
+								<span class="badge ${vis}">${escapeHtml(visLabel)}</span>
 								<span class="note-item__date">${formatDate(note.created_at)}</span>
 							</div>
 							<div class="note-item__body">${escapeHtml(note.content || '')}</div>
@@ -272,21 +274,21 @@
 					`;
 				});
 			} else {
-				notesList = '<p style="color:var(--tma-muted);">No hay notas.</p>';
+				notesList = '<p style="color:var(--tma-muted);">' + escapeHtml(t('notes.no_notes')) + '</p>';
 			}
 
 			container.innerHTML = `
 				<div class="card">
-					<h2 class="card__title">Notas</h2>
+					<h2 class="card__title">${escapeHtml(t('notes.title'))}</h2>
 					<form id="note-form" class="note-form">
-						<input type="text" name="title" class="input" placeholder="Título de la nota" required>
-						<textarea name="content" class="input textarea" placeholder="Contenido..." rows="3" required></textarea>
+						<input type="text" name="title" class="input" placeholder="${escapeHtml(t('notes.note_title'))}" required>
+						<textarea name="content" class="input textarea" placeholder="${escapeHtml(t('notes.content'))}" rows="3" required></textarea>
 						<div class="note-form__actions">
 							<select name="visibility" class="input input--select">
-								<option value="shared">Compartida</option>
-								${user.isAdmin ? '<option value="internal">Interna</option>' : ''}
+								<option value="shared">${escapeHtml(t('notes.shared'))}</option>
+								${user.isAdmin ? '<option value="internal">' + escapeHtml(t('notes.internal')) + '</option>' : ''}
 							</select>
-							<button type="submit" class="btn btn--primary">Agregar Nota</button>
+							<button type="submit" class="btn btn--primary">${escapeHtml(t('notes.add'))}</button>
 						</div>
 					</form>
 				</div>
@@ -312,12 +314,12 @@
 						});
 						renderNotes(container);
 					} catch (err) {
-						alert('Error: ' + err.message);
+						alert(t('common.error') + ': ' + err.message);
 					}
 				});
 			}
 		} catch (err) {
-			showError(container, 'Error cargando notas: ' + err.message);
+			showError(container, t('error.loading_notes') + ': ' + err.message);
 		}
 	}
 
@@ -327,14 +329,14 @@
 
 	async function renderAudit(container) {
 		if (!user.isAdmin) {
-			showError(container, 'Acceso restringido a administradores.');
+			showError(container, t('audit.restricted'));
 			return;
 		}
 
 		try {
 			const entries = await api('/audit');
 			if (!entries.length) {
-				container.innerHTML = '<div class="card"><p style="color:var(--tma-muted);">No hay registros de auditoría.</p></div>';
+				container.innerHTML = '<div class="card"><p style="color:var(--tma-muted);">' + escapeHtml(t('audit.no_entries')) + '</p></div>';
 				return;
 			}
 
@@ -351,17 +353,17 @@
 
 			container.innerHTML = `
 				<div class="card">
-					<h2 class="card__title">Audit Log</h2>
+					<h2 class="card__title">${escapeHtml(t('audit.title'))}</h2>
 					<div class="table-wrap">
 						<table class="table">
-							<thead><tr><th>Fecha</th><th>Acción</th><th>Entidad</th><th>ID</th><th>Usuario</th></tr></thead>
+							<thead><tr><th>${escapeHtml(t('audit.date'))}</th><th>${escapeHtml(t('audit.action'))}</th><th>${escapeHtml(t('audit.entity'))}</th><th>${escapeHtml(t('audit.id'))}</th><th>${escapeHtml(t('audit.user'))}</th></tr></thead>
 							<tbody>${rows}</tbody>
 						</table>
 					</div>
 				</div>
 			`;
 		} catch (err) {
-			showError(container, 'Error cargando audit log: ' + err.message);
+			showError(container, t('error.loading_audit') + ': ' + err.message);
 		}
 	}
 
@@ -404,6 +406,7 @@
 	   ═══════════════════════════════════════════════════════════════ */
 
 	document.addEventListener('DOMContentLoaded', function () {
+		if (window.TMA_i18n) window.TMA_i18n.init();
 		initSidebar();
 		navigate();
 	});
