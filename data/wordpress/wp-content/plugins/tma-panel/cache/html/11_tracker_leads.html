@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tracker de Leads — Thor Metal Art</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<script>(function(){var t=localStorage.getItem("tma-theme");if(t)document.documentElement.setAttribute("data-theme",t)})()</script>
+<link rel="stylesheet" href="../css/doc-viewer.css?v=2">
+<style>
+  /* Tab controls */
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
+  .tab-btn{background:var(--dark3);color:var(--muted);border:1px solid var(--border);padding:8px 18px;border-radius:8px;cursor:pointer;font:inherit;font-size:13px;transition:all .2s}
+  .tab-btn:hover{color:var(--text);border-color:var(--gold)}
+  .tab-btn.active{background:rgba(184,134,11,.15);color:var(--gold);border-color:var(--gold)}
+  .sheet-section{display:none}
+  .sheet-section.active{display:block}
+  .sheet-title-row{color:var(--muted);font-size:13px;margin-bottom:8px}
+
+  /* Search */
+  .table-controls{margin-bottom:16px}
+  .table-search{background:var(--dark2);color:var(--text);border:1px solid var(--border);padding:8px 14px;border-radius:8px;font:inherit;font-size:14px;width:100%;max-width:360px;outline:none;transition:border-color .2s}
+  .table-search:focus{border-color:var(--gold)}
+
+  /* Table responsive */
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--border);border-radius:var(--r)}
+  .doc-content table{display:table;margin:0;border-radius:0}
+
+  /* Sort indicator */
+  th{cursor:pointer;user-select:none;position:relative}
+  th:hover{color:var(--gold-l)}
+  th.sort-asc::after{content:' ▲';font-size:10px}
+  th.sort-desc::after{content:' ▼';font-size:10px}
+
+  /* Highlight search matches */
+  tr.hide{display:none}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="lmark">T</div>
+    <div class="ltxt">THOR <span>METAL ART</span></div>
+  </div>
+  <nav>
+    <a href="../">← Volver al Portal</a>
+    <button class="theme-toggle" onclick="toggleTheme()" aria-label="Cambiar tema">
+      <span class="icon-light">☀️</span><span class="icon-dark">🌙</span>
+    </button>
+  </nav>
+</header>
+
+<main class="doc-container" style="max-width:1100px">
+  <div class="doc-header">
+    <span class="doc-num">Doc 11</span>
+    <h1>Tracker de Leads</h1>
+  </div>
+
+  <div class="tabs">
+      <button class="tab-btn active" data-tab="📋 Tracker de Leads">📋 Tracker de Leads</button>
+      <button class="tab-btn" data-tab="📊 Dashboard Métricas">📊 Dashboard Métricas</button>
+      <button class="tab-btn" data-tab="🗓 Estado del Proyecto">🗓 Estado del Proyecto</button>
+  </div>
+
+  <article class="doc-content">
+<div class="sheet-section">
+<h2>📋 Tracker de Leads</h2>
+<p class="sheet-title-row">THOR METAL ART — TRACKER DE LEADS Y PROYECTOS</p>
+<p class="sheet-title-row">Actualizado: March 2026  |  Karel Frometa  |  thor@thormetalart.com</p>
+
+<div class="table-controls">
+  <input type="text" class="table-search" placeholder="Buscar..." data-table="📋 Tracker de Leads">
+</div>
+<div class="table-wrap">
+<table data-sheet="📋 Tracker de Leads">
+<thead><tr><th>#</th><th>Fecha contacto</th><th>Nombre / Empresa</th><th>Teléfono</th><th>Email</th><th>Tipo de servicio</th><th>Descripción del proyecto</th><th>Canal de origen</th><th>Zona / Ubicación</th><th>Estado</th><th>Valor estimado ($)</th><th>Fecha cotización</th><th>Valor cotizado ($)</th><th>Fecha seguimiento</th><th># Seguimientos</th><th>¿Reseña pedida?</th><th>¿Reseña recibida?</th><th>Fecha cierre</th><th>Notas</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>2025-01-15</td><td>María González</td><td>+1 (305) 555-0101</td><td>maria@email.com</td><td>Custom Gate</td><td>Gate residencial 12 pies, diseño con palmas, acero negro</td><td>Instagram DM</td><td>Coral Gables</td><td>Cotización enviada</td><td>3500</td><td>2025-01-18</td><td>3800</td><td>2025-01-23</td><td>2</td><td>No</td><td>No</td><td></td><td>Interesada en el diseño floral</td></tr>
+<tr><td>2</td><td>2025-01-20</td><td>Roberto Méndez / Méndez Construction</td><td>+1 (786) 555-0202</td><td></td><td>Metal Railing</td><td>Railings para proyecto de 3 townhouses en Doral — 90 pies total</td><td>Angi</td><td>Doral</td><td>En negociación</td><td>12000</td><td>2025-01-22</td><td>11500</td><td>2025-01-29</td><td>3</td><td>No</td><td>No</td><td></td><td>Contractor — puede ser cliente recurrente</td></tr>
+<tr><td>3</td><td>2025-01-28</td><td>Jennifer Park</td><td>+1 (954) 555-0303</td><td>jpark@design.com</td><td>Custom Furniture</td><td>Mesa de comedor industrial con base de acero, tablero de madera</td><td>Referido</td><td>Brickell</td><td>Cerrado - Ganado</td><td>2200</td><td>2025-01-30</td><td>2200</td><td></td><td>0</td><td>Sí</td><td>Sí</td><td>2025-02-14</td><td>Reseña ⭐⭐⭐⭐⭐ recibida</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sheet-section">
+<h2>📊 Dashboard Métricas</h2>
+<p class="sheet-title-row">THOR METAL ART — DASHBOARD DE MÉTRICAS MENSUAL</p>
+<p class="sheet-title-row">Actualizar manualmente cada mes con datos de GBP Insights, GA4, Instagram Insights y el Tracker de Leads</p>
+<p class="sheet-title-row">MOTOR PRODUCTOR — KPIs de GBP, Web y Leads</p>
+
+<div class="table-controls">
+  <input type="text" class="table-search" placeholder="Buscar..." data-table="📊 Dashboard Métricas">
+</div>
+<div class="table-wrap">
+<table data-sheet="📊 Dashboard Métricas">
+<thead><tr><th>Métrica</th><th></th><th></th><th></th><th>Mes anterior</th><th></th><th>Este mes</th><th></th><th>Meta sugerida</th><th></th></tr></thead>
+<tbody>
+<tr><td>Impresiones GBP (Search)</td><td></td><td></td><td></td><td>[completar]</td><td></td><td>[completar]</td><td></td><td>Crecer 20%/mes Fase 1</td><td></td></tr>
+<tr><td>Impresiones GBP (Maps)</td><td></td><td></td><td></td><td>[completar]</td><td></td><td>[completar]</td><td></td><td>Crecer 20%/mes Fase 1</td><td></td></tr>
+<tr><td>Llamadas desde GBP</td><td></td><td></td><td></td><td>[completar]</td><td></td><td>[completar]</td><td></td><td>Mín 5/mes Fase 2</td><td></td></tr>
+<tr><td>Clics al sitio web desde GBP</td><td></td><td></td><td></td><td>[completar]</td><td></td><td>[completar]</td><td></td><td>Mín 20/mes Fase 2</td><td></td></tr>
+<tr><td>Nuevas reseñas Google</td><td></td><td></td><td></td><td>[completar]</td><td></td><td>[completar]</td><td></td><td>Mín 1/mes ongoing</td><td></td></tr>
+<tr><td>Rating promedio Google</td><td></td><td></td><td></td><td>[completar]</td><td></td><td>[completar]</td><td></td><td>Mantener &gt; 4.5 ★</td><td></td></tr>
+<tr><td>Sesiones en sitio web (total)</td><td></td><td></td><td></td><td>[completar]</td><td></td><td>[completar]</td><td></td><td>Crecer 15%/mes Fase 2</td><td></td></tr>
+<tr><td>Sesiones orgánicas (SEO)</td><td></td><td></td><td></td><td>[completar]</td><td></td><td>[completar]</td><td></td><td>30% del tráfico total Fase 3</td><td></td></tr>
+<tr><td>Leads totales recibidos</td><td></td><td></td><td></td><td>[completar]</td><td></td><td>[completar]</td><td></td><td>Mín 3/mes Fase 1, 8/mes Fase 2</td><td></td></tr>
+<tr><td>Leads por canal no-Instagram</td><td></td><td></td><td></td><td>[completar]</td><td></td><td>[completar]</td><td></td><td>Meta: 30% en 6 meses</td><td></td></tr>
+<tr><td>Proyectos cerrados</td><td></td><td></td><td></td><td>[completar]</td><td></td><td>[completar]</td><td></td><td>Tasa cierre &gt; 30%</td><td></td></tr>
+<tr><td>Valor total proyectos ($)</td><td></td><td></td><td></td><td>[completar]</td><td></td><td>[completar]</td><td></td><td>Crecer 10%/mes</td><td></td></tr>
+<tr><td>MOTOR ARTISTA — KPIs de Instagram y Comisiones</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>Seguidores Instagram (total)</td><td></td><td></td><td></td><td>[completar]</td><td></td><td>[completar]</td><td></td><td>Crecer 5%/mes mínimo</td><td></td></tr>
+<tr><td>Nuevos seguidores del mes</td><td></td><td></td><td></td><td>[completar]</td><td></td><td>[completar]</td><td></td><td>Calidad &gt; cantidad</td><td></td></tr>
+<tr><td>Alcance promedio por post</td><td></td><td></td><td></td><td>[completar]</td><td></td><td>[completar]</td><td></td><td>Crecer con Reels</td><td></td></tr>
+<tr><td>Consultas de comisión recibidas</td><td></td><td></td><td></td><td>[completar]</td><td></td><td>[completar]</td><td></td><td>Mín 1/mes Fase 3</td><td></td></tr>
+<tr><td>Comisiones cerradas</td><td></td><td></td><td></td><td>[completar]</td><td></td><td>[completar]</td><td></td><td>Tasa cierre &gt; 40%</td><td></td></tr>
+<tr><td>Valor promedio por comisión ($)</td><td></td><td></td><td></td><td>[completar]</td><td></td><td>[completar]</td><td></td><td>Aumentar con portfolio</td><td></td></tr>
+<tr><td>Colaboraciones / menciones externas</td><td></td><td></td><td></td><td>[completar]</td><td></td><td>[completar]</td><td></td><td>Mín 1/trimestre Fase 3</td><td></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sheet-section">
+<h2>🗓 Estado del Proyecto</h2>
+<p class="sheet-title-row">THOR METAL ART — ESTADO DEL PROYECTO DE CONSULTORÍA</p>
+
+<div class="table-controls">
+  <input type="text" class="table-search" placeholder="Buscar..." data-table="🗓 Estado del Proyecto">
+</div>
+<div class="table-wrap">
+<table data-sheet="🗓 Estado del Proyecto">
+<thead><tr><th>FASE 1 — CIMENTACIÓN</th><th></th><th></th><th></th><th></th><th>Semanas 1–6</th><th>Pendiente</th></tr></thead>
+<tbody>
+<tr><td>  ☐  GBP creado y verificado</td><td></td><td></td><td></td><td></td><td>[Fecha completado]</td><td>Pendiente</td></tr>
+<tr><td>  ☐  Primera reseña en Google recibida</td><td></td><td></td><td></td><td></td><td>[Fecha completado]</td><td>Pendiente</td></tr>
+<tr><td>  ☐  3 reseñas en Google (gate Fase 1)</td><td></td><td></td><td></td><td></td><td>[Fecha completado]</td><td>Pendiente</td></tr>
+<tr><td>  ☐  Identidad base aprobada</td><td></td><td></td><td></td><td></td><td>[Fecha completado]</td><td>Pendiente</td></tr>
+<tr><td>  ☐  Dominio web registrado</td><td></td><td></td><td></td><td></td><td>[Fecha completado]</td><td>Pendiente</td></tr>
+<tr><td>  ☐  Email corporativo configurado</td><td></td><td></td><td></td><td></td><td>[Fecha completado]</td><td>Pendiente</td></tr>
+<tr><td>  ☐  Instagram actualizado con NAP</td><td></td><td></td><td></td><td></td><td>[Fecha completado]</td><td>Pendiente</td></tr>
+<tr><td>  ☐  Google Alerts configurados</td><td></td><td></td><td></td><td></td><td>[Fecha completado]</td><td>Pendiente</td></tr>
+<tr><td>FASE 2 — ESTRUCTURACIÓN</td><td></td><td></td><td></td><td></td><td>Semanas 7–14</td><td>Pendiente</td></tr>
+<tr><td>  ☐  Stack web decidido</td><td></td><td></td><td></td><td></td><td>[Fecha completado]</td><td>Pendiente</td></tr>
+<tr><td>  ☐  Wireframe web aprobado</td><td></td><td></td><td></td><td></td><td>[Fecha completado]</td><td>Pendiente</td></tr>
+<tr><td>  ☐  Copys web aprobados</td><td></td><td></td><td></td><td></td><td>[Fecha completado]</td><td>Pendiente</td></tr>
+<tr><td>  ☐  Sitio web publicado</td><td></td><td></td><td></td><td></td><td>[Fecha completado]</td><td>Pendiente</td></tr>
+<tr><td>  ☐  GA4 + Search Console configurados</td><td></td><td></td><td></td><td></td><td>[Fecha completado]</td><td>Pendiente</td></tr>
+<tr><td>  ☐  Perfil Angi creado</td><td></td><td></td><td></td><td></td><td>[Fecha completado]</td><td>Pendiente</td></tr>
+<tr><td>  ☐  Primer lead no-Instagram</td><td></td><td></td><td></td><td></td><td>[Fecha completado]</td><td>Pendiente</td></tr>
+<tr><td>  ☐  3 casos documentados para portafolio</td><td></td><td></td><td></td><td></td><td>[Fecha completado]</td><td>Pendiente</td></tr>
+<tr><td>FASE 3 — AUTORIDAD</td><td></td><td></td><td></td><td></td><td>Mes 4+</td><td>Pendiente</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+  </article>
+
+  <footer class="doc-footer">
+    <a href="../" class="back-link">← Volver al Portal</a>
+    <span class="doc-meta">Thor Metal Art — Documento del Proyecto</span>
+  </footer>
+</main>
+
+<script>
+(function(){
+  // Tabs
+  const sheets = document.querySelectorAll('.sheet-section');
+  const btns = document.querySelectorAll('.tab-btn');
+  if (sheets.length > 0) sheets[0].classList.add('active');
+
+  btns.forEach(btn => {
+    btn.addEventListener('click', function(){
+      btns.forEach(b => b.classList.remove('active'));
+      sheets.forEach(s => s.classList.remove('active'));
+      this.classList.add('active');
+      const target = this.dataset.tab;
+      sheets.forEach(s => {
+        if (s.querySelector('h2') && s.querySelector('h2').textContent === target) s.classList.add('active');
+      });
+    });
+  });
+
+  // Search per table
+  document.querySelectorAll('.table-search').forEach(input => {
+    input.addEventListener('input', function(){
+      const q = this.value.toLowerCase();
+      const section = this.closest('.sheet-section');
+      const rows = section.querySelectorAll('tbody tr');
+      rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.classList.toggle('hide', q && !text.includes(q));
+      });
+    });
+  });
+
+  // Column sort
+  document.querySelectorAll('th').forEach(th => {
+    th.addEventListener('click', function(){
+      const table = this.closest('table');
+      const tbody = table.querySelector('tbody');
+      const rows = Array.from(tbody.querySelectorAll('tr'));
+      const idx = Array.from(this.parentNode.children).indexOf(this);
+      const asc = !this.classList.contains('sort-asc');
+
+      this.parentNode.querySelectorAll('th').forEach(h => { h.classList.remove('sort-asc','sort-desc'); });
+      this.classList.add(asc ? 'sort-asc' : 'sort-desc');
+
+      rows.sort((a, b) => {
+        const va = (a.children[idx] || {}).textContent || '';
+        const vb = (b.children[idx] || {}).textContent || '';
+        const na = parseFloat(va.replace(/[^\d.-]/g,''));
+        const nb = parseFloat(vb.replace(/[^\d.-]/g,''));
+        if (!isNaN(na) && !isNaN(nb)) return asc ? na - nb : nb - na;
+        return asc ? va.localeCompare(vb, 'es') : vb.localeCompare(va, 'es');
+      });
+      rows.forEach(r => tbody.appendChild(r));
+    });
+  });
+})();
+</script>
+
+<script>
+function toggleTheme(){
+  var t=document.documentElement;
+  var c=t.getAttribute("data-theme")==="dark"?"light":"dark";
+  t.setAttribute("data-theme",c);
+  localStorage.setItem("tma-theme",c);
+}
+(function(){
+  var s=localStorage.getItem("tma-theme");
+  if(s) document.documentElement.setAttribute("data-theme",s);
+})();
+</script>
+</body>
+</html>
