@@ -481,15 +481,8 @@
 		return '→ neutral';
 	}
 
-	async function ensureChartJs() {
-		if (window.Chart) return;
-		await new Promise(function (resolve, reject) {
-			const s = document.createElement('script');
-			s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js';
-			s.onload = resolve;
-			s.onerror = reject;
-			document.head.appendChild(s);
-		});
+	function ensureChartJs() {
+		return Promise.resolve();
 	}
 
 	function renderDashboardCharts(history, leadSources, gbp, web, instagram) {
