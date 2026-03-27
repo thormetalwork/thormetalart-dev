@@ -307,6 +307,7 @@ html, body {
 .chart-wrap {
 	position: relative;
 	height: 180px;
+	overflow: hidden;
 }
 .chart-wrap--sm {
 	height: 120px;

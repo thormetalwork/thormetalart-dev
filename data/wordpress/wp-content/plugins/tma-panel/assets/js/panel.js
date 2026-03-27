@@ -558,6 +558,10 @@
 		if (!window.Chart) return;
 		destroyCharts();
 
+		// Kill animation globally — prevents resize-loop visual feedback
+		window.Chart.defaults.animation = false;
+		window.Chart.defaults.resizeDelay = 100;
+
 		const gold = '#B8860B';
 		const dark = '#1A1A1A';
 		const impressions = history.impressions || [];

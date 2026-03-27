@@ -3,7 +3,7 @@
  * Plugin Name: TMA Panel
  * Plugin URI:  https://panel.thormetalart.com
  * Description: Panel ejecutivo para Thor Metal Art — dashboard, documentos, leads y notas.
- * Version:     0.4.0
+ * Version:     0.4.1
  * Author:      Thor Metal Art Dev
  * Text Domain: thormetalart
  * Requires PHP: 8.1
@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
    Constants
    ═══════════════════════════════════════════════════════════════════ */
 
-define( 'TMA_PANEL_VERSION', '0.4.0' );
+define( 'TMA_PANEL_VERSION', '0.4.1' );
 define( 'TMA_PANEL_PATH', plugin_dir_path( __FILE__ ) );
 define( 'TMA_PANEL_URL', plugin_dir_url( __FILE__ ) );
 define( 'TMA_PANEL_HOST', 'panel.thormetalart.com' );
