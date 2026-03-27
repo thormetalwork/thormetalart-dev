@@ -426,11 +426,11 @@
 				<div class="grid grid--2 mt-4">
 					<div class="card">
 						<h2 class="card__title">Impressions (6 meses)</h2>
-						<canvas id="tma-chart-impressions" height="180"></canvas>
+						<div class="chart-wrap"><canvas id="tma-chart-impressions"></canvas></div>
 					</div>
 					<div class="card">
 						<h2 class="card__title">Leads por canal</h2>
-						<canvas id="tma-chart-lead-sources" height="180"></canvas>
+						<div class="chart-wrap"><canvas id="tma-chart-lead-sources"></canvas></div>
 					</div>
 				</div>
 				${activityHtml}
@@ -485,9 +485,7 @@
 					<div class="kpi-card"><span class="kpi-card__label">Impressions</span><span class="kpi-card__value">${escapeHtml(String(gbp.impressions || 0))}</span></div>
 					<div class="kpi-card"><span class="kpi-card__label">Actions</span><span class="kpi-card__value">${escapeHtml(String(gbp.actions || 0))}</span></div>
 				</div>
-				<div class="mt-4">
-					<canvas id="tma-chart-gbp-impressions-split" height="180"></canvas>
-				</div>
+				<div class="chart-wrap mt-4"><canvas id="tma-chart-gbp-impressions-split"></canvas></div>
 			</div>
 		`;
 	}
@@ -520,9 +518,7 @@
 					<div class="kpi-card"><span class="kpi-card__label">Avg Time</span><span class="kpi-card__value">${escapeHtml(String(web.avg_time || 0))}s</span></div>
 				</div>
 				<div class="grid grid--2-equal mt-4">
-					<div>
-						<canvas id="tma-chart-web-sessions" height="180"></canvas>
-					</div>
+					<div class="chart-wrap"><canvas id="tma-chart-web-sessions"></canvas></div>
 					<div>
 						<h3 class="card__subtitle">Top Pages</h3>
 						${rows || '<p class="text-muted">No data</p>'}
@@ -541,9 +537,7 @@
 					<div class="kpi-card"><span class="kpi-card__label">Reach</span><span class="kpi-card__value">${escapeHtml(String(instagram.reach || 0))}</span></div>
 					<div class="kpi-card"><span class="kpi-card__label">Engagement Rate</span><span class="kpi-card__value">${escapeHtml(String(instagram.engagement || 0))}%</span></div>
 				</div>
-				<div class="mt-4">
-					<canvas id="tma-chart-instagram-reach" height="120"></canvas>
-				</div>
+				<div class="chart-wrap chart-wrap--sm mt-4"><canvas id="tma-chart-instagram-reach"></canvas></div>
 			</div>
 		`;
 	}

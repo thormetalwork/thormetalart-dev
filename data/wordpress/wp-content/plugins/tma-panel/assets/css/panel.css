@@ -303,6 +303,15 @@ html, body {
 	margin-bottom: var(--tma-sp-3);
 }
 
+/* ── Chart wrapper — prevents Chart.js ResizeObserver feedback loop ── */
+.chart-wrap {
+	position: relative;
+	height: 180px;
+}
+.chart-wrap--sm {
+	height: 120px;
+}
+
 /* ═══════════════════════════════════════════════════════════════════
    Buttons
    ═══════════════════════════════════════════════════════════════════ */
