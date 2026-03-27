@@ -58,7 +58,7 @@
 	}
 
 	function showError(container, message) {
-		container.innerHTML = `<div class="card"><p style="color:var(--tma-danger);">${escapeHtml(message)}</p></div>`;
+		container.innerHTML = `<div class="card"><p class="text-danger">${escapeHtml(message)}</p></div>`;
 	}
 
 	function getErrorMessage(err, fallback) {
@@ -182,17 +182,17 @@
 			const attentionCount = Number(newAttention.high_value_leads || 0);
 
 			container.innerHTML = `
-				<div class="dashboard-actions" style="display:flex;justify-content:flex-end;margin-bottom:var(--tma-sp-3);">
-					${isDemo ? '<span class="badge badge--warning" style="margin-right:auto;">(Datos de ejemplo)</span>' : ''}
-					<span class="badge badge--info" id="tma-refresh-countdown" style="margin-right:8px;">${escapeHtml(getDashboardRefreshLabel(DASHBOARD_REFRESH_SECONDS))}</span>
-					<button class="btn btn--ghost" id="tma-refresh-now" style="margin-right:8px;">
+				<div class="dashboard-actions">
+					${isDemo ? '<span class="badge badge--warning mr-auto">(Datos de ejemplo)</span>' : ''}
+					<span class="badge badge--info mr-2" id="tma-refresh-countdown">${escapeHtml(getDashboardRefreshLabel(DASHBOARD_REFRESH_SECONDS))}</span>
+					<button class="btn btn--ghost mr-2" id="tma-refresh-now">
 						↻ ${escapeHtml(t('dashboard.refresh_now') || 'Actualizar ahora')}
 					</button>
 					<button class="btn btn--accent" id="tma-export-btn">
 						📋 ${escapeHtml(t('dashboard.export') || 'Exportar resumen')}
 					</button>
 				</div>
-				${attentionCount > 0 ? '<div class="card dashboard-alert high-value-alert" style="border-left:4px solid #B8860B;margin-bottom:var(--tma-sp-3);"><strong>' + attentionCount + ' lead(s) nuevos requieren atención</strong><div style="font-size:12px;color:var(--tma-muted);margin-top:6px;">Hay leads con valor estimado pendientes de seguimiento.</div></div>' : ''}
+				${attentionCount > 0 ? '<div class="alert alert--gold mb-3"><strong>' + attentionCount + ' lead(s) nuevos requieren atención</strong><div class="alert__detail">Hay leads con valor estimado pendientes de seguimiento.</div></div>' : ''}
 				<div class="kpi-grid">
 					<div class="kpi-card">
 						<span class="kpi-card__label">Reviews GBP</span>
@@ -215,7 +215,7 @@
 						<span class="kpi-card__meta">${renderTrend(kpis.leads)}</span>
 					</div>
 				</div>
-				<div class="grid grid--2" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:var(--tma-sp-4);margin-top:var(--tma-sp-4);">
+				<div class="grid grid--2 mt-4">
 					<div class="card">
 						<h2 class="card__title">Impressions (6 meses)</h2>
 						<canvas id="tma-chart-impressions" height="180"></canvas>
@@ -255,15 +255,15 @@
 
 	function renderGBPSection(gbp) {
 		return `
-			<div class="card" style="margin-top:var(--tma-sp-4);">
+			<div class="section-card">
 				<h2 class="card__title">Google Business Profile</h2>
-				<div class="kpi-grid" style="margin-top:var(--tma-sp-3);">
+				<div class="kpi-grid mt-3">
 					<div class="kpi-card"><span class="kpi-card__label">Rating</span><span class="kpi-card__value">${escapeHtml(String(gbp.rating || 0))}</span></div>
 					<div class="kpi-card"><span class="kpi-card__label">Reviews</span><span class="kpi-card__value">${escapeHtml(String(gbp.reviews || 0))}</span></div>
 					<div class="kpi-card"><span class="kpi-card__label">Impressions</span><span class="kpi-card__value">${escapeHtml(String(gbp.impressions || 0))}</span></div>
 					<div class="kpi-card"><span class="kpi-card__label">Actions</span><span class="kpi-card__value">${escapeHtml(String(gbp.actions || 0))}</span></div>
 				</div>
-				<div style="margin-top:var(--tma-sp-4);">
+				<div class="mt-4">
 					<canvas id="tma-chart-gbp-impressions-split" height="180"></canvas>
 				</div>
 			</div>
@@ -276,34 +276,34 @@
 		var rows = pages.map(function (p) {
 			var sessions = Number(p.sessions || 0);
 			var width = Math.max(4, Math.round((sessions / maxSessions) * 100));
-			return '<div style="margin-bottom:8px;">'
-				+ '<div style="display:flex;justify-content:space-between;font-size:12px;">'
+			return '<div class="stat-bar">'
+				+ '<div class="stat-bar__header">'
 				+ '<span>' + escapeHtml(String(p.path || '/')) + '</span>'
 				+ '<strong>' + escapeHtml(String(sessions)) + '</strong>'
 				+ '</div>'
-				+ '<div style="height:8px;background:#e5e7eb;border-radius:999px;overflow:hidden;">'
-				+ '<div style="height:100%;width:' + width + '%;background:#B8860B;"></div>'
+				+ '<div class="stat-bar__track">'
+				+ '<div class="stat-bar__fill" style="width:' + width + '%"></div>'
 				+ '</div>'
 				+ '</div>';
 		}).join('');
 
 		return `
-			<div class="card" style="margin-top:var(--tma-sp-4);">
+			<div class="section-card">
 				<h2 class="card__title">Web Analytics (GA4)</h2>
-				<div class="kpi-grid" style="margin-top:var(--tma-sp-3);">
+				<div class="kpi-grid mt-3">
 					<div class="kpi-card"><span class="kpi-card__label">Sessions</span><span class="kpi-card__value">${escapeHtml(String(web.sessions || 0))}</span></div>
 					<div class="kpi-card"><span class="kpi-card__label">Users</span><span class="kpi-card__value">${escapeHtml(String(web.users || 0))}</span></div>
 					<div class="kpi-card"><span class="kpi-card__label">Conversion Rate</span><span class="kpi-card__value">${escapeHtml(String(web.conversion_rate || 0))}%</span></div>
 					<div class="kpi-card"><span class="kpi-card__label">Forms Submitted</span><span class="kpi-card__value">${escapeHtml(String(web.forms_submitted || 0))}</span></div>
 					<div class="kpi-card"><span class="kpi-card__label">Avg Time</span><span class="kpi-card__value">${escapeHtml(String(web.avg_time || 0))}s</span></div>
 				</div>
-				<div class="grid grid--2" style="display:grid;grid-template-columns:1fr 1fr;gap:var(--tma-sp-4);margin-top:var(--tma-sp-4);">
+				<div class="grid grid--2-equal mt-4">
 					<div>
 						<canvas id="tma-chart-web-sessions" height="180"></canvas>
 					</div>
 					<div>
-						<h3 style="margin:0 0 12px 0;font-size:14px;">Top Pages</h3>
-						${rows || '<p style="color:var(--tma-muted);">No data</p>'}
+						<h3 class="card__subtitle">Top Pages</h3>
+						${rows || '<p class="text-muted">No data</p>'}
 					</div>
 				</div>
 			</div>
@@ -312,14 +312,14 @@
 
 	function renderInstagramSection(instagram) {
 		return `
-			<div class="card" style="margin-top:var(--tma-sp-4);">
+			<div class="section-card">
 				<h2 class="card__title">Instagram</h2>
-				<div class="kpi-grid" style="margin-top:var(--tma-sp-3);">
+				<div class="kpi-grid mt-3">
 					<div class="kpi-card"><span class="kpi-card__label">Followers</span><span class="kpi-card__value">${escapeHtml(String(instagram.followers || 0))}</span></div>
 					<div class="kpi-card"><span class="kpi-card__label">Reach</span><span class="kpi-card__value">${escapeHtml(String(instagram.reach || 0))}</span></div>
 					<div class="kpi-card"><span class="kpi-card__label">Engagement Rate</span><span class="kpi-card__value">${escapeHtml(String(instagram.engagement || 0))}%</span></div>
 				</div>
-				<div style="margin-top:var(--tma-sp-4);">
+				<div class="mt-4">
 					<canvas id="tma-chart-instagram-reach" height="120"></canvas>
 				</div>
 			</div>
@@ -490,7 +490,7 @@
 
 	function renderKpiTable(kpis) {
 		const entries = Object.entries(kpis);
-		if (!entries.length) return '<div class="card"><p style="color:var(--tma-muted);">' + escapeHtml(t('dashboard.no_kpis')) + '</p></div>';
+		if (!entries.length) return '<div class="card"><p class="text-muted">' + escapeHtml(t('dashboard.no_kpis')) + '</p></div>';
 
 		let rows = '';
 		entries.forEach(function (entry) {
@@ -500,7 +500,7 @@
 		});
 
 		return `
-			<div class="card" style="margin-top:var(--tma-sp-4);">
+			<div class="section-card">
 				<h2 class="card__title">${escapeHtml(t('dashboard.kpis'))}</h2>
 				<div class="table-wrap">
 					<table class="table">
@@ -522,7 +522,7 @@
 		try {
 			docsState = await api('/documents');
 			if (!docsState.length) {
-				container.innerHTML = '<div class="card"><p style="color:var(--tma-muted);">' + escapeHtml(t('documents.no_docs')) + '</p></div>';
+				container.innerHTML = '<div class="empty-state"><div class="empty-state__icon">📄</div><p class="empty-state__text">' + escapeHtml(t('documents.no_docs')) + '</p></div>';
 				return;
 			}
 
@@ -530,17 +530,17 @@
 			docsState.forEach(function (doc, idx) {
 				const statusClass = doc.status === 'approved' ? 'badge--success' : (doc.status === 'pending' ? 'badge--warning' : 'badge--info');
 				const code = doc.slug || '';
-				cards += '<article class="card" style="margin-bottom:12px;">'
-					+ '<div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;">'
-					+ '<div style="flex:1;">'
-					+ '<p style="font-size:11px;color:var(--tma-muted);margin:0 0 6px 0;">' + escapeHtml(code) + '</p>'
-					+ '<h3 style="margin:0 0 6px 0;font-size:16px;">' + escapeHtml(doc.title || '') + '</h3>'
-					+ '<p style="margin:0;color:var(--tma-muted);font-size:12px;">Actualizado: ' + formatDate(doc.updated_at) + '</p>'
+				cards += '<article class="doc-card">'
+					+ '<div class="doc-card__row">'
+					+ '<div class="flex-1">'
+					+ '<p class="doc-card__code">' + escapeHtml(code) + '</p>'
+					+ '<h3 class="doc-card__title">' + escapeHtml(doc.title || '') + '</h3>'
+					+ '<p class="doc-card__date">Actualizado: ' + formatDate(doc.updated_at) + '</p>'
 					+ (doc.status === 'changes_requested' && doc.notes
-						? '<p style="margin:8px 0 0 0;font-size:12px;color:var(--tma-warning);border-left:3px solid var(--tma-warning);padding-left:8px;">💬 ' + escapeHtml(doc.notes) + '</p>'
+						? '<p class="doc-card__change-note">💬 ' + escapeHtml(doc.notes) + '</p>'
 						: '')
 					+ '</div>'
-					+ '<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">'
+					+ '<div class="doc-card__actions">'
 					+ '<span class="badge ' + statusClass + '">' + escapeHtml(doc.status || '') + '</span>'
 					+ '<button class="btn btn--primary btn-view-doc" data-doc-code="' + escapeHtml(code) + '" data-doc-index="' + idx + '">Ver</button>'
 					+ '</div>'
@@ -555,40 +555,40 @@
 			container.innerHTML = `
 				<div class="card">
 					<h2 class="card__title">${escapeHtml(t('documents.title'))}</h2>
-					<div style="margin:0 0 16px 0;">
-						<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--tma-muted);margin-bottom:6px;">
+					<div class="doc-progress">
+						<div class="progress-bar__header">
 							<span>Progreso aprobación</span>
 							<strong>${approvedCount}/${total} (${percent}%)</strong>
 						</div>
-						<div style="height:8px;background:#e5e7eb;border-radius:999px;overflow:hidden;">
-							<div style="height:100%;background:#B8860B;width:${percent}%;"></div>
+						<div class="progress-bar">
+							<div class="progress-bar__fill" style="width:${percent}%"></div>
 						</div>
 					</div>
 					<div>${cards}</div>
 				</div>
-				<div id="tma-doc-viewer-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:9999;padding:24px;">
-					<div style="height:100%;max-width:1100px;margin:0 auto;background:#fff;border-radius:10px;overflow:hidden;display:flex;flex-direction:column;">
-						<div style="padding:10px 14px;border-bottom:1px solid #ddd;display:flex;justify-content:space-between;align-items:center;">
+				<div id="tma-doc-viewer-modal" class="modal-overlay">
+					<div class="modal">
+						<div class="modal__header">
 							<strong id="tma-doc-viewer-title">Documento</strong>
-							<div style="display:flex;gap:8px;align-items:center;">
+							<div class="modal__header-actions">
 								<button class="btn" id="tma-doc-prev">Anterior</button>
 								<button class="btn" id="tma-doc-next">Siguiente</button>
 								<button class="btn" id="tma-doc-viewer-close">Cerrar</button>
 							</div>
 						</div>
-						<div style="padding:10px 14px;border-bottom:1px solid #eee;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+						<div class="modal__toolbar">
 							<button class="btn btn--success" id="tma-doc-approve">Aprobado</button>
 							<button class="btn btn--warning" id="tma-doc-changes">Con cambios</button>
 							<button class="btn btn--primary" id="tma-doc-add-note">Dejar nota</button>
-							<textarea id="tma-doc-change-notes" class="input textarea" rows="2" placeholder="Describe cambios (mínimo 10 caracteres)" style="display:none;min-width:320px;"></textarea>
-							<button class="btn btn--accent" id="tma-doc-save-changes" style="display:none;">Guardar cambios</button>
-													<div id="tma-doc-note-form" style="display:none;gap:6px;align-items:flex-start;width:100%;margin-top:6px;">
-														<textarea id="tma-doc-note-text" class="input textarea" rows="2" placeholder="Escribe una nota sobre este documento..." style="flex:1;min-width:240px;"></textarea>
-														<button class="btn btn--primary" id="tma-doc-save-note">Guardar</button>
-														<button class="btn" id="tma-doc-cancel-note">Cancelar</button>
-													</div>
+							<textarea id="tma-doc-change-notes" class="input textarea hidden" rows="2" placeholder="Describe cambios (mínimo 10 caracteres)"></textarea>
+							<button class="btn btn--accent hidden" id="tma-doc-save-changes">Guardar cambios</button>
+							<div id="tma-doc-note-form" class="doc-note-form">
+								<textarea id="tma-doc-note-text" class="input textarea" rows="2" placeholder="Escribe una nota sobre este documento..."></textarea>
+								<button class="btn btn--primary" id="tma-doc-save-note">Guardar</button>
+								<button class="btn" id="tma-doc-cancel-note">Cancelar</button>
+							</div>
 						</div>
-						<div id="tma-doc-viewer-host" style="position:relative;flex:1;overflow:auto;background:#f6f7f8;"></div>
+						<div id="tma-doc-viewer-host" class="modal__body"></div>
 					</div>
 				</div>
 			`;
@@ -612,8 +612,8 @@
 			const changesBtn = document.getElementById('tma-doc-changes');
 			if (changesBtn) {
 				changesBtn.addEventListener('click', function () {
-					document.getElementById('tma-doc-change-notes').style.display = 'block';
-					document.getElementById('tma-doc-save-changes').style.display = 'inline-flex';
+					document.getElementById('tma-doc-change-notes').classList.remove('hidden');
+					document.getElementById('tma-doc-save-changes').classList.remove('hidden');
 				});
 			}
 			const saveChangesBtn = document.getElementById('tma-doc-save-changes');
@@ -632,7 +632,7 @@
 			if (addNoteBtn) {
 				addNoteBtn.addEventListener('click', function () {
 					var noteForm = document.getElementById('tma-doc-note-form');
-					if (noteForm) noteForm.style.display = noteForm.style.display === 'none' ? 'flex' : 'none';
+					if (noteForm) noteForm.classList.toggle('open');
 				});
 						const saveNoteBtn = document.getElementById('tma-doc-save-note');
 						if (saveNoteBtn) {
@@ -698,8 +698,8 @@
 			// Reset change notes controls
 			var notesEl = document.getElementById('tma-doc-change-notes');
 			var saveBtn = document.getElementById('tma-doc-save-changes');
-			if (notesEl) { notesEl.value = ''; notesEl.style.display = 'none'; }
-			if (saveBtn) { saveBtn.style.display = 'none'; }
+			if (notesEl) { notesEl.value = ''; notesEl.classList.add('hidden'); }
+			if (saveBtn) { saveBtn.classList.add('hidden'); }
 		} catch (err) {
 			alert('Error al guardar estado: ' + getErrorMessage(err));
 		}
@@ -739,7 +739,7 @@
 		const host = document.getElementById('tma-doc-viewer-host');
 		const titleEl = document.getElementById('tma-doc-viewer-title');
 		if (!modal || !host) return;
-		modal.style.display = 'block';
+		modal.classList.add('open');
 		if (titleEl) titleEl.textContent = title || 'Documento';
 
 		// Reflect current doc status in action buttons immediately
@@ -774,14 +774,14 @@
 				</div>
 			`;
 		} catch (err) {
-			host.innerHTML = '<div style="padding:18px;color:#b42318;">No se pudo cargar el documento: ' + escapeHtml(getErrorMessage(err, 'No existe en caché o la API no lo encontró.')) + '</div>';
+			host.innerHTML = '<div class="modal__error">No se pudo cargar el documento: ' + escapeHtml(getErrorMessage(err, 'No existe en caché o la API no lo encontró.')) + '</div>';
 		}
 	}
 
 	function closeDocumentViewer() {
 		const modal = document.getElementById('tma-doc-viewer-modal');
 		const host = document.getElementById('tma-doc-viewer-host');
-		if (modal) modal.style.display = 'none';
+		if (modal) modal.classList.remove('open');
 		if (host) host.innerHTML = '';
 		currentDocIndex = -1;
 	}
@@ -794,7 +794,7 @@
 		try {
 			const leads = await api('/leads');
 			if (!leads.length) {
-				container.innerHTML = '<div class="card"><p style="color:var(--tma-muted);">' + escapeHtml(t('leads.no_leads')) + '</p></div>';
+				container.innerHTML = '<div class="empty-state"><div class="empty-state__icon">📥</div><p class="empty-state__text">' + escapeHtml(t('leads.no_leads')) + '</p></div>';
 				return;
 			}
 
@@ -810,7 +810,7 @@
 						+ '<td>' + escapeHtml(lead.name || '') + '</td>'
 						+ '<td>' + escapeHtml(lead.email || '') + '</td>'
 						+ '<td>' + escapeHtml(lead.source || '') + '</td>'
-						+ '<td><select class="lead-status-select input input--select" data-lead-id="' + leadId + '" data-lead-value="' + currentValue + '" style="font-size:12px;padding:4px 8px;min-height:32px;">' + statusOptions + '</select></td>'
+						+ '<td><select class="lead-status-select input input--compact" data-lead-id="' + leadId + '" data-lead-value="' + currentValue + '">' + statusOptions + '</select></td>'
 						+ '<td>$' + currentValue.toLocaleString() + '</td>'
 						+ '<td>' + formatDate(lead.created_at) + '</td>'
 						+ '<td><button class="btn btn--small btn--ghost js-view-history" data-lead-id="' + leadId + '">Ver historial</button></td>'
@@ -827,7 +827,7 @@
 						</table>
 					</div>
 				</div>
-				<div class="card" id="lead-history" style="margin-top:var(--tma-sp-4);display:none;">
+				<div class="section-card hidden" id="lead-history">
 					<h3 class="card__title">Timeline de historial</h3>
 					<div id="lead-history-timeline" class="timeline"></div>
 				</div>
@@ -875,9 +875,9 @@
 
 		try {
 			const items = await api('/leads/' + leadId + '/history');
-			card.style.display = 'block';
+			card.classList.remove('hidden');
 			if (!Array.isArray(items) || !items.length) {
-				timeline.innerHTML = '<p style="color:var(--tma-muted);">Sin cambios registrados todavía.</p>';
+				timeline.innerHTML = '<p class="text-muted">Sin cambios registrados todavía.</p>';
 				return;
 			}
 
@@ -885,7 +885,7 @@
 			items.forEach(function (item) {
 				html += '<div class="timeline__item">'
 					+ '<div><strong>' + escapeHtml(item.action || 'Cambio') + '</strong></div>'
-					+ '<div style="color:var(--tma-muted);font-size:12px;">'
+					+ '<div class="timeline__meta">'
 					+ escapeHtml(formatDate(item.created_at))
 					+ ' · ' + escapeHtml(item.user_name || ('user #' + Number(item.user_id || 0)))
 					+ '</div>'
@@ -894,8 +894,8 @@
 
 			timeline.innerHTML = html;
 		} catch (err) {
-			card.style.display = 'block';
-			timeline.innerHTML = '<p style="color:#b42318;">No se pudo cargar el historial.</p>';
+			card.classList.remove('hidden');
+			timeline.innerHTML = '<p class="text-danger">No se pudo cargar el historial.</p>';
 		}
 	}
 
@@ -927,7 +927,7 @@
 					`;
 				});
 			} else {
-				notesList = '<p style="color:var(--tma-muted);">' + escapeHtml(t('notes.no_notes')) + '</p>';
+				notesList = '<p class="text-muted">' + escapeHtml(t('notes.no_notes')) + '</p>';
 			}
 
 			container.innerHTML = `
@@ -952,7 +952,7 @@
 						</div>
 					</form>
 				</div>
-				<div class="card" style="margin-top:var(--tma-sp-4);">
+				<div class="section-card">
 					${notesList}
 				</div>
 			`;
@@ -998,7 +998,7 @@
 		try {
 			const entries = await api('/audit');
 			if (!entries.length) {
-				container.innerHTML = '<div class="card"><p style="color:var(--tma-muted);">' + escapeHtml(t('audit.no_entries')) + '</p></div>';
+				container.innerHTML = '<div class="empty-state"><div class="empty-state__icon">📝</div><p class="empty-state__text">' + escapeHtml(t('audit.no_entries')) + '</p></div>';
 				return;
 			}
 

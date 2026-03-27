@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
    Constants
    ═══════════════════════════════════════════════════════════════════ */
 
-define( 'TMA_PANEL_VERSION', '0.1.1' );
+define( 'TMA_PANEL_VERSION', '0.2.0' );
 define( 'TMA_PANEL_PATH', plugin_dir_path( __FILE__ ) );
 define( 'TMA_PANEL_URL', plugin_dir_url( __FILE__ ) );
 define( 'TMA_PANEL_HOST', 'panel.thormetalart.com' );

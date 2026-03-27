@@ -1101,6 +1101,129 @@
 
 ---
 
+## � FASE 13 — TMA Panel: UI/UX Polish (Comparativa RAI Panel)
+
+> **Referencia:** Análisis comparativo con RAI Panel v0.4.0 — patrones UI maduros (Shadow DOM, alerts, progress, badges, doc-nav, timeline, filters)
+> **Objetivo:** Elevar la calidad visual y UX del panel TMA al nivel del panel RAI, extrayendo inline styles a CSS classes, creando componentes reutilizables, y mejorando cada sección.
+
+- [ ] **TICKET-PANEL-011: CSS Component System — extraer inline styles a clases reutilizables**
+  - **Fuente:** Análisis comparativo RAI Panel — panel.css componentes maduros
+  - **Historia de Usuario:** Como desarrollador, quiero un sistema de componentes CSS reutilizables para que el panel sea consistente, mantenible y extensible.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: Inline styles eliminados del JS
+      Given panel.js con ~50 inline style attributes
+      When extraigo los estilos a clases CSS en panel.css
+      Then panel.js no tiene atributos style="" en templates HTML
+      And panel.css tiene clases para: alert, progress-bar, grid, stat-card, modal, doc-viewer, timeline, empty-state
+
+    Scenario: Componentes CSS reutilizables
+      Given panel.css actualizado
+      When reviso las clases
+      Then existen: .alert, .alert--gold, .alert--warning, .progress-bar, .progress-bar__fill, .grid, .grid--2, .grid--4, .stat-bar, .modal, .modal__header, .modal__body, .doc-viewer-toolbar, .timeline__item, .empty-state
+
+    Scenario: Apariencia visual idéntica
+      Given todos los inline styles migrados a CSS
+      When cargo el panel en browser
+      Then la apariencia es idéntica a antes (no regresiones visuales)
+      And responsive mobile sigue funcionando
+    ```
+  - **Archivos:**
+    - `data/wordpress/wp-content/plugins/tma-panel/assets/css/panel.css` (MODIFIED)
+    - `data/wordpress/wp-content/plugins/tma-panel/assets/js/panel.js` (MODIFIED)
+  - **Dependencias:** Ninguna
+  - **Prioridad:** P1
+  - **Status:** 🔄 EN PROGRESO
+
+- [ ] **TICKET-PANEL-012: Dashboard mejorado — alertas, progreso documentos, actividad reciente**
+  - **Fuente:** Análisis comparativo RAI Panel — dashboard con alertas contextuales y actividad reciente
+  - **Historia de Usuario:** Como Karel, quiero un dashboard más informativo con alertas visibles, progreso de documentos y actividad reciente para tener visión completa del proyecto en un vistazo.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: Alertas contextuales en la parte superior
+      Given datos del dashboard cargados
+      When hay leads nuevos o documentos pendientes
+      Then veo alertas con iconos y acción directa (link a sección)
+
+    Scenario: Barra de progreso de documentos en dashboard
+      Given 12 documentos con estados variados
+      When cargo el dashboard
+      Then veo tarjeta con barra de progreso de aprobación (X/12)
+      And click en la tarjeta lleva a #documents
+
+    Scenario: Actividad reciente
+      Given acciones en el panel (notas, cambios de estado, aprobaciones)
+      When veo el dashboard
+      Then hay sección "Actividad reciente" con últimas 5 acciones
+    ```
+  - **Archivos:**
+    - `data/wordpress/wp-content/plugins/tma-panel/assets/js/panel.js` (MODIFIED)
+    - `data/wordpress/wp-content/plugins/tma-panel/assets/js/i18n.js` (MODIFIED)
+  - **Dependencias:** TICKET-PANEL-011
+  - **Prioridad:** P2
+  - **Status:** ⏸️ PENDIENTE
+
+- [ ] **TICKET-PANEL-013: Documentos mejorados — cards grid, viewer refinado, navegación**
+  - **Fuente:** Análisis comparativo RAI Panel — doc-viewer with Shadow DOM, review toolbar, annotation system
+  - **Historia de Usuario:** Como Karel, quiero una vista de documentos más visual con cards en grid, visor mejorado y navegación fluida para revisar documentos cómodamente.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: Cards en grid responsive
+      Given 12 documentos en la base de datos
+      When cargo sección documentos
+      Then veo grid de cards (3 columnas desktop, 2 tablet, 1 mobile)
+      And cada card tiene: icono status, título, código, fecha, botón ver
+
+    Scenario: Viewer con toolbar fija
+      Given documento abierto en viewer
+      When scroll el contenido
+      Then la toolbar de acciones (aprobar/cambios/nota) permanece fija en la parte inferior
+      And botones prev/next muestran nombre del documento siguiente
+
+    Scenario: Empty state cuando no hay documentos
+      Given 0 documentos en la DB
+      When cargo sección documentos
+      Then veo ilustración/icono con texto "No hay documentos aún"
+    ```
+  - **Archivos:**
+    - `data/wordpress/wp-content/plugins/tma-panel/assets/js/panel.js` (MODIFIED)
+    - `data/wordpress/wp-content/plugins/tma-panel/assets/css/panel.css` (MODIFIED)
+  - **Dependencias:** TICKET-PANEL-011
+  - **Prioridad:** P2
+  - **Status:** ⏸️ PENDIENTE
+
+- [ ] **TICKET-PANEL-014: Leads mejorados — pipeline visual, filtros, badges en sidebar**
+  - **Fuente:** Análisis comparativo RAI Panel — tabs, filtros, badges de conteo en sidebar
+  - **Historia de Usuario:** Como Karel, quiero ver mis leads con pipeline visual (columnas por estado), filtros por canal, y badges en sidebar para saber cuántos leads tengo sin entrar a la sección.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: Pipeline visual por estado
+      Given leads con diferentes estados (new, contacted, quoted, won, lost)
+      When cargo sección leads
+      Then veo KPI resumen arriba (total, pipeline value, leads nuevos)
+      And tabla con badges de color por estado
+
+    Scenario: Filtros por canal y estado
+      Given leads de múltiples canales
+      When selecciono filtro "Instagram"
+      Then la tabla muestra solo leads de Instagram
+      And puedo combinar filtro por canal + estado
+
+    Scenario: Badge de leads nuevos en sidebar
+      Given 3 leads con estado "new"
+      When veo el sidebar
+      Then el link "Leads" muestra badge "(3)" en color dorado
+    ```
+  - **Archivos:**
+    - `data/wordpress/wp-content/plugins/tma-panel/assets/js/panel.js` (MODIFIED)
+    - `data/wordpress/wp-content/plugins/tma-panel/assets/css/panel.css` (MODIFIED)
+    - `data/wordpress/wp-content/plugins/tma-panel/templates/panel.php` (MODIFIED)
+  - **Dependencias:** TICKET-PANEL-011
+  - **Prioridad:** P2
+  - **Status:** ⏸️ PENDIENTE
+
+---
+
 ## 📊 Resumen
 
 | Fase | Total | ✅ | ⏸️ | 🔄 | Progreso |
@@ -1117,4 +1240,5 @@
 | 10 — Portal Integrado | 3 | 3 | 0 | 0 | 100% |
 | 11 — Leads Dinámico | 3 | 3 | 0 | 0 | 100% |
 | 12 — Cleanup Docker | 1 | 1 | 0 | 0 | 100% |
-| **TOTAL** | **39** | **39** | **0** | **0** | **100%** |
+| 13 — UI/UX Polish | 4 | 0 | 3 | 1 | 0% |
+| **TOTAL** | **43** | **39** | **3** | **1** | **91%** |

@@ -342,6 +342,396 @@ html, body {
 	color: var(--tma-accent);
 }
 
+.btn--ghost {
+	background: transparent;
+	color: var(--tma-muted);
+	border: 1px solid transparent;
+}
+
+.btn--ghost:hover {
+	color: var(--tma-text);
+	background: var(--tma-gray-800);
+}
+
+.btn--accent {
+	background: var(--tma-accent);
+	color: var(--tma-gray-950);
+	border: 1px solid var(--tma-accent);
+}
+
+.btn--accent:hover {
+	background: var(--tma-accent-hover);
+}
+
+.btn--success {
+	background: rgba(34, 197, 94, 0.15);
+	color: var(--tma-success);
+	border: 1px solid var(--tma-success);
+}
+
+.btn--success:hover {
+	background: rgba(34, 197, 94, 0.25);
+}
+
+.btn--warning {
+	background: rgba(234, 179, 8, 0.15);
+	color: var(--tma-warning);
+	border: 1px solid var(--tma-warning);
+}
+
+.btn--warning:hover {
+	background: rgba(234, 179, 8, 0.25);
+}
+
+.btn--small {
+	padding: var(--tma-sp-1) var(--tma-sp-3);
+	font-size: 0.75rem;
+	min-height: 28px;
+}
+
+.btn:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Utility Classes
+   ═══════════════════════════════════════════════════════════════════ */
+
+.mt-3 { margin-top: var(--tma-sp-3); }
+.mt-4 { margin-top: var(--tma-sp-4); }
+.mb-3 { margin-bottom: var(--tma-sp-3); }
+.mb-4 { margin-bottom: var(--tma-sp-4); }
+.mr-2 { margin-right: var(--tma-sp-2); }
+.mr-auto { margin-right: auto; }
+.flex-1 { flex: 1; }
+.text-muted { color: var(--tma-muted); }
+.text-danger { color: var(--tma-danger); }
+.text-sm { font-size: 0.75rem; }
+.hidden { display: none !important; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   Grid Layouts
+   ═══════════════════════════════════════════════════════════════════ */
+
+.grid {
+	display: grid;
+	gap: var(--tma-sp-4);
+}
+
+.grid--2 {
+	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.grid--2-equal {
+	grid-template-columns: 1fr 1fr;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Alerts
+   ═══════════════════════════════════════════════════════════════════ */
+
+.alert {
+	background: var(--tma-surface);
+	border: 1px solid var(--tma-border);
+	border-radius: var(--tma-radius);
+	padding: var(--tma-sp-4) var(--tma-sp-5);
+}
+
+.alert--gold {
+	border-left: 4px solid var(--tma-accent);
+}
+
+.alert--warning {
+	border-left: 4px solid var(--tma-warning);
+}
+
+.alert--danger {
+	border-left: 4px solid var(--tma-danger);
+}
+
+.alert__detail {
+	font-size: 0.75rem;
+	color: var(--tma-muted);
+	margin-top: var(--tma-sp-2);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Progress Bar
+   ═══════════════════════════════════════════════════════════════════ */
+
+.progress-bar__header {
+	display: flex;
+	justify-content: space-between;
+	font-size: 0.75rem;
+	color: var(--tma-muted);
+	margin-bottom: var(--tma-sp-2);
+}
+
+.progress-bar {
+	height: 8px;
+	background: var(--tma-gray-700);
+	border-radius: 9999px;
+	overflow: hidden;
+}
+
+.progress-bar__fill {
+	height: 100%;
+	background: var(--tma-accent);
+	border-radius: 9999px;
+	transition: width 0.3s ease;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Stat Bar (Top Pages, etc.)
+   ═══════════════════════════════════════════════════════════════════ */
+
+.stat-bar {
+	margin-bottom: var(--tma-sp-2);
+}
+
+.stat-bar__header {
+	display: flex;
+	justify-content: space-between;
+	font-size: 0.75rem;
+	margin-bottom: 2px;
+}
+
+.stat-bar__track {
+	height: 8px;
+	background: var(--tma-gray-700);
+	border-radius: 9999px;
+	overflow: hidden;
+}
+
+.stat-bar__fill {
+	height: 100%;
+	background: var(--tma-accent);
+	border-radius: 9999px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Dashboard Actions Bar
+   ═══════════════════════════════════════════════════════════════════ */
+
+.dashboard-actions {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: var(--tma-sp-2);
+	margin-bottom: var(--tma-sp-3);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Section Cards (spaced)
+   ═══════════════════════════════════════════════════════════════════ */
+
+.section-card {
+	background: var(--tma-surface);
+	border: 1px solid var(--tma-border);
+	border-radius: var(--tma-radius);
+	padding: var(--tma-sp-5);
+	margin-top: var(--tma-sp-4);
+}
+
+.card__subtitle {
+	margin: 0 0 var(--tma-sp-3) 0;
+	font-size: 0.875rem;
+	font-weight: 600;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Document Cards
+   ═══════════════════════════════════════════════════════════════════ */
+
+.doc-card {
+	background: var(--tma-surface);
+	border: 1px solid var(--tma-border);
+	border-radius: var(--tma-radius);
+	padding: var(--tma-sp-5);
+	margin-bottom: var(--tma-sp-3);
+}
+
+.doc-card__row {
+	display: flex;
+	justify-content: space-between;
+	gap: var(--tma-sp-3);
+	align-items: flex-start;
+}
+
+.doc-card__code {
+	font-size: 0.6875rem;
+	color: var(--tma-muted);
+	margin: 0 0 var(--tma-sp-2) 0;
+}
+
+.doc-card__title {
+	margin: 0 0 var(--tma-sp-2) 0;
+	font-size: 1rem;
+	font-weight: 600;
+}
+
+.doc-card__date {
+	margin: 0;
+	color: var(--tma-muted);
+	font-size: 0.75rem;
+}
+
+.doc-card__change-note {
+	margin: var(--tma-sp-2) 0 0 0;
+	font-size: 0.75rem;
+	color: var(--tma-warning);
+	border-left: 3px solid var(--tma-warning);
+	padding-left: var(--tma-sp-2);
+}
+
+.doc-card__actions {
+	display: flex;
+	align-items: center;
+	gap: var(--tma-sp-2);
+	flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Document Progress
+   ═══════════════════════════════════════════════════════════════════ */
+
+.doc-progress {
+	margin-bottom: var(--tma-sp-4);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Modal / Document Viewer
+   ═══════════════════════════════════════════════════════════════════ */
+
+.modal-overlay {
+	display: none;
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.72);
+	z-index: 9999;
+	padding: var(--tma-sp-6);
+}
+
+.modal-overlay.open {
+	display: block;
+}
+
+.modal {
+	height: 100%;
+	max-width: 1100px;
+	margin: 0 auto;
+	background: #fff;
+	border-radius: 10px;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+}
+
+.modal__header {
+	padding: var(--tma-sp-3) var(--tma-sp-4);
+	border-bottom: 1px solid #ddd;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.modal__header-actions {
+	display: flex;
+	gap: var(--tma-sp-2);
+	align-items: center;
+}
+
+.modal__toolbar {
+	padding: var(--tma-sp-3) var(--tma-sp-4);
+	border-bottom: 1px solid #eee;
+	display: flex;
+	gap: var(--tma-sp-2);
+	align-items: center;
+	flex-wrap: wrap;
+}
+
+.modal__body {
+	position: relative;
+	flex: 1;
+	overflow: auto;
+	background: #f6f7f8;
+}
+
+.modal__error {
+	padding: var(--tma-sp-5);
+	color: var(--tma-danger);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Document Note Form (inside viewer)
+   ═══════════════════════════════════════════════════════════════════ */
+
+.doc-note-form {
+	display: none;
+	gap: var(--tma-sp-2);
+	align-items: flex-start;
+	width: 100%;
+	margin-top: var(--tma-sp-2);
+}
+
+.doc-note-form.open {
+	display: flex;
+}
+
+.doc-note-form .input {
+	flex: 1;
+	min-width: 240px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Timeline
+   ═══════════════════════════════════════════════════════════════════ */
+
+.timeline__item {
+	padding: var(--tma-sp-3) 0;
+	border-bottom: 1px solid var(--tma-border);
+}
+
+.timeline__item:last-child {
+	border-bottom: none;
+}
+
+.timeline__meta {
+	color: var(--tma-muted);
+	font-size: 0.75rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Empty State
+   ═══════════════════════════════════════════════════════════════════ */
+
+.empty-state {
+	text-align: center;
+	padding: var(--tma-sp-8);
+	color: var(--tma-muted);
+}
+
+.empty-state__icon {
+	font-size: 2.5rem;
+	margin-bottom: var(--tma-sp-3);
+	opacity: 0.5;
+}
+
+.empty-state__text {
+	font-size: 0.875rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Lead Status Select (compact)
+   ═══════════════════════════════════════════════════════════════════ */
+
+.input--compact {
+	font-size: 0.75rem;
+	padding: var(--tma-sp-1) var(--tma-sp-2);
+	min-height: 32px;
+}
+
 /* ═══════════════════════════════════════════════════════════════════
    Responsive — Mobile (< 768px)
    ═══════════════════════════════════════════════════════════════════ */
