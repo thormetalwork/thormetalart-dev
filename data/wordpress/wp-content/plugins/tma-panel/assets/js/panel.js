@@ -16,6 +16,7 @@
 	const DASHBOARD_REFRESH_SECONDS = 120;
 	let dashboardRefreshInterval = null;
 	let dashboardRefreshRemaining = DASHBOARD_REFRESH_SECONDS;
+	let activeCharts = [];
 
 	/* ═══════════════════════════════════════════════════════════════
 	   API Helper
@@ -79,6 +80,33 @@
 			clearInterval(dashboardRefreshInterval);
 			dashboardRefreshInterval = null;
 		}
+	}
+
+	function destroyCharts() {
+		activeCharts.forEach(function (chart) {
+			try { chart.destroy(); } catch (e) { /* already destroyed */ }
+		});
+		activeCharts = [];
+	}
+
+	function showToast(message, type) {
+		type = type || 'info';
+		var container = document.getElementById('tma-toast-container');
+		if (!container) {
+			container = document.createElement('div');
+			container.id = 'tma-toast-container';
+			container.className = 'toast-container';
+			document.body.appendChild(container);
+		}
+		var toast = document.createElement('div');
+		toast.className = 'toast toast--' + type;
+		toast.textContent = message;
+		container.appendChild(toast);
+		requestAnimationFrame(function () { toast.classList.add('toast--visible'); });
+		setTimeout(function () {
+			toast.classList.remove('toast--visible');
+			toast.addEventListener('transitionend', function () { toast.remove(); });
+		}, 3500);
 	}
 
 	function updateSidebarBadge(section, count) {
@@ -154,6 +182,7 @@
 
 	function navigate() {
 		clearDashboardAutoRefresh();
+		destroyCharts();
 		const hash = (location.hash || '#dashboard').slice(1);
 		const section = routes[hash] ? hash : 'dashboard';
 		const render = routes[section];
@@ -184,6 +213,9 @@
 	async function renderDashboard(container) {
 		try {
 			clearDashboardAutoRefresh();
+			destroyCharts();
+			var scrollParent = container.closest('.main') || container;
+			var savedScroll = scrollParent.scrollTop;
 			await ensureChartJs();
 			const data = await api('/dashboard');
 			const kpis = data.kpis || {};
@@ -355,9 +387,15 @@
 			updateSidebarBadge('leads', newLeadsCount);
 			if (pendingDocs > 0) updateSidebarBadge('documents', pendingDocs);
 
+			// Restore scroll position after auto-refresh re-render
+			if (savedScroll > 0) {
+				requestAnimationFrame(function () { scrollParent.scrollTop = savedScroll; });
+			}
+
 			startDashboardAutoRefresh(container);
 		} catch (err) {
 			clearDashboardAutoRefresh();
+			destroyCharts();
 			showError(container, t('error.loading_dashboard') + ': ' + getErrorMessage(err, 'Recurso bloqueado o no disponible.'));
 		}
 	}
@@ -456,6 +494,7 @@
 
 	function renderDashboardCharts(history, leadSources, gbp, web, instagram) {
 		if (!window.Chart) return;
+		destroyCharts();
 
 		const gold = '#B8860B';
 		const dark = '#1A1A1A';
@@ -465,7 +504,7 @@
 
 		const impCanvas = document.getElementById('tma-chart-impressions');
 		if (impCanvas) {
-			new window.Chart(impCanvas, {
+			activeCharts.push(new window.Chart(impCanvas, {
 				type: 'line',
 				data: {
 					labels: impLabels,
@@ -479,12 +518,12 @@
 					}],
 				},
 				options: { responsive: true, maintainAspectRatio: false },
-			});
+			}));
 		}
 
 		const leadCanvas = document.getElementById('tma-chart-lead-sources');
 		if (leadCanvas) {
-			new window.Chart(leadCanvas, {
+			activeCharts.push(new window.Chart(leadCanvas, {
 				type: 'doughnut',
 				data: {
 					labels: leadSources.map(function (x) { return x.label; }),
@@ -494,13 +533,13 @@
 					}],
 				},
 				options: { responsive: true, maintainAspectRatio: false },
-			});
+			}));
 		}
 
 		const split = (gbp && gbp.impressions_split) ? gbp.impressions_split : [];
 		const splitCanvas = document.getElementById('tma-chart-gbp-impressions-split');
 		if (splitCanvas && split.length) {
-			new window.Chart(splitCanvas, {
+			activeCharts.push(new window.Chart(splitCanvas, {
 				type: 'bar',
 				data: {
 					labels: split.map(function (x) { return x.period; }),
@@ -514,13 +553,13 @@
 					maintainAspectRatio: false,
 					scales: { x: { stacked: true }, y: { stacked: true } },
 				},
-			});
+			}));
 		}
 
 		const webHistory = (web && web.sessions_history) ? web.sessions_history : [];
 		const webCanvas = document.getElementById('tma-chart-web-sessions');
 		if (webCanvas && webHistory.length) {
-			new window.Chart(webCanvas, {
+			activeCharts.push(new window.Chart(webCanvas, {
 				type: 'line',
 				data: {
 					labels: webHistory.map(function (x) { return x.period; }),
@@ -534,13 +573,13 @@
 					}],
 				},
 				options: { responsive: true, maintainAspectRatio: false },
-			});
+			}));
 		}
 
 		const igHistory = (instagram && instagram.reach_history) ? instagram.reach_history : [];
 		const igCanvas = document.getElementById('tma-chart-instagram-reach');
 		if (igCanvas && igHistory.length) {
-			new window.Chart(igCanvas, {
+			activeCharts.push(new window.Chart(igCanvas, {
 				type: 'line',
 				data: {
 					labels: igHistory.map(function (x) { return x.period; }),
@@ -559,7 +598,7 @@
 					plugins: { legend: { display: false } },
 					scales: { x: { display: false }, y: { display: false } },
 				},
-			});
+			}));
 		}
 	}
 
@@ -593,7 +632,7 @@
 			}
 		} catch (err) {
 			if (btn) { btn.disabled = false; }
-			alert((t('error.export_failed') || 'Error al exportar') + ': ' + err.message);
+			showToast((t('error.export_failed') || 'Error al exportar') + ': ' + err.message, 'error');
 		}
 	}
 
@@ -668,16 +707,6 @@
 			const total = docsState.length;
 			const percent = total > 0 ? Math.round((approvedCount / total) * 100) : 0;
 
-			// Prev/next labels
-			function prevDocLabel() {
-				if (docsState.length > 1) return escapeHtml(docsState[0].title || 'Anterior');
-				return 'Anterior';
-			}
-			function nextDocLabel() {
-				if (docsState.length > 1) return escapeHtml(docsState[1].title || 'Siguiente');
-				return 'Siguiente';
-			}
-
 			container.innerHTML = `
 				<div class="card">
 					<h2 class="card__title">${escapeHtml(t('documents.title'))}</h2>
@@ -702,6 +731,7 @@
 								<button class="btn" id="tma-doc-viewer-close">Cerrar</button>
 							</div>
 						</div>
+						<div id="tma-doc-viewer-host" class="modal__body"></div>
 						<div class="modal__toolbar">
 							<button class="btn btn--success" id="tma-doc-approve">Aprobado</button>
 							<button class="btn btn--warning" id="tma-doc-changes">Con cambios</button>
@@ -714,7 +744,6 @@
 								<button class="btn" id="tma-doc-cancel-note">Cancelar</button>
 							</div>
 						</div>
-						<div id="tma-doc-viewer-host" class="modal__body"></div>
 					</div>
 				</div>
 			`;
@@ -747,7 +776,7 @@
 				saveChangesBtn.addEventListener('click', function () {
 					const notes = document.getElementById('tma-doc-change-notes').value || '';
 					if (notes.trim().length < 10) {
-						alert('La nota debe tener al menos 10 caracteres.');
+						showToast('La nota debe tener al menos 10 caracteres.', 'error');
 						return;
 					}
 					saveDocStatus('changes_requested', notes.trim());
@@ -760,29 +789,29 @@
 					var noteForm = document.getElementById('tma-doc-note-form');
 					if (noteForm) noteForm.classList.toggle('open');
 				});
-						const saveNoteBtn = document.getElementById('tma-doc-save-note');
-						if (saveNoteBtn) {
-							saveNoteBtn.addEventListener('click', async function () {
-								var noteTextEl = document.getElementById('tma-doc-note-text');
-								var content = noteTextEl ? noteTextEl.value.trim() : '';
-								if (!content) { alert('La nota no puede estar vacía.'); return; }
-								try {
-									await addDocumentNote(content);
-									if (noteTextEl) noteTextEl.value = '';
-									var noteForm = document.getElementById('tma-doc-note-form');
-									if (noteForm) noteForm.style.display = 'none';
-								} catch (err) {
-									alert('Error al guardar nota: ' + getErrorMessage(err));
-								}
-							});
-						}
-						const cancelNoteBtn = document.getElementById('tma-doc-cancel-note');
-						if (cancelNoteBtn) {
-							cancelNoteBtn.addEventListener('click', function () {
-								var noteForm = document.getElementById('tma-doc-note-form');
-								if (noteForm) noteForm.style.display = 'none';
-							});
-						}
+			}
+			const saveNoteBtn = document.getElementById('tma-doc-save-note');
+			if (saveNoteBtn) {
+				saveNoteBtn.addEventListener('click', async function () {
+					var noteTextEl = document.getElementById('tma-doc-note-text');
+					var content = noteTextEl ? noteTextEl.value.trim() : '';
+					if (!content) { showToast('La nota no puede estar vacía.', 'error'); return; }
+					try {
+						await addDocumentNote(content);
+						if (noteTextEl) noteTextEl.value = '';
+						var noteForm = document.getElementById('tma-doc-note-form');
+						if (noteForm) noteForm.classList.remove('open');
+					} catch (err) {
+						showToast('Error al guardar nota: ' + getErrorMessage(err), 'error');
+					}
+				});
+			}
+			const cancelNoteBtn = document.getElementById('tma-doc-cancel-note');
+			if (cancelNoteBtn) {
+				cancelNoteBtn.addEventListener('click', function () {
+					var noteForm = document.getElementById('tma-doc-note-form');
+					if (noteForm) noteForm.classList.remove('open');
+				});
 			}
 		} catch (err) {
 			showError(container, t('error.loading_documents') + ': ' + getErrorMessage(err));
@@ -843,7 +872,7 @@
 			if (notesEl) { notesEl.value = ''; notesEl.classList.add('hidden'); }
 			if (saveBtn) { saveBtn.classList.add('hidden'); }
 		} catch (err) {
-			alert('Error al guardar estado: ' + getErrorMessage(err));
+			showToast('Error al guardar estado: ' + getErrorMessage(err), 'error');
 		}
 	}
 
@@ -873,7 +902,7 @@
 				item_id: doc.id,
 			}),
 		});
-		alert('Nota guardada.');
+		showToast('Nota guardada.', 'success');
 	}
 
 	async function openDocumentViewer(code, title) {
@@ -882,6 +911,7 @@
 		const titleEl = document.getElementById('tma-doc-viewer-title');
 		if (!modal || !host) return;
 		modal.classList.add('open');
+		document.addEventListener('keydown', handleViewerKeydown);
 		if (titleEl) titleEl.textContent = title || 'Documento';
 
 		// Reflect current doc status in action buttons immediately
@@ -906,12 +936,25 @@
 					.viewer-prose img{max-width:100%;height:auto;}
 					.viewer-prose table{width:100%;border-collapse:collapse;}
 					.viewer-prose td,.viewer-prose th{border:1px solid #ddd;padding:8px;}
+					.viewer-notes{max-width:900px;margin:32px auto 0;padding:20px;background:#fafaf5;border:1px solid #e5e5e0;border-radius:8px;}
+					.viewer-notes h4{margin:0 0 12px;font:600 15px/1.3 'DM Sans',sans-serif;color:#1a1a1a;}
+					.viewer-note{padding:10px 0;border-bottom:1px solid #e5e5e0;}
+					.viewer-note:last-child{border-bottom:none;}
+					.viewer-note-meta{font-size:12px;color:#6b7280;margin-bottom:4px;}
+					.viewer-note-text{font-size:14px;color:#1a1a1a;line-height:1.5;}
+					.viewer-notes-empty{font-size:13px;color:#9ca3af;font-style:italic;}
 				</style>
 				<div class="viewer-wrap">
 					<div class="viewer-watermark">${escapeHtml(userName)} • ${escapeHtml(now)}</div>
 					<div class="viewer-prose">${doc.html || ''}</div>
+					<div class="viewer-notes" id="viewer-notes-section">
+						<h4>📝 Notas</h4>
+						<p class="viewer-notes-empty">Cargando notas...</p>
+					</div>
 				</div>
 			`;
+			// Load notes for this document
+			loadViewerNotes(root, currentDocIndex >= 0 ? docsState[currentDocIndex] : null);
 		} catch (err) {
 			host.innerHTML = '<div class="modal__error">No se pudo cargar el documento: ' + escapeHtml(getErrorMessage(err, 'No existe en caché o la API no lo encontró.')) + '</div>';
 		}
@@ -923,6 +966,43 @@
 		if (modal) modal.classList.remove('open');
 		if (host) host.innerHTML = '';
 		currentDocIndex = -1;
+		document.removeEventListener('keydown', handleViewerKeydown);
+	}
+
+	async function loadViewerNotes(root, doc) {
+		var section = root.getElementById ? root.getElementById('viewer-notes-section') : root.querySelector('#viewer-notes-section');
+		if (!section || !doc) {
+			if (section) section.innerHTML = '<h4>📝 Notas</h4><p class="viewer-notes-empty">Sin notas.</p>';
+			return;
+		}
+		try {
+			var allNotes = await api('/notes');
+			var docNotes = allNotes.filter(function (n) {
+				return n.module === 'documents' && n.item_id === doc.id;
+			});
+			if (!docNotes.length) {
+				section.innerHTML = '<h4>📝 Notas</h4><p class="viewer-notes-empty">Sin notas para este documento.</p>';
+				return;
+			}
+			var html = '<h4>📝 Notas (' + docNotes.length + ')</h4>';
+			docNotes.forEach(function (n) {
+				html += '<div class="viewer-note">'
+					+ '<div class="viewer-note-meta">' + escapeHtml(formatDate(n.created_at)) + '</div>'
+					+ '<div class="viewer-note-text">' + escapeHtml(n.content) + '</div>'
+					+ '</div>';
+			});
+			section.innerHTML = html;
+		} catch (e) {
+			section.innerHTML = '<h4>📝 Notas</h4><p class="viewer-notes-empty">No se pudieron cargar las notas.</p>';
+		}
+	}
+
+	function handleViewerKeydown(e) {
+		const modal = document.getElementById('tma-doc-viewer-modal');
+		if (!modal || !modal.classList.contains('open')) return;
+		if (e.key === 'Escape') { closeDocumentViewer(); }
+		else if (e.key === 'ArrowLeft') { navigateDoc(-1); }
+		else if (e.key === 'ArrowRight') { navigateDoc(1); }
 	}
 
 	/* ═══════════════════════════════════════════════════════════════
@@ -968,15 +1048,6 @@
 					statusOptions += '<option value="' + s + '">' + escapeHtml(s) + ' (' + statuses[s] + ')</option>';
 				}
 			});
-
-			function statusBadgeClass(status) {
-				if (status === 'new') return 'badge--info';
-				if (status === 'contacted') return 'badge--warning';
-				if (status === 'quoted') return 'badge--accent';
-				if (status === 'won') return 'badge--success';
-				if (status === 'lost') return 'badge--danger';
-				return 'badge--info';
-			}
 
 			function buildLeadRows(filterSource, filterStatus) {
 				var rows = '';
@@ -1080,7 +1151,7 @@
 							sel.style.borderColor = 'var(--tma-success)';
 							setTimeout(function () { sel.style.borderColor = ''; }, 1500);
 						} catch (err) {
-							alert('Error actualizando lead: ' + getErrorMessage(err));
+							showToast('Error actualizando lead: ' + getErrorMessage(err), 'error');
 							sel.value = prevValue;
 						} finally {
 							sel.disabled = false;
@@ -1204,7 +1275,7 @@
 						});
 						renderNotes(container);
 					} catch (err) {
-						alert(t('common.error') + ': ' + err.message);
+						showToast(t('common.error') + ': ' + err.message, 'error');
 					}
 				});
 			}

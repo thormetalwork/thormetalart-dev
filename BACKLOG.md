@@ -1232,6 +1232,55 @@
 
 ---
 
+## �️ FASE 14 — TMA Panel: Bug Fixes & Document UX
+
+> **Meta:** Corregir bugs de rendimiento y mejorar la experiencia de documentos.
+> **Versión:** 0.4.0
+
+- [x] **TICKET-PANEL-015: Bugfix + Document UX Improvements**
+  - **Fuente:** Reporte de usuario — "la página como que se reinicia" + análisis de mejoras en documentos
+  - **Historia de Usuario:** Como Karel, quiero que la página no se reinicie cuando los gráficos se actualizan, y quiero poder ver notas y navegar documentos de forma más intuitiva.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: Dashboard no pierde scroll en auto-refresh
+      Given estoy viendo la sección de Impressions
+      When pasan 120 segundos y el dashboard se refresca
+      Then la página mantiene mi posición de scroll
+      And no se crean gráficos duplicados en memoria
+
+    Scenario: Viewer con toolbar en la parte inferior
+      Given abro un documento en el viewer
+      Then los botones de acción (Aprobar, Con cambios, Dejar nota) están abajo
+      And el contenido del documento ocupa el espacio central
+
+    Scenario: Notas visibles en el viewer
+      Given abro un documento que tiene notas
+      Then veo las notas asociadas debajo del contenido
+      And puedo agregar nuevas notas
+
+    Scenario: Atajos de teclado en viewer
+      Given el viewer está abierto
+      When presiono Escape
+      Then el viewer se cierra
+      When presiono flecha izquierda/derecha
+      Then navego al documento anterior/siguiente
+
+    Scenario: Toast notifications en lugar de alerts
+      Given realizo una acción (guardar nota, cambiar estado)
+      Then veo una notificación toast en esquina superior derecha
+      And no veo un popup alert del navegador
+    ```
+  - **Archivos:**
+    - `data/wordpress/wp-content/plugins/tma-panel/assets/js/panel.js` (MODIFIED)
+    - `data/wordpress/wp-content/plugins/tma-panel/assets/css/panel.css` (MODIFIED)
+    - `data/wordpress/wp-content/plugins/tma-panel/tma-panel.php` (MODIFIED — version bump)
+  - **Prioridad:** P1
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2025-07-27
+  - **Notas de cierre:** Chart.js memory leak fix (destroyCharts), scroll preservation on auto-refresh, toolbar moved to bottom, doc notes in viewer, keyboard shortcuts (Esc/←/→), toast notifications replacing all alerts, dead code cleanup, note form toggle fix.
+
+---
+
 ## 📊 Resumen
 
 | Fase | Total | ✅ | ⏸️ | 🔄 | Progreso |
@@ -1249,4 +1298,5 @@
 | 11 — Leads Dinámico | 3 | 3 | 0 | 0 | 100% |
 | 12 — Cleanup Docker | 1 | 1 | 0 | 0 | 100% |
 | 13 — UI/UX Polish | 4 | 4 | 0 | 0 | 100% |
-| **TOTAL** | **43** | **43** | **0** | **0** | **100%** |
+| 14 — Bug Fixes & Doc UX | 1 | 1 | 0 | 0 | 100% |
+| **TOTAL** | **44** | **44** | **0** | **0** | **100%** |

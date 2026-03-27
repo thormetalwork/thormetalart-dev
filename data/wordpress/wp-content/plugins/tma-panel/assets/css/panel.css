@@ -644,11 +644,12 @@ html, body {
 
 .modal__toolbar {
 	padding: var(--tma-sp-3) var(--tma-sp-4);
-	border-bottom: 1px solid #eee;
+	border-top: 1px solid #eee;
 	display: flex;
 	gap: var(--tma-sp-2);
 	align-items: center;
 	flex-wrap: wrap;
+	background: #fff;
 }
 
 .modal__body {
@@ -1216,4 +1217,55 @@ html, body {
 	font-size: 0.875rem;
 	color: var(--tma-gray-300);
 	line-height: 1.5;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Toast Notifications
+   ═══════════════════════════════════════════════════════════════════ */
+
+.toast-container {
+	position: fixed;
+	top: var(--tma-sp-4);
+	right: var(--tma-sp-4);
+	z-index: 99999;
+	display: flex;
+	flex-direction: column;
+	gap: var(--tma-sp-2);
+	pointer-events: none;
+}
+
+.toast {
+	padding: var(--tma-sp-3) var(--tma-sp-4);
+	border-radius: var(--tma-radius-lg);
+	color: #fff;
+	font-size: 0.875rem;
+	font-family: var(--tma-font-body);
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+	opacity: 0;
+	transform: translateX(30px);
+	transition: opacity 0.3s, transform 0.3s;
+	pointer-events: auto;
+	max-width: 380px;
+}
+
+.toast--visible {
+	opacity: 1;
+	transform: translateX(0);
+}
+
+.toast--info {
+	background: var(--tma-dark);
+}
+
+.toast--success {
+	background: var(--tma-success);
+}
+
+.toast--error {
+	background: var(--tma-danger);
+}
+
+.toast--warning {
+	background: var(--tma-warning);
+	color: var(--tma-dark);
 }
