@@ -436,7 +436,36 @@ class TMA_Panel_API {
 		);
 
 		$docs_count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}panel_docs" );
+		$docs_approved = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}panel_docs WHERE status = 'approved'" );
+		$docs_pending  = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}panel_docs WHERE status = 'pending'" );
+		$docs_changes  = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}panel_docs WHERE status = 'changes_requested'" );
 		$notes_count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}panel_notes" );
+
+		$new_leads_count = (int) $wpdb->get_var(
+			"SELECT COUNT(*) FROM {$wpdb->prefix}panel_leads WHERE status = 'new'"
+		);
+
+		$recent_activity = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT a.action, a.entity_type, a.entity_id, a.created_at,
+				        COALESCE(u.display_name, CONCAT('User #', a.user_id)) AS user_name
+				 FROM {$wpdb->prefix}panel_audit a
+				 LEFT JOIN {$wpdb->users} u ON a.user_id = u.ID
+				 ORDER BY a.created_at DESC
+				 LIMIT %d",
+				5
+			)
+		);
+		$activity_items = array();
+		foreach ( $recent_activity as $act ) {
+			$activity_items[] = array(
+				'action'      => $act->action,
+				'entity_type' => $act->entity_type,
+				'entity_id'   => (int) $act->entity_id,
+				'user_name'   => $act->user_name,
+				'created_at'  => $act->created_at,
+			);
+		}
 
 		return new WP_REST_Response(
 			array(
@@ -450,9 +479,17 @@ class TMA_Panel_API {
 					'kpis'        => count( $kpi_rows ),
 				),
 				'new_attention' => array(
-					'high_value_leads' => $high_value_new_attention,
+					'high_value_leads'  => $high_value_new_attention,
 					'requires_attention' => $high_value_new_attention > 0,
+					'new_leads'         => $new_leads_count,
 				),
+				'doc_progress' => array(
+					'total'    => $docs_count,
+					'approved' => $docs_approved,
+					'pending'  => $docs_pending,
+					'changes'  => $docs_changes,
+				),
+				'recent_activity' => $activity_items,
 				'kpis'         => $cards,
 				'history'      => $history,
 				'lead_sources' => $lead_sources,

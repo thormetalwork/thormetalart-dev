@@ -54,6 +54,14 @@
 			'dashboard.exported': 'Copiado',
 			'dashboard.auto_refresh_in': 'Autoactualizacion en {{s}}s',
 			'dashboard.refresh_now': 'Actualizar ahora',
+			'dashboard.doc_progress': 'Progreso Documentos',
+			'dashboard.doc_approval': 'Aprobación',
+			'dashboard.recent_activity': 'Actividad Reciente',
+			'dashboard.no_activity': 'Sin actividad reciente.',
+			'dashboard.new_leads_alert': '{{n}} lead(s) nuevos requieren atención',
+			'dashboard.pending_docs_alert': '{{n}} documento(s) pendientes de revisión',
+			'dashboard.view_leads': 'Ver leads',
+			'dashboard.view_docs': 'Ver documentos',
 
 			// Documents
 			'documents.title': 'Documentos del Proyecto',
@@ -72,6 +80,12 @@
 			'leads.value': 'Valor',
 			'leads.date': 'Fecha',
 			'leads.no_leads': 'No hay leads registrados.',
+			'leads.total': 'Total Leads',
+			'leads.pipeline_value': 'Valor Pipeline',
+			'leads.new_leads': 'Leads Nuevos',
+			'leads.filter_all': 'Todos',
+			'leads.filter_source': 'Canal',
+			'leads.filter_status': 'Estado',
 
 			// Notes
 			'notes.title': 'Notas',
@@ -141,6 +155,14 @@
 			'dashboard.exported': 'Copied',
 			'dashboard.auto_refresh_in': 'Auto-refresh in {{s}}s',
 			'dashboard.refresh_now': 'Refresh now',
+			'dashboard.doc_progress': 'Document Progress',
+			'dashboard.doc_approval': 'Approval',
+			'dashboard.recent_activity': 'Recent Activity',
+			'dashboard.no_activity': 'No recent activity.',
+			'dashboard.new_leads_alert': '{{n}} new lead(s) require attention',
+			'dashboard.pending_docs_alert': '{{n}} document(s) pending review',
+			'dashboard.view_leads': 'View leads',
+			'dashboard.view_docs': 'View documents',
 
 			// Documents
 			'documents.title': 'Project Documents',
@@ -159,6 +181,12 @@
 			'leads.value': 'Value',
 			'leads.date': 'Date',
 			'leads.no_leads': 'No leads found.',
+			'leads.total': 'Total Leads',
+			'leads.pipeline_value': 'Pipeline Value',
+			'leads.new_leads': 'New Leads',
+			'leads.filter_all': 'All',
+			'leads.filter_source': 'Source',
+			'leads.filter_status': 'Status',
 
 			// Notes
 			'notes.title': 'Notes',

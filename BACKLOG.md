@@ -1106,7 +1106,7 @@
 > **Referencia:** Análisis comparativo con RAI Panel v0.4.0 — patrones UI maduros (Shadow DOM, alerts, progress, badges, doc-nav, timeline, filters)
 > **Objetivo:** Elevar la calidad visual y UX del panel TMA al nivel del panel RAI, extrayendo inline styles a CSS classes, creando componentes reutilizables, y mejorando cada sección.
 
-- [ ] **TICKET-PANEL-011: CSS Component System — extraer inline styles a clases reutilizables**
+- [x] **TICKET-PANEL-011: CSS Component System — extraer inline styles a clases reutilizables**
   - **Fuente:** Análisis comparativo RAI Panel — panel.css componentes maduros
   - **Historia de Usuario:** Como desarrollador, quiero un sistema de componentes CSS reutilizables para que el panel sea consistente, mantenible y extensible.
   - **Criterios de Aceptación:**
@@ -1133,9 +1133,11 @@
     - `data/wordpress/wp-content/plugins/tma-panel/assets/js/panel.js` (MODIFIED)
   - **Dependencias:** Ninguna
   - **Prioridad:** P1
-  - **Status:** 🔄 EN PROGRESO
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2025-07-27
+  - **Notas de cierre:** 15+ CSS components extraídos, 937 líneas panel.css, ~50 inline styles eliminados de panel.js.
 
-- [ ] **TICKET-PANEL-012: Dashboard mejorado — alertas, progreso documentos, actividad reciente**
+- [x] **TICKET-PANEL-012: Dashboard mejorado — alertas, progreso documentos, actividad reciente**
   - **Fuente:** Análisis comparativo RAI Panel — dashboard con alertas contextuales y actividad reciente
   - **Historia de Usuario:** Como Karel, quiero un dashboard más informativo con alertas visibles, progreso de documentos y actividad reciente para tener visión completa del proyecto en un vistazo.
   - **Criterios de Aceptación:**
@@ -1161,9 +1163,11 @@
     - `data/wordpress/wp-content/plugins/tma-panel/assets/js/i18n.js` (MODIFIED)
   - **Dependencias:** TICKET-PANEL-011
   - **Prioridad:** P2
-  - **Status:** ⏸️ PENDIENTE
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2025-07-27
+  - **Notas de cierre:** Alertas contextuales clickables (leads + docs), barra de progreso documentos en dashboard, sección Actividad Reciente (últimas 5 acciones), API ampliada con doc_progress + recent_activity + new_leads.
 
-- [ ] **TICKET-PANEL-013: Documentos mejorados — cards grid, viewer refinado, navegación**
+- [x] **TICKET-PANEL-013: Documentos mejorados — cards grid, viewer refinado, navegación**
   - **Fuente:** Análisis comparativo RAI Panel — doc-viewer with Shadow DOM, review toolbar, annotation system
   - **Historia de Usuario:** Como Karel, quiero una vista de documentos más visual con cards en grid, visor mejorado y navegación fluida para revisar documentos cómodamente.
   - **Criterios de Aceptación:**
@@ -1190,9 +1194,11 @@
     - `data/wordpress/wp-content/plugins/tma-panel/assets/css/panel.css` (MODIFIED)
   - **Dependencias:** TICKET-PANEL-011
   - **Prioridad:** P2
-  - **Status:** ⏸️ PENDIENTE
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2025-07-27
+  - **Notas de cierre:** Grid responsive (3→2→1 columnas), iconos de status en cards, prev/next con nombre del documento, doc-card--grid class.
 
-- [ ] **TICKET-PANEL-014: Leads mejorados — pipeline visual, filtros, badges en sidebar**
+- [x] **TICKET-PANEL-014: Leads mejorados — pipeline visual, filtros, badges en sidebar**
   - **Fuente:** Análisis comparativo RAI Panel — tabs, filtros, badges de conteo en sidebar
   - **Historia de Usuario:** Como Karel, quiero ver mis leads con pipeline visual (columnas por estado), filtros por canal, y badges en sidebar para saber cuántos leads tengo sin entrar a la sección.
   - **Criterios de Aceptación:**
@@ -1220,7 +1226,9 @@
     - `data/wordpress/wp-content/plugins/tma-panel/templates/panel.php` (MODIFIED)
   - **Dependencias:** TICKET-PANEL-011
   - **Prioridad:** P2
-  - **Status:** ⏸️ PENDIENTE
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2025-07-27
+  - **Notas de cierre:** KPI summary bar (total/pipeline/nuevos), filtros por canal y estado, sidebar badge dinámico con conteo de leads nuevos, status badges de color en tabla.
 
 ---
 
@@ -1240,5 +1248,5 @@
 | 10 — Portal Integrado | 3 | 3 | 0 | 0 | 100% |
 | 11 — Leads Dinámico | 3 | 3 | 0 | 0 | 100% |
 | 12 — Cleanup Docker | 1 | 1 | 0 | 0 | 100% |
-| 13 — UI/UX Polish | 4 | 0 | 3 | 1 | 0% |
-| **TOTAL** | **43** | **39** | **3** | **1** | **91%** |
+| 13 — UI/UX Polish | 4 | 4 | 0 | 0 | 100% |
+| **TOTAL** | **43** | **43** | **0** | **0** | **100%** |

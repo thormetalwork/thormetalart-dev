@@ -81,6 +81,22 @@
 		}
 	}
 
+	function updateSidebarBadge(section, count) {
+		var link = document.querySelector('.nav-link[data-section="' + section + '"]');
+		if (!link) return;
+		var badge = link.querySelector('.nav-badge');
+		if (count > 0) {
+			if (!badge) {
+				badge = document.createElement('span');
+				badge.className = 'nav-badge';
+				link.appendChild(badge);
+			}
+			badge.textContent = String(count);
+		} else if (badge) {
+			badge.remove();
+		}
+	}
+
 	function getDashboardRefreshLabel(seconds) {
 		const template = t('dashboard.auto_refresh_in') || 'Autoactualizacion en {{s}}s';
 		return template.replace('{{s}}', String(seconds));
@@ -180,6 +196,85 @@
 			const isDemo = !!data.is_demo;
 			const newAttention = data.new_attention || {};
 			const attentionCount = Number(newAttention.high_value_leads || 0);
+			const newLeadsCount = Number(newAttention.new_leads || 0);
+			const docProgress = data.doc_progress || {};
+			const recentActivity = data.recent_activity || [];
+
+			// Build contextual alerts
+			var alertsHtml = '';
+			var hasAlerts = false;
+			if (newLeadsCount > 0) {
+				hasAlerts = true;
+				var leadsAlertText = (t('dashboard.new_leads_alert') || '{{n}} lead(s) nuevos requieren atención').replace('{{n}}', String(newLeadsCount));
+				alertsHtml += '<a href="#leads" class="dash-alert-card dash-alert-card--gold">'
+					+ '<span class="dash-alert-card__icon">📥</span>'
+					+ '<div class="dash-alert-card__body">'
+					+ '<p class="dash-alert-card__title">' + escapeHtml(leadsAlertText) + '</p>'
+					+ '<p class="dash-alert-card__detail">' + escapeHtml('Hay leads pendientes de seguimiento.') + '</p>'
+					+ '</div>'
+					+ '<span class="dash-alert-card__link">' + escapeHtml(t('dashboard.view_leads')) + ' →</span>'
+					+ '</a>';
+			}
+			var pendingDocs = Number(docProgress.pending || 0) + Number(docProgress.changes || 0);
+			if (pendingDocs > 0) {
+				hasAlerts = true;
+				var docsAlertText = (t('dashboard.pending_docs_alert') || '{{n}} documento(s) pendientes de revisión').replace('{{n}}', String(pendingDocs));
+				alertsHtml += '<a href="#documents" class="dash-alert-card dash-alert-card--warning">'
+					+ '<span class="dash-alert-card__icon">📄</span>'
+					+ '<div class="dash-alert-card__body">'
+					+ '<p class="dash-alert-card__title">' + escapeHtml(docsAlertText) + '</p>'
+					+ '<p class="dash-alert-card__detail">' + escapeHtml(t('dashboard.doc_approval')) + ': ' + Number(docProgress.approved || 0) + '/' + Number(docProgress.total || 0) + '</p>'
+					+ '</div>'
+					+ '<span class="dash-alert-card__link">' + escapeHtml(t('dashboard.view_docs')) + ' →</span>'
+					+ '</a>';
+			}
+			if (!hasAlerts) {
+				alertsHtml = '<a href="#" class="dash-alert-card dash-alert-card--success">'
+					+ '<span class="dash-alert-card__icon">✅</span>'
+					+ '<div class="dash-alert-card__body">'
+					+ '<p class="dash-alert-card__title">Todo al día</p>'
+					+ '<p class="dash-alert-card__detail">No hay acciones pendientes.</p>'
+					+ '</div></a>';
+			}
+
+			// Build doc progress card
+			var docTotal = Number(docProgress.total || 0);
+			var docApproved = Number(docProgress.approved || 0);
+			var docPercent = docTotal > 0 ? Math.round((docApproved / docTotal) * 100) : 0;
+			var docProgressHtml = '<div class="dash-doc-progress" id="tma-dash-doc-progress">'
+				+ '<div class="dash-doc-progress__header">'
+				+ '<span class="dash-doc-progress__title">' + escapeHtml(t('dashboard.doc_progress')) + '</span>'
+				+ '<div class="dash-doc-progress__stats">'
+				+ '<span>✅ ' + docApproved + '</span>'
+				+ '<span>⏳ ' + Number(docProgress.pending || 0) + '</span>'
+				+ '<span>📝 ' + Number(docProgress.changes || 0) + '</span>'
+				+ '</div></div>'
+				+ '<div class="progress-bar__header"><span>' + escapeHtml(t('dashboard.doc_approval')) + '</span><strong>' + docApproved + '/' + docTotal + ' (' + docPercent + '%)</strong></div>'
+				+ '<div class="progress-bar"><div class="progress-bar__fill" style="width:' + docPercent + '%"></div></div>'
+				+ '</div>';
+
+			// Build recent activity
+			var activityHtml = '';
+			if (recentActivity.length) {
+				var activityItems = '';
+				recentActivity.forEach(function (act) {
+					var icon = '📝';
+					if (act.action === 'login') icon = '🔑';
+					else if (act.action === 'approve_document') icon = '✅';
+					else if (act.action === 'update_lead_status') icon = '📥';
+					else if (act.action === 'create_note') icon = '💬';
+					else if (act.action === 'view_document') icon = '👁️';
+					activityItems += '<div class="activity-item">'
+						+ '<span class="activity-item__icon">' + icon + '</span>'
+						+ '<div class="activity-item__body">'
+						+ '<p class="activity-item__text"><strong>' + escapeHtml(act.user_name || '') + '</strong> — ' + escapeHtml(act.action || '') + (act.entity_type ? ' (' + escapeHtml(act.entity_type) + ')' : '') + '</p>'
+						+ '<p class="activity-item__meta">' + formatDate(act.created_at) + '</p>'
+						+ '</div></div>';
+				});
+				activityHtml = '<div class="section-card">'
+					+ '<h2 class="card__title">' + escapeHtml(t('dashboard.recent_activity')) + '</h2>'
+					+ activityItems + '</div>';
+			}
 
 			container.innerHTML = `
 				<div class="dashboard-actions">
@@ -192,7 +287,8 @@
 						📋 ${escapeHtml(t('dashboard.export') || 'Exportar resumen')}
 					</button>
 				</div>
-				${attentionCount > 0 ? '<div class="alert alert--gold mb-3"><strong>' + attentionCount + ' lead(s) nuevos requieren atención</strong><div class="alert__detail">Hay leads con valor estimado pendientes de seguimiento.</div></div>' : ''}
+				<div class="dash-alerts">${alertsHtml}</div>
+				${docProgressHtml}
 				<div class="kpi-grid">
 					<div class="kpi-card">
 						<span class="kpi-card__label">Reviews GBP</span>
@@ -225,6 +321,7 @@
 						<canvas id="tma-chart-lead-sources" height="180"></canvas>
 					</div>
 				</div>
+				${activityHtml}
 				${renderGBPSection(gbp)}
 				${renderWebSection(web)}
 				${renderInstagramSection(instagram)}
@@ -245,6 +342,18 @@
 					renderDashboard(container);
 				});
 			}
+
+			// Doc progress card click → navigate to documents
+			var docProgressCard = document.getElementById('tma-dash-doc-progress');
+			if (docProgressCard) {
+				docProgressCard.addEventListener('click', function () {
+					location.hash = '#documents';
+				});
+			}
+
+			// Update sidebar badges from dashboard data
+			updateSidebarBadge('leads', newLeadsCount);
+			if (pendingDocs > 0) updateSidebarBadge('documents', pendingDocs);
 
 			startDashboardAutoRefresh(container);
 		} catch (err) {
@@ -526,11 +635,17 @@
 				return;
 			}
 
+			function docStatusIcon(status) {
+				if (status === 'approved') return '✅';
+				if (status === 'changes_requested') return '📝';
+				return '⏳';
+			}
+
 			let cards = '';
 			docsState.forEach(function (doc, idx) {
 				const statusClass = doc.status === 'approved' ? 'badge--success' : (doc.status === 'pending' ? 'badge--warning' : 'badge--info');
 				const code = doc.slug || '';
-				cards += '<article class="doc-card">'
+				cards += '<article class="doc-card doc-card--grid">'
 					+ '<div class="doc-card__row">'
 					+ '<div class="flex-1">'
 					+ '<p class="doc-card__code">' + escapeHtml(code) + '</p>'
@@ -541,6 +656,7 @@
 						: '')
 					+ '</div>'
 					+ '<div class="doc-card__actions">'
+					+ '<span class="doc-card__status-icon">' + docStatusIcon(doc.status) + '</span>'
 					+ '<span class="badge ' + statusClass + '">' + escapeHtml(doc.status || '') + '</span>'
 					+ '<button class="btn btn--primary btn-view-doc" data-doc-code="' + escapeHtml(code) + '" data-doc-index="' + idx + '">Ver</button>'
 					+ '</div>'
@@ -551,6 +667,16 @@
 			const approvedCount = docsState.filter(function (d) { return d.status === 'approved'; }).length;
 			const total = docsState.length;
 			const percent = total > 0 ? Math.round((approvedCount / total) * 100) : 0;
+
+			// Prev/next labels
+			function prevDocLabel() {
+				if (docsState.length > 1) return escapeHtml(docsState[0].title || 'Anterior');
+				return 'Anterior';
+			}
+			function nextDocLabel() {
+				if (docsState.length > 1) return escapeHtml(docsState[1].title || 'Siguiente');
+				return 'Siguiente';
+			}
 
 			container.innerHTML = `
 				<div class="card">
@@ -564,7 +690,7 @@
 							<div class="progress-bar__fill" style="width:${percent}%"></div>
 						</div>
 					</div>
-					<div>${cards}</div>
+					<div class="doc-grid">${cards}</div>
 				</div>
 				<div id="tma-doc-viewer-modal" class="modal-overlay">
 					<div class="modal">
@@ -670,6 +796,22 @@
 		currentDocIndex = nextIndex;
 		const doc = docsState[currentDocIndex];
 		openDocumentViewer(doc.slug || '', doc.title || 'Documento');
+		updateDocNavButtons();
+	}
+
+	function updateDocNavButtons() {
+		var prevBtn = document.getElementById('tma-doc-prev');
+		var nextBtn = document.getElementById('tma-doc-next');
+		if (prevBtn) {
+			prevBtn.disabled = (currentDocIndex <= 0);
+			var prevTitle = currentDocIndex > 0 ? docsState[currentDocIndex - 1].title : '';
+			prevBtn.textContent = prevTitle ? '← ' + prevTitle : '← Anterior';
+		}
+		if (nextBtn) {
+			nextBtn.disabled = (currentDocIndex >= docsState.length - 1);
+			var nextTitle = currentDocIndex < docsState.length - 1 ? docsState[currentDocIndex + 1].title : '';
+			nextBtn.textContent = nextTitle ? nextTitle + ' →' : 'Siguiente →';
+		}
 	}
 
 	async function saveDocStatus(status, notes) {
@@ -747,11 +889,8 @@
 			updateViewerActionButtons(docsState[currentDocIndex].status || 'pending');
 		}
 
-		// Prev/Next disabled state
-		var prevBtn = document.getElementById('tma-doc-prev');
-		var nextBtn = document.getElementById('tma-doc-next');
-		if (prevBtn) prevBtn.disabled = (currentDocIndex <= 0);
-		if (nextBtn) nextBtn.disabled = (currentDocIndex >= docsState.length - 1);
+		// Prev/Next with document titles
+		updateDocNavButtons();
 
 		try {
 			const doc = await api('/documents/' + encodeURIComponent(code) + '/content');
@@ -795,14 +934,58 @@
 			const leads = await api('/leads');
 			if (!leads.length) {
 				container.innerHTML = '<div class="empty-state"><div class="empty-state__icon">📥</div><p class="empty-state__text">' + escapeHtml(t('leads.no_leads')) + '</p></div>';
+				updateSidebarBadge('leads', 0);
 				return;
 			}
 
-			let rows = '';
+			// Compute KPI summary
+			var totalLeads = leads.length;
+			var pipelineValue = 0;
+			var newLeads = 0;
+			var sources = {};
+			var statuses = {};
 			leads.forEach(function (lead) {
-				const leadId = Number(lead.id || 0);
-					const currentValue = parseFloat(lead.lead_value) || 0;
-					const statusOptions = ['new', 'contacted', 'quoted', 'won', 'lost'].map(function (s) {
+				pipelineValue += parseFloat(lead.lead_value) || 0;
+				if (lead.status === 'new') newLeads++;
+				var src = lead.source || 'unknown';
+				sources[src] = (sources[src] || 0) + 1;
+				statuses[lead.status || 'new'] = (statuses[lead.status || 'new'] || 0) + 1;
+			});
+
+			// Update sidebar badge
+			updateSidebarBadge('leads', newLeads);
+
+			// Build source filter options
+			var sourceOptions = '<option value="">' + escapeHtml(t('leads.filter_all')) + '</option>';
+			Object.keys(sources).sort().forEach(function (src) {
+				sourceOptions += '<option value="' + escapeHtml(src) + '">' + escapeHtml(src) + ' (' + sources[src] + ')</option>';
+			});
+
+			// Build status filter options
+			var statusOptions = '<option value="">' + escapeHtml(t('leads.filter_all')) + '</option>';
+			['new', 'contacted', 'quoted', 'won', 'lost'].forEach(function (s) {
+				if (statuses[s]) {
+					statusOptions += '<option value="' + s + '">' + escapeHtml(s) + ' (' + statuses[s] + ')</option>';
+				}
+			});
+
+			function statusBadgeClass(status) {
+				if (status === 'new') return 'badge--info';
+				if (status === 'contacted') return 'badge--warning';
+				if (status === 'quoted') return 'badge--accent';
+				if (status === 'won') return 'badge--success';
+				if (status === 'lost') return 'badge--danger';
+				return 'badge--info';
+			}
+
+			function buildLeadRows(filterSource, filterStatus) {
+				var rows = '';
+				leads.forEach(function (lead) {
+					if (filterSource && (lead.source || 'unknown') !== filterSource) return;
+					if (filterStatus && lead.status !== filterStatus) return;
+					var leadId = Number(lead.id || 0);
+					var currentValue = parseFloat(lead.lead_value) || 0;
+					var selectOpts = ['new', 'contacted', 'quoted', 'won', 'lost'].map(function (s) {
 						return '<option value="' + s + '"' + (s === lead.status ? ' selected' : '') + '>' + escapeHtml(s) + '</option>';
 					}).join('');
 
@@ -810,20 +993,47 @@
 						+ '<td>' + escapeHtml(lead.name || '') + '</td>'
 						+ '<td>' + escapeHtml(lead.email || '') + '</td>'
 						+ '<td>' + escapeHtml(lead.source || '') + '</td>'
-						+ '<td><select class="lead-status-select input input--compact" data-lead-id="' + leadId + '" data-lead-value="' + currentValue + '">' + statusOptions + '</select></td>'
+						+ '<td><div class="lead-status lead-status--' + escapeHtml(lead.status || 'new') + '">'
+						+ '<select class="lead-status-select input input--compact" data-lead-id="' + leadId + '" data-lead-value="' + currentValue + '">' + selectOpts + '</select>'
+						+ '</div></td>'
 						+ '<td>$' + currentValue.toLocaleString() + '</td>'
 						+ '<td>' + formatDate(lead.created_at) + '</td>'
 						+ '<td><button class="btn btn--small btn--ghost js-view-history" data-lead-id="' + leadId + '">Ver historial</button></td>'
 						+ '</tr>';
-			});
+				});
+				return rows;
+			}
 
 			container.innerHTML = `
+				<div class="lead-kpi-bar">
+					<div class="lead-kpi">
+						<div class="lead-kpi__value">${totalLeads}</div>
+						<div class="lead-kpi__label">${escapeHtml(t('leads.total'))}</div>
+					</div>
+					<div class="lead-kpi lead-kpi--accent">
+						<div class="lead-kpi__value">$${pipelineValue.toLocaleString()}</div>
+						<div class="lead-kpi__label">${escapeHtml(t('leads.pipeline_value'))}</div>
+					</div>
+					<div class="lead-kpi">
+						<div class="lead-kpi__value">${newLeads}</div>
+						<div class="lead-kpi__label">${escapeHtml(t('leads.new_leads'))}</div>
+					</div>
+				</div>
+				<div class="lead-filters">
+					<span class="lead-filters__label">${escapeHtml(t('common.filter'))}:</span>
+					<select id="tma-lead-filter-source" class="input input--select input--compact">
+						${sourceOptions}
+					</select>
+					<select id="tma-lead-filter-status" class="input input--select input--compact">
+						${statusOptions}
+					</select>
+				</div>
 				<div class="card">
 					<h2 class="card__title">${escapeHtml(t('leads.title'))}</h2>
 					<div class="table-wrap">
 						<table class="table">
 							<thead><tr><th>${escapeHtml(t('leads.name'))}</th><th>${escapeHtml(t('leads.email'))}</th><th>${escapeHtml(t('leads.source'))}</th><th>${escapeHtml(t('leads.stage'))}</th><th>${escapeHtml(t('leads.value'))}</th><th>${escapeHtml(t('leads.date'))}</th><th>Timeline</th></tr></thead>
-							<tbody>${rows}</tbody>
+							<tbody id="tma-leads-tbody">${buildLeadRows('', '')}</tbody>
 						</table>
 					</div>
 				</div>
@@ -833,34 +1043,52 @@
 				</div>
 			`;
 
-			container.querySelectorAll('.js-view-history').forEach(function (btn) {
-				btn.addEventListener('click', async function () {
-					const leadId = Number(btn.getAttribute('data-lead-id') || 0);
-					await renderLeadHistoryTimeline(container, leadId);
+			// Filter handlers
+			function applyFilters() {
+				var src = document.getElementById('tma-lead-filter-source').value;
+				var st = document.getElementById('tma-lead-filter-status').value;
+				var tbody = document.getElementById('tma-leads-tbody');
+				if (tbody) {
+					tbody.innerHTML = buildLeadRows(src, st);
+					bindLeadEvents();
+				}
+			}
+			var srcFilter = document.getElementById('tma-lead-filter-source');
+			var stFilter = document.getElementById('tma-lead-filter-status');
+			if (srcFilter) srcFilter.addEventListener('change', applyFilters);
+			if (stFilter) stFilter.addEventListener('change', applyFilters);
+
+			function bindLeadEvents() {
+				container.querySelectorAll('.js-view-history').forEach(function (btn) {
+					btn.addEventListener('click', async function () {
+						const leadId = Number(btn.getAttribute('data-lead-id') || 0);
+						await renderLeadHistoryTimeline(container, leadId);
+					});
 				});
-			});
-			container.querySelectorAll('.lead-status-select').forEach(function (sel) {
-				var prevValue = sel.value;
-				sel.addEventListener('change', async function () {
-					var id = Number(sel.dataset.leadId || 0);
-					var val = parseFloat(sel.dataset.leadValue || 0);
-					sel.disabled = true;
-					try {
-						await api('/leads/' + id, {
-							method: 'POST',
-							body: JSON.stringify({ status: sel.value, lead_value: val })
-						});
-						prevValue = sel.value;
-						sel.style.borderColor = 'var(--tma-success)';
-						setTimeout(function () { sel.style.borderColor = ''; }, 1500);
-					} catch (err) {
-						alert('Error actualizando lead: ' + getErrorMessage(err));
-						sel.value = prevValue;
-					} finally {
-						sel.disabled = false;
-					}
+				container.querySelectorAll('.lead-status-select').forEach(function (sel) {
+					var prevValue = sel.value;
+					sel.addEventListener('change', async function () {
+						var id = Number(sel.dataset.leadId || 0);
+						var val = parseFloat(sel.dataset.leadValue || 0);
+						sel.disabled = true;
+						try {
+							await api('/leads/' + id, {
+								method: 'POST',
+								body: JSON.stringify({ status: sel.value, lead_value: val })
+							});
+							prevValue = sel.value;
+							sel.style.borderColor = 'var(--tma-success)';
+							setTimeout(function () { sel.style.borderColor = ''; }, 1500);
+						} catch (err) {
+							alert('Error actualizando lead: ' + getErrorMessage(err));
+							sel.value = prevValue;
+						} finally {
+							sel.disabled = false;
+						}
+					});
 				});
-			});
+			}
+			bindLeadEvents();
 		} catch (err) {
 			showError(container, t('error.loading_leads') + ': ' + getErrorMessage(err));
 		}
