@@ -16,7 +16,7 @@
 	const DASHBOARD_REFRESH_SECONDS = 120;
 	let dashboardRefreshInterval = null;
 	let dashboardRefreshRemaining = DASHBOARD_REFRESH_SECONDS;
-	let activeCharts = [];
+	let activeCharts = {};
 
 	/* ═══════════════════════════════════════════════════════════════
 	   API Helper
@@ -83,10 +83,10 @@
 	}
 
 	function destroyCharts() {
-		activeCharts.forEach(function (chart) {
-			try { chart.destroy(); } catch (e) { /* already destroyed */ }
+		Object.keys(activeCharts).forEach(function (key) {
+			try { activeCharts[key].destroy(); } catch (e) { /* already destroyed */ }
 		});
-		activeCharts = [];
+		activeCharts = {};
 	}
 
 	function showToast(message, type) {
@@ -152,12 +152,94 @@
 			dashboardRefreshRemaining -= 1;
 			if (dashboardRefreshRemaining <= 0) {
 				clearDashboardAutoRefresh();
-				await renderDashboard(container);
+				await refreshDashboardData(container);
+				startDashboardAutoRefresh(container);
 				return;
 			}
 
 			updateDashboardRefreshCounter();
 		}, 1000);
+	}
+
+	/**
+	 * Refresh dashboard data in-place without rebuilding DOM.
+	 * Updates KPI values and chart datasets, zero flicker.
+	 */
+	async function refreshDashboardData(container) {
+		try {
+			var data = await api('/dashboard');
+			var counts = data.counts || {};
+			var kpis = data.kpis || {};
+			var history = data.history || {};
+			var leadSources = data.lead_sources || [];
+			var gbp = data.gbp || {};
+			var web = data.web || {};
+			var instagram = data.instagram || {};
+			var newAttention = data.new_attention || {};
+			var newLeadsCount = Number(newAttention.new_leads || 0);
+			var docProgress = data.doc_progress || {};
+			var pendingDocs = Number(docProgress.pending || 0) + Number(docProgress.changes || 0);
+
+			// Update KPI card values (order: reviews, impressions, sessions, leads)
+			var kpiCards = container.querySelectorAll('.kpi-grid:first-of-type .kpi-card');
+			var kpiValues = [
+				{ value: parseInt(counts.reviews) || 0, trend: kpis.reviews },
+				{ value: parseInt(counts.impressions) || 0, trend: kpis.impressions },
+				{ value: parseInt(counts.sessions) || 0, trend: kpis.sessions },
+				{ value: parseInt(counts.leads) || 0, trend: kpis.leads },
+			];
+			kpiCards.forEach(function (card, i) {
+				if (!kpiValues[i]) return;
+				var valEl = card.querySelector('.kpi-card__value');
+				var metaEl = card.querySelector('.kpi-card__meta');
+				if (valEl) valEl.textContent = String(kpiValues[i].value);
+				if (metaEl) metaEl.textContent = renderTrend(kpiValues[i].trend);
+			});
+
+			// Update charts in-place via Chart.js API
+			updateChartData('impressions', history.impressions, 'value');
+			updateChartLeadSources(leadSources);
+			updateChartGbpSplit(gbp);
+			updateChartData('webSessions', (web && web.sessions_history) || [], 'value');
+			updateChartData('igReach', (instagram && instagram.reach_history) || [], 'value');
+
+			// Update sidebar badges
+			updateSidebarBadge('leads', newLeadsCount);
+			if (pendingDocs > 0) updateSidebarBadge('documents', pendingDocs);
+
+			// Update countdown badge
+			dashboardRefreshRemaining = DASHBOARD_REFRESH_SECONDS;
+			updateDashboardRefreshCounter();
+		} catch (err) {
+			// Silent fail on refresh — don't destroy the dashboard
+			console.warn('Dashboard refresh failed:', err.message);
+		}
+	}
+
+	function updateChartData(chartKey, dataArray, valueKey) {
+		var chart = activeCharts[chartKey];
+		if (!chart || !Array.isArray(dataArray)) return;
+		chart.data.labels = dataArray.map(function (x) { return x.period; });
+		chart.data.datasets[0].data = dataArray.map(function (x) { return Number(x[valueKey] || 0); });
+		chart.update('none');
+	}
+
+	function updateChartLeadSources(leadSources) {
+		var chart = activeCharts.leadSources;
+		if (!chart || !Array.isArray(leadSources)) return;
+		chart.data.labels = leadSources.map(function (x) { return x.label; });
+		chart.data.datasets[0].data = leadSources.map(function (x) { return Number(x.value || 0); });
+		chart.update('none');
+	}
+
+	function updateChartGbpSplit(gbp) {
+		var chart = activeCharts.gbpSplit;
+		var split = (gbp && gbp.impressions_split) ? gbp.impressions_split : [];
+		if (!chart || !split.length) return;
+		chart.data.labels = split.map(function (x) { return x.period; });
+		chart.data.datasets[0].data = split.map(function (x) { return x.impressions_search; });
+		chart.data.datasets[1].data = split.map(function (x) { return x.impressions_maps; });
+		chart.update('none');
 	}
 
 	/* ═══════════════════════════════════════════════════════════════
@@ -214,8 +296,6 @@
 		try {
 			clearDashboardAutoRefresh();
 			destroyCharts();
-			var scrollParent = container.closest('.main') || container;
-			var savedScroll = scrollParent.scrollTop;
 			await ensureChartJs();
 			const data = await api('/dashboard');
 			const kpis = data.kpis || {};
@@ -387,11 +467,6 @@
 			updateSidebarBadge('leads', newLeadsCount);
 			if (pendingDocs > 0) updateSidebarBadge('documents', pendingDocs);
 
-			// Restore scroll position after auto-refresh re-render
-			if (savedScroll > 0) {
-				requestAnimationFrame(function () { scrollParent.scrollTop = savedScroll; });
-			}
-
 			startDashboardAutoRefresh(container);
 		} catch (err) {
 			clearDashboardAutoRefresh();
@@ -497,7 +572,7 @@
 
 		const impCanvas = document.getElementById('tma-chart-impressions');
 		if (impCanvas) {
-			activeCharts.push(new window.Chart(impCanvas, {
+			activeCharts.impressions = new window.Chart(impCanvas, {
 				type: 'line',
 				data: {
 					labels: impLabels,
@@ -511,12 +586,12 @@
 					}],
 				},
 				options: { responsive: true, maintainAspectRatio: false },
-			}));
+			});
 		}
 
 		const leadCanvas = document.getElementById('tma-chart-lead-sources');
 		if (leadCanvas) {
-			activeCharts.push(new window.Chart(leadCanvas, {
+			activeCharts.leadSources = new window.Chart(leadCanvas, {
 				type: 'doughnut',
 				data: {
 					labels: leadSources.map(function (x) { return x.label; }),
@@ -526,13 +601,13 @@
 					}],
 				},
 				options: { responsive: true, maintainAspectRatio: false },
-			}));
+			});
 		}
 
 		const split = (gbp && gbp.impressions_split) ? gbp.impressions_split : [];
 		const splitCanvas = document.getElementById('tma-chart-gbp-impressions-split');
 		if (splitCanvas && split.length) {
-			activeCharts.push(new window.Chart(splitCanvas, {
+			activeCharts.gbpSplit = new window.Chart(splitCanvas, {
 				type: 'bar',
 				data: {
 					labels: split.map(function (x) { return x.period; }),
@@ -546,13 +621,13 @@
 					maintainAspectRatio: false,
 					scales: { x: { stacked: true }, y: { stacked: true } },
 				},
-			}));
+			});
 		}
 
 		const webHistory = (web && web.sessions_history) ? web.sessions_history : [];
 		const webCanvas = document.getElementById('tma-chart-web-sessions');
 		if (webCanvas && webHistory.length) {
-			activeCharts.push(new window.Chart(webCanvas, {
+			activeCharts.webSessions = new window.Chart(webCanvas, {
 				type: 'line',
 				data: {
 					labels: webHistory.map(function (x) { return x.period; }),
@@ -566,13 +641,13 @@
 					}],
 				},
 				options: { responsive: true, maintainAspectRatio: false },
-			}));
+			});
 		}
 
 		const igHistory = (instagram && instagram.reach_history) ? instagram.reach_history : [];
 		const igCanvas = document.getElementById('tma-chart-instagram-reach');
 		if (igCanvas && igHistory.length) {
-			activeCharts.push(new window.Chart(igCanvas, {
+			activeCharts.igReach = new window.Chart(igCanvas, {
 				type: 'line',
 				data: {
 					labels: igHistory.map(function (x) { return x.period; }),
@@ -591,7 +666,7 @@
 					plugins: { legend: { display: false } },
 					scales: { x: { display: false }, y: { display: false } },
 				},
-			}));
+			});
 		}
 	}
 
