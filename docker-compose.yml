@@ -1,7 +1,7 @@
 services:
   mysql:
     image: mysql:8.0
-    container_name: thormetalart_mysql
+    container_name: tma_dev_mysql
     restart: always
     ports:
       - "127.0.0.1:3311:3306"
@@ -13,7 +13,7 @@ services:
     volumes:
       - ./data/mysql:/var/lib/mysql
     networks:
-      - thormetalart_network
+      - tma-dev-network
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
       interval: 10s
@@ -22,25 +22,27 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: thormetalart_redis
+    container_name: tma_dev_redis
     restart: unless-stopped
+    ports:
+      - "127.0.0.1:6379:6379"
     volumes:
       - redis_data:/data
-    command: redis-server --maxmemory 128mb --maxmemory-policy allkeys-lru
+    command: redis-server --maxmemory 64mb --maxmemory-policy allkeys-lru
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 3
     networks:
-      - thormetalart_network
+      - tma-dev-network
 
   wordpress:
     build:
       context: ./docker/wordpress
       dockerfile: Dockerfile
-    image: thormetalart_wordpress:6.9-php8.1-redis
-    container_name: thormetalart_wordpress
+    image: tma_dev_wordpress:6.9-php8.1-redis
+    container_name: tma_dev_wordpress
     restart: always
     depends_on:
       mysql:
@@ -53,10 +55,11 @@ services:
       WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
       WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
       WORDPRESS_TABLE_PREFIX: ${WORDPRESS_TABLE_PREFIX}
+      WORDPRESS_DEBUG: "1"
     volumes:
       - ./data/wordpress:/var/www/html
     networks:
-      - thormetalart_network
+      - tma-dev-network
       - traefik-public
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/wp-login.php"]
@@ -67,18 +70,16 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=traefik-public"
-      - "traefik.http.routers.thormetalart.rule=Host(`thormetalart.com`) || Host(`www.thormetalart.com`) || Host(`panel.thormetalart.com`)"
-      - "traefik.http.routers.thormetalart.entrypoints=websecure"
-      - "traefik.http.routers.thormetalart.tls=true"
-      - "traefik.http.routers.thormetalart.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.thormetalart.tls.domains[0].main=thormetalart.com"
-      - "traefik.http.routers.thormetalart.tls.domains[0].sans=www.thormetalart.com,panel.thormetalart.com"
-      - "traefik.http.routers.thormetalart.middlewares=security-headers@file,rate-limit@file"
-      - "traefik.http.services.thormetalart.loadbalancer.server.port=80"
+      - "traefik.http.routers.tma-dev.rule=Host(`dev.thormetalart.com`) || Host(`panel-dev.thormetalart.com`)"
+      - "traefik.http.routers.tma-dev.entrypoints=websecure"
+      - "traefik.http.routers.tma-dev.tls=true"
+      - "traefik.http.routers.tma-dev.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.tma-dev.middlewares=security-headers@file,rate-limit@file,dev-noindex@file"
+      - "traefik.http.services.tma-dev.loadbalancer.server.port=80"
 
   phpmyadmin:
-    image: phpmyadmin:latest
-    container_name: thormetalart_phpmyadmin
+    image: phpmyadmin:5.2-apache
+    container_name: tma_dev_phpmyadmin
     restart: always
     depends_on:
       mysql:
@@ -88,23 +89,23 @@ services:
       PMA_PORT: 3306
       UPLOAD_LIMIT: 64M
     networks:
-      - thormetalart_network
+      - tma-dev-network
       - traefik-public
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=traefik-public"
-      - "traefik.http.routers.thormetalart-pma.rule=Host(`pma.thormetalart.com`)"
-      - "traefik.http.routers.thormetalart-pma.entrypoints=websecure"
-      - "traefik.http.routers.thormetalart-pma.tls=true"
-      - "traefik.http.routers.thormetalart-pma.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.thormetalart-pma.middlewares=security-headers@file,rate-limit@file"
-      - "traefik.http.services.thormetalart-pma.loadbalancer.server.port=80"
+      - "traefik.http.routers.tma-dev-pma.rule=Host(`pma-dev.thormetalart.com`)"
+      - "traefik.http.routers.tma-dev-pma.entrypoints=websecure"
+      - "traefik.http.routers.tma-dev-pma.tls=true"
+      - "traefik.http.routers.tma-dev-pma.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.tma-dev-pma.middlewares=security-headers@file,rate-limit@file"
+      - "traefik.http.services.tma-dev-pma.loadbalancer.server.port=80"
 
 volumes:
   redis_data:
 
 networks:
-  thormetalart_network:
+  tma-dev-network:
     driver: bridge
   traefik-public:
     external: true

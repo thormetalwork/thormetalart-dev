@@ -2,21 +2,25 @@
 set -euo pipefail
 
 # Thor Metal Art — Test Connections
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
+
 echo "=== Testing Thor Metal Art Stack ==="
 
-source /srv/stacks/thormetalart/.env
+[[ -f "${PROJECT_DIR}/.env" ]] || { echo "ERROR: .env not found at ${PROJECT_DIR}/.env"; exit 1; }
+source "${PROJECT_DIR}/.env"
 
 echo -n "MySQL............ "
-docker exec thormetalart_mysql mysqladmin ping -u root -p"" 2>/dev/null && echo "OK" || echo "FAIL"
+docker exec tma_dev_mysql mysqladmin ping -u root -p"${MYSQL_ROOT_PASSWORD}" 2>/dev/null && echo "OK" || echo "FAIL"
 
 echo -n "Redis............ "
-docker exec thormetalart_redis redis-cli ping 2>/dev/null || echo "FAIL"
+docker exec tma_dev_redis redis-cli ping 2>/dev/null || echo "FAIL"
 
 echo -n "WordPress........ "
-docker exec thormetalart_wordpress curl -sf http://localhost/wp-login.php -o /dev/null && echo "OK" || echo "FAIL (puede tardar en arrancar)"
+docker exec tma_dev_wordpress curl -sf http://localhost/wp-login.php -o /dev/null && echo "OK" || echo "FAIL (puede tardar en arrancar)"
 
 echo -n "phpMyAdmin....... "
-docker exec thormetalart_phpmyadmin curl -sf http://localhost/ -o /dev/null && echo "OK" || echo "FAIL"
+docker exec tma_dev_phpmyadmin curl -sf http://localhost/ -o /dev/null && echo "OK" || echo "FAIL"
 
 echo ""
-docker compose -f /srv/stacks/thormetalart/docker-compose.yml ps
+docker compose -f "${PROJECT_DIR}/docker-compose.yml" ps
