@@ -5,7 +5,7 @@ set -e
 # TICKET-PANEL-002 — Tests: Roles y capabilities
 # ═══════════════════════════════════════════════════════════════════
 
-PLUGIN_DIR="/srv/stacks/thormetalart/data/wordpress/wp-content/plugins/tma-panel"
+PLUGIN_DIR="/srv/stacks/thormetalart-dev/data/wordpress/wp-content/plugins/tma-panel"
 PASS=0
 FAIL=0
 

@@ -4,10 +4,10 @@ PASS=0
 FAIL=0
 TOTAL=0
 WP_CONTAINER="thormetalart_wordpress"
-PLUGIN_DIR="/srv/stacks/thormetalart/data/wordpress/wp-content/plugins/tma-panel"
+PLUGIN_DIR="/srv/stacks/thormetalart-dev/data/wordpress/wp-content/plugins/tma-panel"
 API_FILE="$PLUGIN_DIR/includes/class-tma-panel-api.php"
 JS_FILE="$PLUGIN_DIR/assets/js/panel.js"
-CONTACT_FILE="/srv/stacks/thormetalart/data/wordpress/wp-content/mu-plugins/tma-contact-form.php"
+CONTACT_FILE="/srv/stacks/thormetalart-dev/data/wordpress/wp-content/mu-plugins/tma-contact-form.php"
 
 pass(){ PASS=$((PASS+1)); TOTAL=$((TOTAL+1)); echo "  ✅ $1"; }
 fail(){ FAIL=$((FAIL+1)); TOTAL=$((TOTAL+1)); echo "  ❌ $1"; }

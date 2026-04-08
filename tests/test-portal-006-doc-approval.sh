@@ -4,7 +4,7 @@ PASS=0
 FAIL=0
 TOTAL=0
 WP_CONTAINER="thormetalart_wordpress"
-PLUGIN_DIR="/srv/stacks/thormetalart/data/wordpress/wp-content/plugins/tma-panel"
+PLUGIN_DIR="/srv/stacks/thormetalart-dev/data/wordpress/wp-content/plugins/tma-panel"
 API="$PLUGIN_DIR/includes/class-tma-panel-api.php"
 JS="$PLUGIN_DIR/assets/js/panel.js"
 pass(){ PASS=$((PASS+1)); TOTAL=$((TOTAL+1)); echo "  ✅ $1"; }

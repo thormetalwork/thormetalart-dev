@@ -6,8 +6,8 @@ set -e
 # TDD RED: Todos estos tests deben FALLAR antes de implementar
 # ═══════════════════════════════════════════════════════════════════
 
-PLUGIN_DIR="/srv/stacks/thormetalart/data/wordpress/wp-content/plugins/tma-panel"
-COMPOSE="/srv/stacks/thormetalart/docker-compose.yml"
+PLUGIN_DIR="/srv/stacks/thormetalart-dev/data/wordpress/wp-content/plugins/tma-panel"
+COMPOSE="/srv/stacks/thormetalart-dev/docker-compose.yml"
 PASS=0
 FAIL=0
 

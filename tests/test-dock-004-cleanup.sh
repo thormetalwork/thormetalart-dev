@@ -3,7 +3,7 @@ set -e
 PASS=0
 FAIL=0
 TOTAL=0
-ROOT="/srv/stacks/thormetalart"
+ROOT="/srv/stacks/thormetalart-dev"
 COMPOSE_FILE="$ROOT/docker-compose.yml"
 
 pass(){ PASS=$((PASS+1)); TOTAL=$((TOTAL+1)); echo "  ✅ $1"; }
