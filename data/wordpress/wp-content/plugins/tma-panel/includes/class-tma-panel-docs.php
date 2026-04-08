@@ -80,7 +80,7 @@ class TMA_Panel_Docs {
 
 		return array(
 			'code'       => $clean_code,
-			'html'       => $content,
+			'html'       => wp_kses_post( $content ),
 			'updated_at' => gmdate( 'Y-m-d H:i:s', filemtime( $file ) ),
 		);
 	}
