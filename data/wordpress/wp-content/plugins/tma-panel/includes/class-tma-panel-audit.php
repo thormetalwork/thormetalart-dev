@@ -61,6 +61,13 @@ class TMA_Panel_Audit {
 	public static function get_entries( int $limit = 50 ): array {
 		global $wpdb;
 
+		// Lazy cleanup: if cron missed, clean up on read (max once per hour).
+		$last_cleanup = (int) get_transient( 'tma_audit_last_cleanup' );
+		if ( ! $last_cleanup ) {
+			self::cleanup();
+			set_transient( 'tma_audit_last_cleanup', time(), HOUR_IN_SECONDS );
+		}
+
 		$table = $wpdb->prefix . 'panel_audit';
 
 		return $wpdb->get_results(

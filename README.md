@@ -4,12 +4,12 @@ Custom Metal Fabrication & Artistic Metalwork — Miami, FL
 
 ## Stack
 
-| Servicio | Container | Puerto |
-|---|---|---|
-| MySQL 8.0 | tma_dev_mysql | 127.0.0.1:3311 |
-| Redis 7 | tma_dev_redis | 127.0.0.1:6379 |
-| WordPress 6.9 | tma_dev_wordpress | via Traefik |
-| phpMyAdmin 5.2 | tma_dev_phpmyadmin | via Traefik |
+| Servicio | Container | Puerto | Límite RAM |
+|---|---|---|---|
+| MySQL 8.0 | tma_dev_mysql | 127.0.0.1:3311 | 512MB |
+| Redis 7 | tma_dev_redis | 127.0.0.1:6379 | 128MB |
+| WordPress 6.9 | tma_dev_wordpress | via Traefik | 512MB |
+| phpMyAdmin 5.2 | tma_dev_phpmyadmin | via Traefik (BasicAuth) | 256MB |
 
 ## Quick Start
 
@@ -17,14 +17,14 @@ Custom Metal Fabrication & Artistic Metalwork — Miami, FL
 cp .env.example .env    # Editar con credenciales reales
 make build              # Build + up
 make status             # Ver estado
-make logs               # Ver logs en vivo
+make test               # Test conexiones
 ```
 
 ## URLs (dev)
 
 - **WordPress:** https://dev.thormetalart.com
 - **Panel Cliente:** https://panel-dev.thormetalart.com
-- **phpMyAdmin:** https://pma-dev.thormetalart.com
+- **phpMyAdmin:** https://pma-dev.thormetalart.com (protegido con BasicAuth)
 
 ## Comandos — Stack
 
@@ -63,3 +63,16 @@ make fix           # Auto-fix todo (Prettier + ESLint + PHPCBF)
 | PHPStan (level 5) | `phpstan.neon` |
 | Husky pre-commit | `.husky/pre-commit` |
 | GitHub Actions CI | `.github/workflows/ci.yml` |
+
+## Security
+
+- Redis autenticado (requiere `REDIS_PASSWORD` en `.env`)
+- phpMyAdmin protegido con BasicAuth via Traefik
+- MySQL solo accesible en `127.0.0.1:3311`
+- PHP hardening: `disable_functions`, `expose_php = Off`, cookies seguras
+- WordPress: `DISALLOW_FILE_EDIT`, `AUTOMATIC_UPDATER_DISABLED`
+- Login rate-limiting: 5 intentos / 15 min con `wp_hash()` + `X-Forwarded-For`
+- REST API restringida a usuarios autenticados
+- XML-RPC deshabilitado
+- Salts/keys via variables de entorno (nunca en código)
+- `WP_DEBUG` controlado por env var, display desactivado

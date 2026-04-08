@@ -94,3 +94,16 @@ jobs:
           else
             vendor/bin/phpstan analyse --configuration=phpstan.neon --no-progress || true
           fi
+
+  validate-docker:
+    name: Docker Compose Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create dummy .env for validation
+        run: |
+          cp .env.example .env
+
+      - name: Validate docker-compose.yml
+        run: docker compose config --quiet
