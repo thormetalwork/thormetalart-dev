@@ -15,7 +15,7 @@ services:
     networks:
       - tma-dev-network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      test: ["CMD-SHELL", "MYSQL_PWD=$$MYSQL_ROOT_PASSWORD mysqladmin ping -h localhost -u root --silent"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -26,11 +26,13 @@ services:
     restart: unless-stopped
     ports:
       - "127.0.0.1:6379:6379"
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
     volumes:
       - redis_data:/data
-    command: redis-server --maxmemory 64mb --maxmemory-policy allkeys-lru
+    command: redis-server --maxmemory 64mb --maxmemory-policy allkeys-lru --requirepass ${REDIS_PASSWORD}
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD-SHELL", "redis-cli -a $$REDIS_PASSWORD ping | grep PONG"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -55,7 +57,8 @@ services:
       WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
       WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
       WORDPRESS_TABLE_PREFIX: ${WORDPRESS_TABLE_PREFIX}
-      WORDPRESS_DEBUG: "1"
+      WORDPRESS_DEBUG: "${WORDPRESS_DEBUG:-0}"
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
     volumes:
       - ./data/wordpress:/var/www/html
     networks:
@@ -98,7 +101,8 @@ services:
       - "traefik.http.routers.tma-dev-pma.entrypoints=websecure"
       - "traefik.http.routers.tma-dev-pma.tls=true"
       - "traefik.http.routers.tma-dev-pma.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.tma-dev-pma.middlewares=security-headers@file,rate-limit@file"
+      - "traefik.http.middlewares.tma-dev-pma-auth.basicauth.users=${PMA_BASICAUTH_USERS}"
+      - "traefik.http.routers.tma-dev-pma.middlewares=tma-dev-pma-auth,security-headers@file,rate-limit@file"
       - "traefik.http.services.tma-dev-pma.loadbalancer.server.port=80"
 
 volumes:
