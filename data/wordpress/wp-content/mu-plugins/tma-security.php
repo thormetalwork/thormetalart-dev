@@ -143,9 +143,17 @@ add_filter( 'wp_is_application_passwords_available_for_user', 'tma_restrict_app_
    9. Limit login attempts (basic)
    ═══════════════════════════════════════════ */
 
+function tma_get_client_ip() {
+	if ( ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
+		$ips = explode( ',', sanitize_text_field( $_SERVER['HTTP_X_FORWARDED_FOR'] ) );
+		return trim( $ips[0] );
+	}
+	return sanitize_text_field( $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0' );
+}
+
 function tma_limit_login_attempts( $user, $password ) {
-$ip        = sanitize_text_field( $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0' );
-$transient = 'tma_login_attempts_' . md5( $ip );
+$ip        = tma_get_client_ip();
+$transient = 'tma_login_attempts_' . wp_hash( $ip );
 $attempts  = (int) get_transient( $transient );
 
 if ( $attempts >= 5 ) {
@@ -160,16 +168,16 @@ return $user;
 add_filter( 'authenticate', 'tma_limit_login_attempts', 30, 2 );
 
 function tma_track_failed_login( $username ) {
-$ip        = sanitize_text_field( $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0' );
-$transient = 'tma_login_attempts_' . md5( $ip );
+$ip        = tma_get_client_ip();
+$transient = 'tma_login_attempts_' . wp_hash( $ip );
 $attempts  = (int) get_transient( $transient );
 set_transient( $transient, $attempts + 1, 15 * MINUTE_IN_SECONDS );
 }
 add_action( 'wp_login_failed', 'tma_track_failed_login' );
 
 function tma_reset_login_attempts( $username ) {
-$ip        = sanitize_text_field( $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0' );
-$transient = 'tma_login_attempts_' . md5( $ip );
+$ip        = tma_get_client_ip();
+$transient = 'tma_login_attempts_' . wp_hash( $ip );
 delete_transient( $transient );
 }
 add_action( 'wp_login', 'tma_reset_login_attempts' );

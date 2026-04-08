@@ -3,6 +3,8 @@ services:
     image: mysql:8.0
     container_name: tma_dev_mysql
     restart: always
+    mem_limit: 512m
+    cpus: 1.0
     ports:
       - "127.0.0.1:3311:3306"
     environment:
@@ -24,6 +26,8 @@ services:
     image: redis:7-alpine
     container_name: tma_dev_redis
     restart: unless-stopped
+    mem_limit: 128m
+    cpus: 0.5
     ports:
       - "127.0.0.1:6379:6379"
     environment:
@@ -46,6 +50,8 @@ services:
     image: tma_dev_wordpress:6.9-php8.1-redis
     container_name: tma_dev_wordpress
     restart: always
+    mem_limit: 512m
+    cpus: 1.0
     depends_on:
       mysql:
         condition: service_healthy
@@ -84,6 +90,8 @@ services:
     image: phpmyadmin:5.2-apache
     container_name: tma_dev_phpmyadmin
     restart: always
+    mem_limit: 256m
+    cpus: 0.5
     depends_on:
       mysql:
         condition: service_healthy
