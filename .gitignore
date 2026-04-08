@@ -18,8 +18,14 @@ data/wordpress/wp-content/plugins/*
 .DS_Store
 Thumbs.db
 
+# Dependencies
+node_modules/
+vendor/
+
 # IDE
-.vscode/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
 .idea/
 
 # Logs
