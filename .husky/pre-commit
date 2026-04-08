@@ -1,0 +1,41 @@
+#!/bin/sh
+
+echo "🔍 Pre-commit: Running QA checks..."
+
+# 1. PHP Syntax Check — only staged PHP files in our plugin
+STAGED_PHP=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.php$' | grep 'tma-panel' || true)
+if [ -n "$STAGED_PHP" ]; then
+    echo "▸ PHP Lint ($(echo "$STAGED_PHP" | wc -l | tr -d ' ') files)"
+    LINT_ERROR=0
+    for file in $STAGED_PHP; do
+        if [ -f "$file" ]; then
+            if ! php -l "$file" 2>&1 | grep -q "No syntax errors"; then
+                echo "  ❌ $file"
+                LINT_ERROR=1
+            fi
+        fi
+    done
+    if [ $LINT_ERROR -ne 0 ]; then
+        echo "❌ PHP syntax errors found. Fix before committing."
+        exit 1
+    fi
+    echo "  ✅ PHP syntax OK"
+fi
+
+# 2. ESLint — only staged JS files in our plugin (skip minified)
+STAGED_JS=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.js$' | grep 'tma-panel' | grep -v '\.min\.js' || true)
+if [ -n "$STAGED_JS" ]; then
+    echo "▸ ESLint ($(echo "$STAGED_JS" | wc -l | tr -d ' ') files)"
+    if npx eslint $STAGED_JS 2>/dev/null; then
+        echo "  ✅ ESLint OK"
+    else
+        echo "  ⚠️  ESLint warnings found (non-blocking)"
+    fi
+fi
+
+# 3. TDD Reminder
+echo ""
+echo "⚠️  TDD Reminder: ¿Ejecutaste los tests?"
+echo "   → make test-all  (todos los tests)"
+echo "   → make test       (conectividad)"
+echo ""

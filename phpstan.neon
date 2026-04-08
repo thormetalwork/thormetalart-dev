@@ -1,0 +1,25 @@
+parameters:
+    level: 5
+    paths:
+        - data/wordpress/wp-content/plugins/tma-panel
+    excludePaths:
+        - data/wordpress/wp-content/plugins/tma-panel/assets
+    scanDirectories:
+        - data/wordpress
+    ignoreErrors:
+        # WordPress global functions not recognized without stubs
+        - '#Function [a-z_]+ not found#'
+        # WordPress global variables
+        - '#Variable \$wpdb might not be defined#'
+        # WordPress constants (HOUR_IN_SECONDS, MINUTE_IN_SECONDS, etc.)
+        - '#Constant [A-Z_]+ not found#'
+        # WordPress classes not in scan path
+        - '#Class (WP_|wpdb)[a-zA-Z_]* not found#'
+        # WordPress hook callbacks with mixed parameter types
+        - '#Parameter .* expects .*, .* given#'
+        # Variables from WordPress includes/requires context
+        - '#Variable \$[a-z_]+ might not be defined#'
+        # Static methods called via WordPress hooks/migrations (not detected as used)
+        - '#Static method .+::(ensure_|register_|activate_|deactivate_).+ is unused#'
+    treatPhpDocTypesAsCertain: false
+    reportUnmatchedIgnoredErrors: false

@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+vendor/
+
+# WordPress core
+data/wordpress/wp-admin/
+data/wordpress/wp-includes/
+data/wordpress/wp-*.php
+data/wordpress/index.php
+data/wordpress/xmlrpc.php
+
+# Build/Data
+data/mysql/
+backups/
+_archive/
+
+# Minified vendor files
+**/*.min.js
+**/*.min.css
+
+# Lock files
+package-lock.json
+composer.lock

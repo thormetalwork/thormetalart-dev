@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<ruleset name="Thor Metal Art">
+    <description>WordPress coding standards for TMA Panel plugin</description>
+
+    <!-- Scan only our custom plugin -->
+    <file>data/wordpress/wp-content/plugins/tma-panel/</file>
+
+    <!-- Exclude vendor/minified/generated files -->
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+    <exclude-pattern>*/node_modules/*</exclude-pattern>
+    <exclude-pattern>*/assets/js/*.min.js</exclude-pattern>
+
+    <!-- WordPress Extra = WordPress-Core + WordPress-Extra best practices -->
+    <rule ref="WordPress-Extra">
+        <!-- Allow short array syntax -->
+        <exclude name="Generic.Arrays.DisallowShortArraySyntax"/>
+    </rule>
+
+    <!-- Text domain for i18n -->
+    <rule ref="WordPress.WP.I18n">
+        <properties>
+            <property name="text_domain" type="array">
+                <element value="thormetalart"/>
+            </property>
+        </properties>
+    </rule>
+
+    <!-- Minimum WordPress version -->
+    <config name="minimum_supported_wp_version" value="6.0"/>
+
+    <!-- Table prefix -->
+    <rule ref="WordPress.DB.DirectDatabaseQuery"/>
+    <rule ref="WordPress.DB.PreparedSQL"/>
+
+    <!-- File extensions to check -->
+    <arg name="extensions" value="php"/>
+
+    <!-- Show colors and progress -->
+    <arg name="colors"/>
+    <arg value="sp"/>
+
+    <!-- Report format -->
+    <arg name="report" value="full"/>
+</ruleset>
