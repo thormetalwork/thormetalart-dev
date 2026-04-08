@@ -1,0 +1,15 @@
+{
+  "recommendations": [
+    "bmewburn.vscode-intelephense-client",
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "ms-azuretools.vscode-docker",
+    "eamodio.gitlens",
+    "GitHub.copilot",
+    "GitHub.copilot-chat",
+    "redhat.vscode-yaml",
+    "EditorConfig.EditorConfig",
+    "streetsidesoftware.code-spell-checker",
+    "streetsidesoftware.code-spell-checker-spanish"
+  ]
+}

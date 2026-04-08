@@ -1,0 +1,26 @@
+{
+  "php.validate.executablePath": "/usr/bin/php",
+  "php.validate.run": "onType",
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[php]": {
+    "editor.defaultFormatter": "bmewburn.vscode-intelephense-client"
+  },
+  "eslint.useFlatConfig": true,
+  "files.eol": "\n",
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/vendor": true,
+    "**/data/mysql": true,
+    "**/data/wordpress/wp-admin": true,
+    "**/data/wordpress/wp-includes": true,
+    "**/_archive": true
+  },
+  "files.watcherExclude": {
+    "**/data/mysql/**": true,
+    "**/node_modules/**": true,
+    "**/vendor/**": true
+  }
+}
