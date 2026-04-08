@@ -57,6 +57,18 @@ Actualizar BACKLOG.md:
 - Ejecutar tests → **deben seguir PASANDO**
 - Commit: `refactor(TICKET-XXX): Clean up {feature}`
 
+### Fase 5.5: Security Review
+- Verificar **security.instructions.md** contra el código nuevo
+- Checklist rápido:
+  - [ ] Sin `innerHTML` con datos sin sanitizar
+  - [ ] Todo `$_GET/$_POST` usa `sanitize_text_field()` / `absint()`
+  - [ ] Queries SQL usan `$wpdb->prepare()`
+  - [ ] Output escapado: `esc_html()`, `esc_attr()`, `esc_url()`
+  - [ ] Nonces en operaciones que cambian estado
+  - [ ] Sin credenciales hardcodeadas
+  - [ ] Variables shell entrecomilladas en scripts
+- Si hay hallazgos: corregir y commit `fix(TICKET-XXX): Security hardening`
+
 ### Fase 6: Code Review
 - Ejecutar checklist de code review (skill: code-review)
 - Corregir hallazgos si los hay
@@ -104,7 +116,11 @@ git branch -d feat/TICKET-XXX-descripcion-corta
                                                     │
 ┌──────────┐   ┌──────────┐   ┌──────────┐   ┌─────┴────┐
 │ ✅ Close │◀──│ 🚀 Deploy│◀──│ 🔍 Review│◀──│ 🔵 REFACT│
-└──────────┘   └──────────┘   └──────────┘   └──────────┘
+└──────────┘   └──────────┘   └──────────┘   └────┬─────┘
+                                                   │
+                                              ┌────┴─────┐
+                                              │ 🔒 SecRev│
+                                              └──────────┘
 ```
 
 ## Commit History Esperada
