@@ -34,6 +34,9 @@
 
 ### Infraestructura
 - [ ] `make test` pasa sin errores
+- [ ] `make lint` limpio (PHP lint + ESLint + PHPCS)
+- [ ] `make lint-phpstan` sin errores
+- [ ] `make lint-format` sin diferencias (Prettier)
 - [ ] Backup creado antes del deploy
 - [ ] Health checks verificados
 

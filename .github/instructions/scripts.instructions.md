@@ -19,10 +19,10 @@ applyTo: "scripts/**"
 | `test-connections.sh` | Test MySQL, Redis, WordPress, phpMyAdmin connectivity |
 
 ## Docker Commands
-- Container names: `thormetalart_mysql`, `thormetalart_redis`, `thormetalart_wordpress`
-- MySQL exec: `docker compose exec mysql mysqladmin -u"${MYSQL_USER}" -p"${MYSQL_PASSWORD}" ping`
-- Redis exec: `docker compose exec redis redis-cli ping`
-- WordPress check: `curl -sf http://localhost/wp-login.php`
+- Container names: `tma_dev_mysql`, `tma_dev_redis`, `tma_dev_wordpress`, `tma_dev_phpmyadmin`
+- MySQL exec: `docker exec tma_dev_mysql mysqladmin -u root -p"${MYSQL_ROOT_PASSWORD}" ping`
+- Redis exec: `docker exec tma_dev_redis redis-cli ping`
+- WordPress check: `docker exec tma_dev_wordpress curl -sf http://localhost/wp-login.php`
 
 ## Backup Convention
 - Filename: `thormetalart_wp_YYYYMMDD_HHMMSS.sql.gz`

@@ -1,0 +1,96 @@
+name: CI — Thor Metal Art QA
+
+on:
+  push:
+    branches: [main, dev, "feat/**", "fix/**"]
+  pull_request:
+    branches: [main, dev]
+
+permissions:
+  contents: read
+
+jobs:
+  lint-php:
+    name: PHP Lint & PHPCS
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.1"
+          tools: phpcs, phpstan
+          coverage: none
+
+      - name: Install WPCS
+        run: |
+          composer global require wp-coding-standards/wpcs:"^3.1" --no-interaction
+          phpcs --config-set installed_paths "$(composer global config home)/vendor/wp-coding-standards/wpcs"
+
+      - name: PHP Syntax Check
+        run: |
+          echo "▸ Checking PHP syntax..."
+          ERROR=0
+          while IFS= read -r -d '' file; do
+            if ! php -l "$file" 2>&1 | grep -q "No syntax errors"; then
+              echo "❌ Syntax error: $file"
+              php -l "$file"
+              ERROR=1
+            fi
+          done < <(find data/wordpress/wp-content/plugins/tma-panel -name "*.php" -print0)
+          [[ $ERROR -eq 0 ]] && echo "✅ All PHP files pass syntax check"
+          exit $ERROR
+
+      - name: PHPCS — WordPress Coding Standards
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            phpcs --standard=.phpcs.xml --report=summary
+          else
+            phpcs --standard=.phpcs.xml --report=summary || true
+          fi
+
+  lint-js:
+    name: JavaScript Lint & Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: ESLint
+        run: npx eslint data/wordpress/wp-content/plugins/tma-panel/assets/js/
+
+      - name: Prettier Check
+        run: npx prettier --check "data/wordpress/wp-content/plugins/tma-panel/**/*.{js,css}" --ignore-path .prettierignore
+
+  php-static-analysis:
+    name: PHPStan Static Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.1"
+          tools: phpstan
+          coverage: none
+
+      - name: Install Composer deps
+        run: composer install --no-interaction --ignore-platform-reqs
+
+      - name: Run PHPStan
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            vendor/bin/phpstan analyse --configuration=phpstan.neon --no-progress
+          else
+            vendor/bin/phpstan analyse --configuration=phpstan.neon --no-progress || true
+          fi

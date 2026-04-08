@@ -1,6 +1,6 @@
 ---
 description: "Use when editing the client executive dashboard: HTML, CSS, JavaScript, charts, KPIs, data visualization. Covers Chart.js, responsive design, and client-facing UI."
-applyTo: "dashboard/**"
+applyTo: ["docs/cliente/**/*.html", "_archive/dashboard/**"]
 ---
 # Dashboard Guidelines — Thor Metal Art
 

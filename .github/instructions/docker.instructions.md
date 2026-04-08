@@ -6,18 +6,17 @@ applyTo: ["docker-compose.yml", "docker/**", "**/Dockerfile"]
 
 ## Services Architecture
 - **MySQL 8.0**: Internal only (`127.0.0.1:3311`), persistent volume at `data/mysql/`
-- **Redis 7-alpine**: 128MB max, LRU eviction, WP Object Cache
+- **Redis 7-alpine**: 64MB max, LRU eviction, WP Object Cache
 - **WordPress**: Custom Dockerfile with PECL Redis, PHP 8.1-apache
 - **phpMyAdmin**: Admin access via Traefik
-- **Dashboard (Nginx)**: Static HTML dashboard, Phase 2
 
 ## Required Patterns
 - Every service MUST have a `healthcheck` with `interval`, `timeout`, `retries`
 - Use `depends_on: { service: { condition: service_healthy } }` — never bare `depends_on`
-- Container names use prefix `thormetalart_` (e.g., `thormetalart_wordpress`)
+- Container names use prefix `tma_dev_` (e.g., `tma_dev_wordpress`)
 - MySQL MUST NOT be exposed to `0.0.0.0` — use `127.0.0.1:PORT` only
 - Resource limits: set `mem_limit` for Redis and phpMyAdmin
-- Networks: `thormetalart_network` (internal), `traefik-public` (external)
+- Networks: `tma-dev-network` (internal), `traefik-public` (external)
 
 ## Traefik Labels
 ```yaml

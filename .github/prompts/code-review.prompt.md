@@ -1,6 +1,6 @@
 ---
 description: "Ejecutar code review estructurado con checklist de seguridad, funcionalidad, calidad, performance y SEO"
-agent: "agent"
+agent: "full-cycle-developer"
 argument-hint: "Ticket o archivos a revisar (ej: TICKET-WP-001, dashboard/js/app.js)"
 ---
 

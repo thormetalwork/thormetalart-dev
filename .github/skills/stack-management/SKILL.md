@@ -19,11 +19,10 @@ argument-hint: "Operation to perform (e.g., deploy, backup, troubleshoot redis)"
 
 | Service | Container | Health Check | Port |
 |---------|-----------|-------------|------|
-| MySQL 8.0 | thormetalart_mysql | `mysqladmin ping` | 127.0.0.1:3311 |
-| Redis 7 | thormetalart_redis | `redis-cli ping` | internal |
-| WordPress 6.9 | thormetalart_wordpress | `curl wp-login.php` | via Traefik |
-| phpMyAdmin | thormetalart_phpmyadmin | `curl /` | via Traefik |
-| Dashboard | thormetalart_dashboard | `curl /` | via Traefik |
+| MySQL 8.0 | tma_dev_mysql | `mysqladmin ping` | 127.0.0.1:3311 |
+| Redis 7 | tma_dev_redis | `redis-cli ping` | internal |
+| WordPress 6.9 | tma_dev_wordpress | `curl wp-login.php` | via Traefik |
+| phpMyAdmin | tma_dev_phpmyadmin | `curl /` | via Traefik |
 
 ## Procedures
 
