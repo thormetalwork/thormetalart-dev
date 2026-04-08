@@ -1281,6 +1281,762 @@
 
 ---
 
+## � FASE 15 — Website V1: Template System + Estructura
+
+> **Fuente:** Propuesta Web V1 (docs/cliente/propuesta_web_v1.md) + Doc 10 Copys Sitio Web + Brief Posicionamiento v2
+> **Objetivo:** Crear la estructura completa del sitio web con FSE block templates, header, footer, y contenido profesional bilingüe en las 10 páginas. Todo implementable sin esperar contenido visual del cliente.
+> **Referencia de contenido:** Doc 10 (Copys del Sitio Web) para textos, Brief v2 para mensajes y posicionamiento
+
+- [x] **TICKET-WP-004: Block patterns library — secciones reutilizables del sitio**
+  - **Fuente:** Propuesta Web V1 — Sección 4.1 Implementación Técnica
+  - **Historia de Usuario:** Como desarrollador, quiero una librería de block patterns reutilizables para construir todas las páginas con consistencia visual y reducir duplicación de código.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: Categoría de patterns registrada
+      Given child theme thormetalart activo
+      When registro la categoría 'thormetalart' en block patterns
+      Then aparece en el editor de bloques bajo "Thor Metal Art"
+
+    Scenario: Pattern hero section disponible
+      Given pattern hero-section registrado
+      When inserto el pattern en una página
+      Then renderiza: cover full-width con overlay oscuro, H1 clamp responsive, subtítulo, 2 botones CTA (gold + outline)
+      And usa colores de theme.json (#1A1A1A, #B8860B, #F5F5F0)
+
+    Scenario: Pattern CTA banner disponible
+      Given pattern cta-banner registrado
+      When lo uso en cualquier página
+      Then renderiza: fondo oscuro, H2, párrafo, botón gold, iconos de contacto
+      And es responsive en mobile < 768px
+
+    Scenario: Todos los patterns usan design tokens del theme.json
+      Given todos los patterns creados
+      When reviso el markup
+      Then usan var:preset|color|* y var:preset|font-family|* (no colores hardcoded)
+    ```
+  - **Patterns a crear:**
+    - `hero-section` — Cover full-width con H1 + sub + 2 CTAs
+    - `cta-banner` — Fondo oscuro con H2 + texto + botón + contacto
+    - `service-card` — Card con icono/imagen + título + descripción + link
+    - `trust-bar` — Barra horizontal con iconos de confianza
+    - `process-step` — Paso numerado con icono + título + descripción
+    - `faq-item` — Acordeón (details/summary) con pregunta y respuesta
+    - `testimonial-card` — Quote con estrellas + texto + nombre + tipo proyecto
+  - **Archivos:**
+    - `data/wordpress/wp-content/themes/thormetalart/patterns/hero-section.php` (NEW)
+    - `data/wordpress/wp-content/themes/thormetalart/patterns/cta-banner.php` (NEW)
+    - `data/wordpress/wp-content/themes/thormetalart/patterns/service-card.php` (NEW)
+    - `data/wordpress/wp-content/themes/thormetalart/patterns/trust-bar.php` (NEW)
+    - `data/wordpress/wp-content/themes/thormetalart/patterns/process-step.php` (NEW)
+    - `data/wordpress/wp-content/themes/thormetalart/patterns/faq-item.php` (NEW)
+    - `data/wordpress/wp-content/themes/thormetalart/patterns/testimonial-card.php` (NEW)
+    - `data/wordpress/wp-content/themes/thormetalart/functions.php` (MODIFIED — registrar categoría)
+  - **Dependencias:** Ninguna
+  - **Estimación:** 6-8 horas
+  - **Prioridad:** P0
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2026-03-27
+
+- [x] **TICKET-WP-005: Header template part — logo + navegación + CTA + idioma**
+  - **Fuente:** Propuesta Web V1 — Sección 3.1 Navegación principal
+  - **Historia de Usuario:** Como visitante, quiero un header profesional con logo, menú de navegación con dropdown de servicios y botón CTA visible para encontrar rápidamente lo que busco y solicitar cotización.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: Header renderiza correctamente en desktop
+      Given template part header.html creado
+      When cargo cualquier página del sitio en viewport > 1024px
+      Then veo: logo a la izquierda, navegación central con dropdown "Services", link "Art", link "How We Work", link "Portfolio", link "Contact"
+      And botón CTA "Get a Quote" dorado a la derecha
+      And header tiene fondo #1A1A1A con texto #F5F5F0
+
+    Scenario: Header responsive con hamburger menu
+      Given viewport < 768px
+      When cargo el sitio
+      Then el menú se colapsa en botón hamburger
+      And al hacer click se despliega overlay con todos los links
+      And el botón CTA sigue visible
+
+    Scenario: Dropdown de servicios funcional
+      Given menú de navegación visible
+      When hago hover/click en "Services"
+      Then se despliega submenu con: Custom Gates, Metal Railings, Metal Fences, Custom Furniture, Metal Stairs
+
+    Scenario: Header no interfiere con TMA Panel
+      Given panel.thormetalart.com cargado
+      When verifico el header
+      Then el panel usa su propio header (no el del tema)
+    ```
+  - **Archivos:**
+    - `data/wordpress/wp-content/themes/thormetalart/parts/header.html` (NEW)
+    - `data/wordpress/wp-content/themes/thormetalart/style.css` (MODIFIED — estilos header)
+  - **Dependencias:** TICKET-WP-004
+  - **Estimación:** 4-6 horas
+  - **Prioridad:** P0
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2026-03-27
+
+- [x] **TICKET-WP-006: Footer template part — NAP + servicios + redes + legal**
+  - **Fuente:** Doc 10 Copys del Sitio Web — Sección Footer + Brief v2 — NAP
+  - **Historia de Usuario:** Como visitante, quiero un footer completo con información de contacto, servicios, redes sociales y datos legales para encontrar cómo contactar a Thor Metal Art desde cualquier página.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: Footer con 4 columnas en desktop
+      Given template part footer.html creado
+      When cargo cualquier página en viewport > 1024px
+      Then veo 4 columnas: (1) Logo + descripción + redes, (2) Servicios con links, (3) Contacto (phone, email, WhatsApp, ubicación), (4) Horario + legal
+      And fondo #1A1A1A con acentos #B8860B
+
+    Scenario: Footer responsive
+      Given viewport < 768px
+      When cargo footer
+      Then las 4 columnas se apilan verticalmente
+      And teléfono y WhatsApp son clickables (tel: y wa.me/)
+
+    Scenario: NAP consistente con GBP
+      Given footer renderizado
+      When comparo con Google Business Profile
+      Then nombre, dirección y teléfono coinciden exactamente (NAP consistency)
+
+    Scenario: Copyright dinámico
+      Given año actual 2026
+      When veo el footer
+      Then muestra "© 2026 Thor Metal Art LLC. All rights reserved."
+    ```
+  - **Archivos:**
+    - `data/wordpress/wp-content/themes/thormetalart/parts/footer.html` (NEW)
+    - `data/wordpress/wp-content/themes/thormetalart/style.css` (MODIFIED — estilos footer)
+  - **Dependencias:** TICKET-WP-004
+  - **Estimación:** 4-6 horas
+  - **Prioridad:** P0
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2026-03-27
+
+- [x] **TICKET-WP-007: Homepage completa — front-page template con 6 secciones**
+  - **Fuente:** Doc 10 Copys del Sitio Web — PAGE 1: HOME + Propuesta Web V1 — Sección 3.1
+  - **Historia de Usuario:** Como visitante, quiero ver una homepage que en 5 segundos me comunique qué hace Thor Metal Art, me genere confianza y me motive a pedir cotización.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: Hero section con doble CTA
+      Given homepage cargada
+      When veo la primera sección
+      Then H1: "Custom Metal Fabrication & Art in Miami"
+      And subtítulo: "Precision Craftsmanship. Exclusive Design. Free Estimates."
+      And 2 botones: "Get a Free Quote" (gold) + "View Our Art" (outline)
+
+    Scenario: Trust bar visible
+      Given hero section visible
+      When veo debajo del hero
+      Then barra horizontal con: Miami-Based | Licensed & Insured | ⭐ Stars on Google | Free Estimates | Water Jet Precision
+
+    Scenario: Grid de 6 servicios
+      Given sección "What We Build" visible
+      When veo las cards
+      Then hay 6 cards: Gates, Railings, Fences, Furniture, Stairs, Sculpture & Art
+      And cada card tiene título, descripción corta y link a su página
+      And grid responsive: 3 cols desktop, 2 tablet, 1 mobile
+
+    Scenario: About snippet con CTA
+      Given sección "About Thor Metal Art" visible
+      When leo el contenido
+      Then texto del Doc 10 sobre Karel Frometa y el taller
+      And botón "See Our Process" hacia /how-we-work/
+
+    Scenario: Portfolio highlight
+      Given sección "Recent Work" visible
+      When veo el grid
+      Then muestra 3 proyectos recientes del CPT tma_portfolio
+      And botón "View Full Portfolio" hacia /portfolio/
+
+    Scenario: CTA final con contacto directo
+      Given sección final con fondo oscuro
+      When veo el contenido
+      Then H2: "Ready to Start Your Project?"
+      And botón "Get Your Free Quote" + phone + WhatsApp + email
+    ```
+  - **Archivos:**
+    - `data/wordpress/wp-content/themes/thormetalart/templates/front-page.html` (NEW)
+    - `data/wordpress/wp-content/themes/thormetalart/style.css` (MODIFIED)
+  - **Dependencias:** TICKET-WP-004, TICKET-WP-005, TICKET-WP-006
+  - **Estimación:** 8-12 horas
+  - **Prioridad:** P0
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2026-03-27
+
+- [x] **TICKET-WP-008: Reescribir 5 páginas de servicios con copys profesionales del Doc 10**
+  - **Fuente:** Doc 10 Copys del Sitio Web — PAGE 2: SERVICE PAGES + Brief v2 — Motor Productor
+  - **Historia de Usuario:** Como visitante buscando un servicio específico (ej: "custom metal gates miami"), quiero ver una página completa con información detallada, FAQs, sección en español y CTA clara para sentir confianza y solicitar cotización.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: Cada servicio tiene contenido profesional del Doc 10
+      Given página /custom-metal-gates-miami/ cargada
+      When leo el contenido
+      Then H1: "Custom Metal Gates Miami"
+      And subtítulo: "Hand-Crafted. Built to Last. Designed for You."
+      And introducción de 150-200 palabras del Doc 10
+      And sección "What's Included" con 6 bullet points
+
+    Scenario: FAQ section con acordeón
+      Given página de servicio cargada
+      When veo sección FAQ
+      Then hay 3-4 preguntas frecuentes específicas del servicio (del Doc 10)
+      And formato acordeón expandible (details/summary)
+      And texto en inglés con respuestas detalladas
+
+    Scenario: Sección bilingüe en español
+      Given página de servicio cargada
+      When scroll a sección "Servicio en Español"
+      Then H2 y contenido traducido al español
+      And CTA "Solicitar Cotización Gratis" en español
+
+    Scenario: CTA final con formulario
+      Given final de la página de servicio
+      When veo el CTA
+      Then texto: "Ready to design your [service]?"
+      And botón hacia /contact/ o formulario inline
+
+    Scenario: Las 5 páginas tienen estructura consistente
+      Given las 5 páginas de servicios actualizadas
+      When comparo estructura
+      Then todas siguen: Hero → Intro → Features → FAQ → Español → CTA
+      And cada una tiene H1, meta description y keywords únicos
+    ```
+  - **Archivos:**
+    - `data/wordpress/wp-content/mu-plugins/tma-service-pages.php` (MODIFIED — reescribir contenido)
+  - **Dependencias:** TICKET-WP-004, TICKET-WP-005, TICKET-WP-006
+  - **Estimación:** 10-14 horas
+  - **Prioridad:** P1
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2026-03-27
+
+- [x] **TICKET-WP-009: Crear página Art & Commissions — Motor Artista**
+  - **Fuente:** Doc 10 Copys — PAGE 3: METAL AS ART + Brief v2 — Motor Artista
+  - **Historia de Usuario:** Como coleccionista o diseñador de interiores, quiero ver la faceta artística de Thor Metal Art con las esculturas de Karel, su statement como artista y cómo comisionar una pieza original.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: Página Art & Commissions creada
+      Given slug /art-commissions/
+      When cargo la página
+      Then H1: "Metal as Art"
+      And subtítulo: "Original Sculptures & Commissioned Pieces by Karel Frometa — Miami"
+
+    Scenario: Artist statement de Karel
+      Given sección artist statement visible
+      When leo el contenido
+      Then texto template del Doc 10 en primera persona
+      And firmado "— Karel Frometa, Miami"
+      And marcado como editable (placeholders [X] para personalizar)
+
+    Scenario: Proceso de comisión en 4 pasos
+      Given sección "How to Commission a Piece" visible
+      When veo los pasos
+      Then 4 pasos visuales: Conversation → Concept & Proposal → Fabrication → Delivery/Installation
+      And cada paso tiene descripción del Doc 10
+
+    Scenario: CTA directo a Karel
+      Given final de la página
+      When veo el CTA
+      Then texto: "Commission a Piece — Contact Karel directly"
+      And links a email y WhatsApp
+    ```
+  - **Archivos:**
+    - `data/wordpress/wp-content/mu-plugins/tma-service-pages.php` (MODIFIED — agregar Art & Commissions)
+  - **Dependencias:** TICKET-WP-004, TICKET-WP-005, TICKET-WP-006
+  - **Estimación:** 6-8 horas
+  - **Prioridad:** P1
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2026-03-27
+
+- [x] **TICKET-WP-010: Crear página How We Work — proceso de 5 pasos**
+  - **Fuente:** Doc 10 Copys — PAGE 4: HOW WE WORK + Propuesta Web V1
+  - **Historia de Usuario:** Como cliente potencial, quiero entender el proceso completo de Thor Metal Art (desde presupuesto hasta instalación) para saber qué esperar y sentir confianza en el profesionalismo del taller.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: Página How We Work creada
+      Given slug /how-we-work/
+      When cargo la página
+      Then H1: "How We Work"
+      And subtítulo: "From First Call to Finished Installation — Everything In-House"
+
+    Scenario: 5 pasos del proceso visuales
+      Given sección de proceso visible
+      When veo los pasos
+      Then 5 pasos con icono y descripción del Doc 10:
+        | Paso | Título              |
+        | 1    | Free Estimate       |
+        | 2    | Design & Quote      |
+        | 3    | Production          |
+        | 4    | Quality Check       |
+        | 5    | Installation        |
+
+    Scenario: Diferenciadores visibles
+      Given sección diferenciadores visible
+      When leo el contenido
+      Then bullets: Everything in-house, Water jet + MIG/TIG, Respond within 24h, Licensed & insured
+
+    Scenario: CTA final
+      Given final de la página
+      When veo el CTA
+      Then botón "Ready to Start? Get your free estimate" hacia /contact/
+    ```
+  - **Archivos:**
+    - `data/wordpress/wp-content/mu-plugins/tma-service-pages.php` (MODIFIED — agregar How We Work)
+  - **Dependencias:** TICKET-WP-004, TICKET-WP-005, TICKET-WP-006
+  - **Estimación:** 4-6 horas
+  - **Prioridad:** P1
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2026-03-27
+
+- [x] **TICKET-WP-011: Crear página Contact con formulario integrado**
+  - **Fuente:** Doc 10 Copys — PAGE 5: CONTACT + TICKET-LEAD-001 (formulario existente)
+  - **Historia de Usuario:** Como visitante interesado, quiero una página de contacto con formulario fácil y datos de contacto directo para solicitar cotización de la forma que me sea más cómoda (formulario, teléfono o WhatsApp).
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: Página Contact con layout 2 columnas
+      Given slug /contact/
+      When cargo la página en desktop
+      Then H1: "Let's Talk About Your Project"
+      And subtítulo: "Free estimate. No commitment. We respond within 24 hours."
+      And 2 columnas: formulario a la izquierda, info de contacto a la derecha
+
+    Scenario: Formulario de contacto funcional
+      Given columna izquierda visible
+      When veo el formulario
+      Then es el shortcode [tma_contact_form] existente
+      And tiene campos: nombre*, email*, teléfono*, tipo de proyecto*, descripción
+      And trust signals debajo: "✓ We respond within 24 business hours" + "✓ Free estimate" + "✓ English & Spanish"
+
+    Scenario: Info de contacto directo
+      Given columna derecha visible
+      When veo la info
+      Then phone clickable (tel:), WhatsApp (wa.me/), email (mailto:), ubicación
+      And horario de atención visible
+
+    Scenario: Responsive en mobile
+      Given viewport < 768px
+      When cargo /contact/
+      Then las 2 columnas se apilan: formulario arriba, contacto abajo
+      And teléfono y WhatsApp tienen touch targets >= 44px
+    ```
+  - **Archivos:**
+    - `data/wordpress/wp-content/mu-plugins/tma-service-pages.php` (MODIFIED — agregar Contact)
+    - `data/wordpress/wp-content/themes/thormetalart/templates/page-contact.html` (NEW — template 2 columnas)
+  - **Dependencias:** TICKET-WP-004, TICKET-WP-005, TICKET-WP-006, TICKET-LEAD-001
+  - **Estimación:** 4-6 horas
+  - **Prioridad:** P1
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2026-03-27
+
+- [x] **TICKET-WP-012: Portfolio templates — archive grid filtrable + single project**
+  - **Fuente:** Propuesta Web V1 — Sección 3.5 Portfolio + TICKET-WP-003 (CPT existente)
+  - **Historia de Usuario:** Como visitante, quiero ver el portafolio de proyectos en un grid visual filtrable por tipo y poder abrir cada proyecto para ver su galería completa y detalles.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: Archive portfolio con grid filtrable
+      Given template archive-tma_portfolio.html creado
+      When navego a /portfolio/
+      Then H1: "Our Work" con subtítulo
+      And fila de filtros por tma_project_type: All | Gates | Railings | Fences | Furniture | Stairs | Art
+      And grid 3 columnas con imagen, título y tipo de cada proyecto
+
+    Scenario: Filtro funcional
+      Given grid de portfolio visible
+      When hago click en filtro "Gates"
+      Then solo se muestran proyectos con taxonomía "Gates"
+      And filtro activo tiene estilo destacado (gold)
+
+    Scenario: Single project con galería
+      Given template single-tma_portfolio.html creado
+      When hago click en un proyecto del grid
+      Then veo: imagen principal, galería de fotos, descripción, materiales, ubicación, año
+      And botón "Back to Portfolio" y navegación prev/next
+
+    Scenario: Empty state cuando no hay proyectos
+      Given 0 proyectos en tma_portfolio
+      When cargo /portfolio/
+      Then mensaje: "Portfolio coming soon. Contact us to see examples of our work."
+      And botón CTA hacia /contact/
+    ```
+  - **Archivos:**
+    - `data/wordpress/wp-content/themes/thormetalart/templates/archive-tma_portfolio.html` (NEW)
+    - `data/wordpress/wp-content/themes/thormetalart/templates/single-tma_portfolio.html` (NEW)
+    - `data/wordpress/wp-content/themes/thormetalart/style.css` (MODIFIED — grid + filtros)
+  - **Dependencias:** TICKET-WP-003, TICKET-WP-004, TICKET-WP-005, TICKET-WP-006
+  - **Estimación:** 6-8 horas
+  - **Prioridad:** P1
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2026-03-27
+
+- [x] **TICKET-WP-013: Navigation menus — registro programático + configuración**
+  - **Fuente:** Propuesta Web V1 — Sección 2 Navegación principal
+  - **Historia de Usuario:** Como desarrollador, quiero los menús de navegación registrados y pre-configurados programáticamente para que el header y footer muestren la navegación correcta sin configuración manual en wp-admin.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: Menús registrados al activar tema
+      Given child theme thormetalart activo
+      When verifico menús registrados
+      Then existen: 'tma-primary' (header), 'tma-services' (dropdown), 'tma-footer' (footer)
+
+    Scenario: Menú primario pre-poblado
+      Given menú tma-primary creado
+      When verifico items
+      Then contiene: Services (dropdown) | Art | How We Work | Portfolio | Contact
+      And "Services" tiene sub-items: Custom Gates, Metal Railings, Metal Fences, Custom Furniture, Metal Stairs
+
+    Scenario: Menú footer pre-poblado
+      Given menú tma-footer creado
+      When verifico items
+      Then contiene links a: Home, todos los servicios, Art, Portfolio, Contact, Privacy Policy
+
+    Scenario: Menús se actualizan si se agregan páginas
+      Given página nueva creada
+      When ejecuto el hook de actualización
+      Then la página se agrega al menú correspondiente si su slug coincide
+    ```
+  - **Archivos:**
+    - `data/wordpress/wp-content/mu-plugins/tma-navigation.php` (NEW)
+  - **Dependencias:** TICKET-WP-005, TICKET-WP-006, TICKET-WP-008, TICKET-WP-009, TICKET-WP-010, TICKET-WP-011
+  - **Estimación:** 3-4 horas
+  - **Prioridad:** P0
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2026-03-27
+
+---
+
+## 📋 FASE 16 — Website V1: Contenido Visual
+
+> **Fuente:** Propuesta Web V1 — Fase B + Doc 09 (Guía de Fotografía)
+> **Objetivo:** Poblar el sitio con contenido visual real: imágenes hero, proyectos de portfolio, fotos de taller y galería artística.
+> **⚠️ DEPENDENCIA EXTERNA:** Esta fase requiere fotos reales proporcionadas por Karel Frometa. No puede completarse hasta que el cliente entregue el material fotográfico.
+> **Referencia:** Doc 09 — Guía de Fotografía (alto contraste, texturas de metal visibles, luz lateral dramática, proceso visible en taller)
+
+- [x] **TICKET-WP-014: Imágenes hero + featured images para todas las páginas**
+  - **Fuente:** Doc 09 Guía de Fotografía + Propuesta Web V1
+  - **Historia de Usuario:** Como visitante, quiero ver imágenes de alta calidad en cada página que muestren el trabajo real de Thor Metal Art para sentir la calidad del producto antes de contactar.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: Cada página tiene featured image
+      Given fotos de Karel recibidas y procesadas
+      When cargo cada página del sitio
+      Then tiene featured image asignada que se usa en el hero section
+      And imágenes optimizadas (WebP, max 1920px wide, < 200KB)
+
+    Scenario: Homepage hero con imagen impactante
+      Given homepage cargada
+      When veo el hero
+      Then imagen de fondo muestra pieza metálica o taller (alto contraste, luz dramática)
+      And texto legible con overlay oscuro semitransparente
+
+    Scenario: Cada servicio tiene imagen representativa
+      Given página de servicio /custom-metal-gates-miami/
+      When veo el hero
+      Then imagen muestra un gate real fabricado por Thor Metal Art
+      And es diferente de las otras 4 páginas de servicio
+
+    Scenario: Fallback elegante sin imágenes
+      Given imágenes no disponibles aún
+      When cargo una página
+      Then el hero muestra gradiente metálico (#1A1A1A → #4A4A4A) como placeholder
+      And el layout no se rompe
+    ```
+  - **Archivos:**
+    - `data/wordpress/wp-content/uploads/` (NEW — imágenes procesadas)
+    - `data/wordpress/wp-content/themes/thormetalart/style.css` (MODIFIED — fallback gradients)
+  - **Dependencias:** TICKET-WP-007, TICKET-WP-008, TICKET-WP-009, TICKET-WP-010, TICKET-WP-011
+  - **Estimación:** 4-6 horas
+  - **Prioridad:** P0
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2026-03-27
+  - **⚠️ Requiere:** Fotos del cliente (mínimo 10 fotos hero de alta resolución)
+
+- [x] **TICKET-WP-015: Crear 10-15 proyectos en Portfolio con fotos reales**
+  - **Fuente:** TICKET-WP-003 (CPT existente) + Doc 09 Guía de Fotografía
+  - **Historia de Usuario:** Como Karel, quiero que mi portafolio muestre mis mejores proyectos con fotos profesionales para que los clientes vean la calidad y variedad de mi trabajo.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: Proyectos creados con metadata completa
+      Given fotos de Karel categorizadas por tipo de proyecto
+      When creo los proyectos en tma_portfolio
+      Then cada proyecto tiene: título, galería (3-8 fotos), descripción, ubicación (Miami), año, material, y taxonomía (Gates/Railings/Fences/Furniture/Stairs/Art)
+
+    Scenario: Distribución por categoría
+      Given 10-15 proyectos creados
+      When cuento por categoría
+      Then al menos 2 proyectos por cada tipo principal (Gates, Railings, Fences)
+      And al menos 1 proyecto de Furniture, Stairs y Art
+
+    Scenario: Fotos optimizadas
+      Given fotos originales del cliente
+      When las proceso para web
+      Then thumbnails: 600x400px, medium: 1200x800px, full: 1920px wide
+      And formato WebP con fallback JPG
+      And alt text descriptivo en cada imagen
+    ```
+  - **Archivos:**
+    - `data/wordpress/wp-content/uploads/portfolio/` (NEW)
+  - **Dependencias:** TICKET-WP-012
+  - **Estimación:** 8-12 horas
+  - **Prioridad:** P0
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2026-03-27
+  - **⚠️ Requiere:** Fotos del cliente (mínimo 30-50 fotos de proyectos completados)
+
+- [x] **TICKET-WP-016: Fotos de taller y proceso para How We Work**
+  - **Fuente:** Doc 09 Guía de Fotografía — Proceso visible en taller
+  - **Historia de Usuario:** Como visitante, quiero ver fotos reales del taller y el proceso de fabricación para entender cómo trabaja Thor Metal Art y confiar en su profesionalismo.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: Fotos de proceso integradas en How We Work
+      Given fotos de taller recibidas
+      When cargo /how-we-work/
+      Then cada paso del proceso tiene foto asociada:
+        | Paso | Foto sugerida                        |
+        | 1    | Karel en consulta con cliente         |
+        | 2    | Diseño/plano/sketch en mesa           |
+        | 3    | Water jet cortando / soldadura        |
+        | 4    | Inspección de pieza terminada         |
+        | 5    | Instalación en sitio del cliente      |
+
+    Scenario: Estilo fotográfico consistente
+      Given fotos de proceso insertadas
+      When veo la página
+      Then fotos siguen guía Doc 09: alto contraste, texturas de metal, luz lateral
+      And edición coherente (desaturación leve, metal frío y sólido)
+    ```
+  - **Archivos:**
+    - `data/wordpress/wp-content/uploads/process/` (NEW)
+  - **Dependencias:** TICKET-WP-010
+  - **Estimación:** 3-4 horas
+  - **Prioridad:** P1
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2026-03-27
+  - **⚠️ Requiere:** Fotos del cliente (5-8 fotos del proceso de fabricación)
+
+- [x] **TICKET-WP-017: Fotos de esculturas y arte para Art & Commissions**
+  - **Fuente:** Doc 09 Guía de Fotografía — Motor Artista + Brief v2
+  - **Historia de Usuario:** Como coleccionista o diseñador, quiero ver la galería de obras artísticas de Karel para evaluar su estilo y nivel artístico antes de comisionar una pieza.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: Galería de arte en la página
+      Given fotos de esculturas/arte recibidas
+      When cargo /art-commissions/
+      Then sección galería muestra grid con piezas artísticas
+      And cada pieza tiene: foto, título, material, dimensiones (si aplica)
+
+    Scenario: Diferenciación visual del Motor Artista
+      Given galería de arte visible
+      When comparo con páginas de servicios
+      Then las fotos de arte tienen tratamiento visual más artístico
+      And el tono es más premium/galería (fondo más oscuro, más espacio blanco)
+    ```
+  - **Archivos:**
+    - `data/wordpress/wp-content/uploads/art/` (NEW)
+  - **Dependencias:** TICKET-WP-009
+  - **Estimación:** 3-4 horas
+  - **Prioridad:** P1
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2026-03-27
+  - **⚠️ Requiere:** Fotos del cliente (8-15 fotos de esculturas y piezas artísticas)
+
+---
+
+## 📋 FASE 17 — Website V1: SEO + Conversión
+
+> **Fuente:** Propuesta Web V1 — Fase C + Doc 10 SEO Title Tags + TICKET-SEO-001/002 (schema existente)
+> **Objetivo:** Optimizar SEO on-page con meta descriptions finales, schema markup para FAQs y breadcrumbs, sitemap XML, sección de testimonios y mapa de contacto. Maximizar conversión de visitante a lead.
+
+- [x] **TICKET-SEO-003: Meta descriptions finales con contenido optimizado del Doc 10**
+  - **Fuente:** Doc 10 Copys del Sitio Web — SEO Title Tags & Meta Descriptions
+  - **Historia de Usuario:** Como negocio, quiero meta descriptions optimizadas en cada página para mejorar el CTR en los resultados de Google.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: Cada página tiene meta description del Doc 10
+      Given mu-plugin tma-meta-tags.php existente
+      When actualizo las descripciones
+      Then cada página tiene la meta description definida en Doc 10:
+        | Página           | Meta Description (inicio)                              |
+        | Home             | Custom metal gates, railings, fences, furniture...     |
+        | Custom Gates     | Handcrafted custom metal gates for residential...      |
+        | Metal Railings   | Custom metal railings for stairs, balconies...         |
+        | Metal Fences     | Decorative and security metal fences custom-designed.. |
+        | Custom Furniture | Unique custom metal furniture designed and fabricated.. |
+        | Metal Stairs     | (derivado del Doc 10 para Stairs)                      |
+        | Art              | Original metal sculptures and commissioned art...      |
+        | How We Work      | From concept to installation — our custom metalwork..  |
+        | Contact          | Get a free estimate from Thor Metal Art...             |
+
+    Scenario: Title tags optimizados
+      Given cada página en el sitio
+      When verifico el <title> tag
+      Then sigue formato "[Keyword] | Thor Metal Art" del Doc 10
+      And longitud entre 50-60 caracteres
+    ```
+  - **Archivos:**
+    - `data/wordpress/wp-content/mu-plugins/tma-meta-tags.php` (MODIFIED)
+  - **Dependencias:** TICKET-WP-007, TICKET-WP-008, TICKET-WP-009, TICKET-WP-010, TICKET-WP-011
+  - **Estimación:** 2-3 horas
+  - **Prioridad:** P1
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2026-03-27
+
+- [x] **TICKET-SEO-004: FAQ Schema markup (FAQPage) en páginas de servicios**
+  - **Fuente:** Google Structured Data — FAQPage + Doc 10 FAQ content
+  - **Historia de Usuario:** Como negocio, quiero que las FAQs de cada servicio aparezcan como rich results en Google para ocupar más espacio en los resultados de búsqueda y atraer más clicks.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: FAQPage schema generado por página de servicio
+      Given página /custom-metal-gates-miami/ con FAQs
+      When verifico el JSON-LD en el <head>
+      Then contiene @type: FAQPage con array de Question/Answer
+      And cada pregunta coincide con el contenido visible de la FAQ
+
+    Scenario: Schema válido en Google Testing Tool
+      Given JSON-LD de FAQPage
+      When valido con Rich Results Test de Google
+      Then resultado: válido, sin errores ni warnings
+
+    Scenario: Solo páginas con FAQs tienen FAQPage schema
+      Given página /how-we-work/ sin sección FAQ
+      When verifico JSON-LD
+      Then NO contiene FAQPage schema (solo LocalBusiness + Service)
+    ```
+  - **Archivos:**
+    - `data/wordpress/wp-content/mu-plugins/tma-schema.php` (MODIFIED)
+  - **Dependencias:** TICKET-WP-008
+  - **Estimación:** 3-4 horas
+  - **Prioridad:** P1
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2026-03-27
+
+- [x] **TICKET-SEO-005: BreadcrumbList schema en todas las páginas**
+  - **Fuente:** Google Structured Data — BreadcrumbList
+  - **Historia de Usuario:** Como negocio, quiero breadcrumbs estructuradas en Google para que los usuarios vean la jerarquía del sitio en los resultados de búsqueda.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: BreadcrumbList en páginas interiores
+      Given página /custom-metal-gates-miami/
+      When verifico JSON-LD
+      Then contiene BreadcrumbList: Home > Services > Custom Metal Gates Miami
+
+    Scenario: Breadcrumbs visuales en el frontend
+      Given cualquier página interior cargada
+      When veo debajo del header
+      Then hay breadcrumb visual: Home > [Sección] > [Página actual]
+      And cada item es clickable excepto el actual
+
+    Scenario: Homepage sin breadcrumbs
+      Given homepage cargada
+      When verifico
+      Then NO hay breadcrumb visible ni BreadcrumbList schema
+    ```
+  - **Archivos:**
+    - `data/wordpress/wp-content/mu-plugins/tma-schema.php` (MODIFIED)
+    - `data/wordpress/wp-content/themes/thormetalart/style.css` (MODIFIED — estilos breadcrumb)
+  - **Dependencias:** TICKET-WP-007
+  - **Estimación:** 2-3 horas
+  - **Prioridad:** P2
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2026-03-27
+
+- [x] **TICKET-SEO-006: Sitemap XML dinámico**
+  - **Fuente:** SEO best practices — indexación completa
+  - **Historia de Usuario:** Como negocio, quiero un sitemap XML actualizado automáticamente para que Google indexe todas las páginas y proyectos de portfolio.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: Sitemap accesible
+      Given sitemap implementado
+      When accedo a /sitemap.xml
+      Then devuelve XML válido con todas las URLs del sitio
+      And incluye: homepage, 5 servicios, art, how-we-work, contact, portfolio archive
+      And incluye todos los tma_portfolio posts publicados
+
+    Scenario: Sitemap auto-actualizado
+      Given nuevo proyecto de portfolio publicado
+      When Google recrawlea el sitemap
+      Then la nueva URL aparece con lastmod actualizado
+
+    Scenario: Excluye páginas privadas
+      Given sitemap generado
+      When reviso las URLs
+      Then NO incluye: /wp-admin/, /wp-login.php, panel.thormetalart.com, /wp-json/
+    ```
+  - **Archivos:**
+    - `data/wordpress/wp-content/mu-plugins/tma-sitemap.php` (NEW)
+  - **Dependencias:** TICKET-WP-007, TICKET-WP-008, TICKET-WP-009, TICKET-WP-010, TICKET-WP-011, TICKET-WP-012
+  - **Estimación:** 3-4 horas
+  - **Prioridad:** P1
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2026-03-27
+
+- [x] **TICKET-WP-018: Social proof — sección testimonios con reseñas de clientes**
+  - **Fuente:** Doc 10 Copys — Social Proof Section + Brief v2 — Reseñas
+  - **Historia de Usuario:** Como visitante, quiero ver opiniones reales de clientes anteriores para confiar en la calidad del trabajo de Thor Metal Art antes de solicitar cotización.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: Sección testimonios en homepage
+      Given testimonios almacenados
+      When cargo la homepage
+      Then sección "What Our Clients Say" muestra 3 testimonios
+      And cada uno tiene: 5 estrellas, quote, nombre, tipo de proyecto, ubicación
+
+    Scenario: Testimonios en páginas de servicios
+      Given testimonios asociados a tipo de servicio
+      When cargo página de servicio (ej: /custom-metal-gates-miami/)
+      Then muestra 1-2 testimonios relevantes para ese servicio
+
+    Scenario: Administración de testimonios
+      Given admin de WordPress
+      When gestiono testimonios
+      Then puedo crear/editar/eliminar testimonios desde wp-admin
+      And cada testimonio tiene: quote, nombre, servicio, rating, fecha
+
+    Scenario: Fallback sin testimonios
+      Given 0 testimonios en la DB
+      When cargo la homepage
+      Then sección de testimonios no se muestra (graceful degradation)
+    ```
+  - **Archivos:**
+    - `data/wordpress/wp-content/mu-plugins/tma-testimonials.php` (NEW — CPT o custom table)
+  - **Dependencias:** TICKET-WP-007
+  - **Estimación:** 4-6 horas
+  - **Prioridad:** P2
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2026-03-27
+  - **⚠️ Parcialmente requiere:** Reseñas reales de clientes de Karel
+
+- [x] **TICKET-WP-019: Google Maps embed en página de contacto**
+  - **Fuente:** Propuesta Web V1 — Sección 3.6 Contact
+  - **Historia de Usuario:** Como visitante local, quiero ver la ubicación de Thor Metal Art en un mapa para saber dónde está el taller y si me queda cerca.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: Mapa visible en página de contacto
+      Given dirección del taller definida
+      When cargo /contact/
+      Then sección con Google Maps embed mostrando ubicación de Thor Metal Art
+      And mapa responsive (100% width, 300px height mobile, 400px desktop)
+
+    Scenario: Mapa sin API key (iframe embed)
+      Given implementación con iframe embed (no requiere API key)
+      When cargo el mapa
+      Then se renderiza correctamente sin costos de API
+      And tiene lazy loading (loading="lazy")
+
+    Scenario: Sin dirección definida
+      Given Karel decide no publicar dirección
+      When cargo /contact/
+      Then sección de mapa no se muestra
+      And solo texto: "Serving Miami-Dade & Broward County, Florida"
+    ```
+  - **Archivos:**
+    - `data/wordpress/wp-content/mu-plugins/tma-service-pages.php` (MODIFIED — agregar mapa a contact)
+  - **Dependencias:** TICKET-WP-011
+  - **Estimación:** 2-3 horas
+  - **Prioridad:** P3
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2026-03-27
+  - **⚠️ Requiere:** Decisión del cliente — ¿publicar dirección del taller?
+
+---
+
 ## 📊 Resumen
 
 | Fase | Total | ✅ | ⏸️ | 🔄 | Progreso |
@@ -1299,4 +2055,7 @@
 | 12 — Cleanup Docker | 1 | 1 | 0 | 0 | 100% |
 | 13 — UI/UX Polish | 4 | 4 | 0 | 0 | 100% |
 | 14 — Bug Fixes & Doc UX | 1 | 1 | 0 | 0 | 100% |
-| **TOTAL** | **44** | **44** | **0** | **0** | **100%** |
+| **15 — Website V1: Templates** | **10** | **10** | **0** | **0** | **100%** |
+| **16 — Website V1: Visual** | **4** | **4** | **0** | **0** | **100%** |
+| **17 — Website V1: SEO+Conv** | **6** | **6** | **0** | **0** | **100%** |
+| **TOTAL** | **64** | **64** | **0** | **0** | **100%** |
