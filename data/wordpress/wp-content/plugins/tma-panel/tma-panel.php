@@ -20,7 +20,11 @@ defined( 'ABSPATH' ) || exit;
 define( 'TMA_PANEL_VERSION', '0.4.1' );
 define( 'TMA_PANEL_PATH', plugin_dir_path( __FILE__ ) );
 define( 'TMA_PANEL_URL', plugin_dir_url( __FILE__ ) );
-define( 'TMA_PANEL_HOST', 'panel.thormetalart.com' );
+// Dynamic panel host: supports both prod and dev panel subdomains.
+$_tma_panel_hosts = array( 'panel.thormetalart.com', 'panel-dev.thormetalart.com' );
+$_tma_host = isset( $_SERVER['HTTP_HOST'] ) ? strtolower( preg_replace( '/[^a-zA-Z0-9.-]/', '', $_SERVER['HTTP_HOST'] ) ) : '';
+define( 'TMA_PANEL_HOST', in_array( $_tma_host, $_tma_panel_hosts, true ) ? $_tma_host : 'panel.thormetalart.com' );
+unset( $_tma_panel_hosts, $_tma_host );
 define( 'TMA_PANEL_PATH_PREFIX', '/panel' );
 
 /**

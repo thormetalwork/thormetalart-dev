@@ -149,10 +149,10 @@ defined( 'ABSPATH' ) || exit;
 			var data = new FormData(form);
 			data.append('action', 'tma_panel_login');
 
-			fetch('<?php echo esc_url( admin_url( "admin-ajax.php" ) ); ?>', {
+			fetch('/wp-admin/admin-ajax.php', {
 				method: 'POST',
 				body: data,
-				credentials: 'same-origin',
+				credentials: 'include',
 			})
 			.then(function(r) { return r.json(); })
 			.then(function(res) {

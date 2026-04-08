@@ -35,7 +35,7 @@ $nonce        = wp_create_nonce( 'wp_rest' );
 	<!-- Config para el SPA -->
 	<script>
 		window.TMA_PANEL = {
-			apiBase:  '<?php echo esc_url( home_url( '/index.php?rest_route=/tma-panel/v1' ) ); ?>',
+			apiBase:  '/wp-json/tma-panel/v1',
 			nonce:    '<?php echo esc_js( $nonce ); ?>',
 			user: {
 				id:      <?php echo (int) $current_user->ID; ?>,

@@ -30,7 +30,7 @@
 		};
 
 		const response = await fetch(url, {
-			credentials: 'same-origin',
+			credentials: 'include',
 			headers,
 			...opts,
 		});
