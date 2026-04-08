@@ -11,10 +11,10 @@ echo "=== Testing Thor Metal Art Stack ==="
 source "${PROJECT_DIR}/.env"
 
 echo -n "MySQL............ "
-docker exec tma_dev_mysql mysqladmin ping -u root -p"${MYSQL_ROOT_PASSWORD}" 2>/dev/null && echo "OK" || echo "FAIL"
+docker exec tma_dev_mysql bash -c "MYSQL_PWD='${MYSQL_ROOT_PASSWORD}' mysqladmin ping -u root --silent" 2>/dev/null && echo "OK" || echo "FAIL"
 
 echo -n "Redis............ "
-docker exec tma_dev_redis redis-cli ping 2>/dev/null || echo "FAIL"
+docker exec tma_dev_redis redis-cli -a "${REDIS_PASSWORD}" --no-auth-warning ping 2>/dev/null || echo "FAIL"
 
 echo -n "WordPress........ "
 docker exec tma_dev_wordpress curl -sf http://localhost/wp-login.php -o /dev/null && echo "OK" || echo "FAIL (puede tardar en arrancar)"

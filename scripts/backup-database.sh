@@ -13,16 +13,27 @@ source "${PROJECT_DIR}/.env"
 
 mkdir -p "${BACKUP_DIR}"
 
+BACKUP_FILE="${BACKUP_DIR}/${MYSQL_DATABASE}_${TIMESTAMP}.sql.gz"
+
 echo "Backing up ${MYSQL_DATABASE}..."
-docker exec "${CONTAINER}" mysqldump \
-    -u root -p"${MYSQL_ROOT_PASSWORD}" \
+set -o pipefail
+docker exec "${CONTAINER}" bash -c "MYSQL_PWD='${MYSQL_ROOT_PASSWORD}' mysqldump \
+    -u root \
     --single-transaction \
     --routines \
     --triggers \
-    "${MYSQL_DATABASE}" | gzip > "${BACKUP_DIR}/${MYSQL_DATABASE}_${TIMESTAMP}.sql.gz"
+    '${MYSQL_DATABASE}'" | gzip > "${BACKUP_FILE}"
 
-echo "Backup saved: ${BACKUP_DIR}/${MYSQL_DATABASE}_${TIMESTAMP}.sql.gz"
-ls -lh "${BACKUP_DIR}/${MYSQL_DATABASE}_${TIMESTAMP}.sql.gz"
+# Verify backup is not empty (minimum ~200 bytes for valid gzip)
+BACKUP_SIZE=$(stat -c%s "${BACKUP_FILE}" 2>/dev/null || stat -f%z "${BACKUP_FILE}")
+if [[ "${BACKUP_SIZE}" -lt 200 ]]; then
+  echo "ERROR: Backup file is suspiciously small (${BACKUP_SIZE} bytes). Removing." >&2
+  rm -f "${BACKUP_FILE}"
+  exit 1
+fi
+
+echo "Backup saved: ${BACKUP_FILE}"
+ls -lh "${BACKUP_FILE}"
 
 # Mantener solo los ultimos 10 backups
 cd "${BACKUP_DIR}" && ls -t *.sql.gz 2>/dev/null | tail -n +11 | xargs -r rm --

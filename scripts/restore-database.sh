@@ -24,8 +24,12 @@ if [[ "${confirm}" != "y" ]]; then
     exit 0
 fi
 
+if ! gzip -t "${BACKUP_FILE}" 2>/dev/null; then
+  echo "ERROR: ${BACKUP_FILE} is not a valid gzip file" >&2
+  exit 1
+fi
+
 echo "Restaurando desde ${BACKUP_FILE}..."
-gunzip -c "${BACKUP_FILE}" | docker exec -i "${CONTAINER}" mysql \
-    -u root -p"${MYSQL_ROOT_PASSWORD}" "${MYSQL_DATABASE}"
+gunzip -c "${BACKUP_FILE}" | docker exec -i "${CONTAINER}" bash -c "MYSQL_PWD='${MYSQL_ROOT_PASSWORD}' mysql -u root '${MYSQL_DATABASE}'"
 
 echo "Restauracion completada."

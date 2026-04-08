@@ -13,10 +13,11 @@ fi
 
 REDIS_PASS="${REDIS_PASSWORD:-}"
 
-echo "Limpiando cache Redis (DB 0)..."
-if [[ -n "$REDIS_PASS" ]]; then
-  docker exec tma_dev_redis redis-cli -a "$REDIS_PASS" --no-auth-warning SELECT 0 FLUSHDB
-else
-  docker exec tma_dev_redis redis-cli FLUSHDB
+if [[ -z "$REDIS_PASS" ]]; then
+  echo "ERROR: REDIS_PASSWORD not set in .env" >&2
+  exit 1
 fi
+
+echo "Limpiando cache Redis (DB 0)..."
+docker exec tma_dev_redis redis-cli -a "$REDIS_PASS" --no-auth-warning FLUSHDB
 echo "Cache limpiado."
