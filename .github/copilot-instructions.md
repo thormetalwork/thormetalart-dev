@@ -4,7 +4,7 @@
 
 Thor Metal Art is a Docker-based production stack for a custom metal fabrication and sculpture business (Miami-Dade, FL). Client: Karel Frometa / Thor Metal Art LLC.
 
-**Stack:** WordPress 6.9 + PHP 8.1 + MySQL 8.0 + Redis 7 + Nginx Dashboard + Traefik reverse proxy.
+**Stack:** WordPress 6.9 + PHP 8.1 + MySQL 8.0 + Redis 7 + phpMyAdmin + Traefik reverse proxy.
 
 ## Architecture
 
@@ -18,7 +18,7 @@ Thor Metal Art is a Docker-based production stack for a custom metal fabrication
        │            └──────────────────────────────────────────┘
        │
        ├──▶ dev.thormetalart.com           → WordPress
-       ├──▶ panel-dev.thormetalart.com     → WordPress (Admin Panel)
+       ├──▶ panel-dev.thormetalart.com     → Admin Panel (WordPress plugin)
        └──▶ pma-dev.thormetalart.com       → phpMyAdmin
 ```
 
@@ -43,25 +43,48 @@ See `docs/README.md` for full branding guide (colors, fonts, tone, site sections
 ## Build and Test
 
 ```bash
+# Stack management
 make up          # Start stack
 make down        # Stop stack
 make restart     # Stop + start
 make build       # Rebuild without cache
-make test        # Test all connections
-make backup      # Backup database
+make status      # Show container status
+make clean       # Down + remove volumes
+
+# Logs
 make logs        # Tail all logs
 make logs-wp     # Tail WordPress only
 make logs-mysql  # Tail MySQL only
-make status      # Show container status
+
+# Database & cache
+make backup      # Backup database (10-file rotation)
 make shell-wp    # WordPress container shell
 make shell-mysql # MySQL container shell
-make clean       # Down + remove volumes
+
+# Testing
+make test        # Test all connections
+make test-all    # Run ALL test suites
+make test-panel  # Panel tests only
+make test-dash   # Dashboard tests only
+make test-lead   # Lead tests only
+make test-portal # Portal tests only
+make test-docker # Docker tests only
+
+# Code quality
+make lint        # Run all linters
+make lint-php    # PHP syntax check
+make lint-js     # ESLint
+make lint-format # Prettier check
+make lint-phpcs  # WordPress coding standards
+make lint-phpstan # Static analysis
+make format      # Auto-fix formatting
+make fix         # Auto-fix lint issues
 ```
 
 ## Development Workflow
 
 - **Tickets:** `BACKLOG.md` is the single source of truth. Format: `TICKET-{SCOPE}-{NUM}` (14 scopes: WP, DOCK, DASH, SEO, LEAD, PANEL, etc.)
-- **Branching:** `main` → `feat/TICKET-XXX-short-desc`
+- **Branching:** `main` ← `dev` ← `feat/TICKET-XXX-short-desc` (also `fix/`, `hotfix/`)
 - **Commits:** `{type}(TICKET-XXX): description` (types: feat, fix, refactor, test, docs, chore)
 - **TDD mandatory:** RED → GREEN → REFACTOR for all features
 - **Tests:** Bash scripts in `tests/` using pass/fail counters pattern. Naming: `test-{scope}-{num}-{description}.sh`
@@ -77,13 +100,17 @@ make clean       # Down + remove volumes
 
 | Path | Purpose |
 |------|---------|
-| `docker-compose.yml` | Service orchestration |
-| `docker/wordpress/Dockerfile` | Custom WP image with Redis |
+| `docker-compose.yml` | Service orchestration (4 services) |
+| `docker/wordpress/Dockerfile` | Custom WP image with Redis PECL |
+| `Makefile` | 28 operational targets (stack, test, lint) |
+| `.env` / `.env.example` | Secrets (gitignored) / variable template |
 | `scripts/` | Operational scripts (backup, restore, test, cache) |
 | `tests/` | Bash test scripts (TDD, integration) |
 | `data/wordpress/` | WordPress files (volume mount) |
 | `data/mysql/` | MySQL data (volume mount) |
-| `docs/` | Project docs and client deliverables — see `docs/README.md` for site architecture and branding details |
+| `docs/` | Project docs and client deliverables — see `docs/README.md` for branding |
+| `.github/` | AI ecosystem (instructions, agents, skills, prompts, hooks, CI) |
+| `package.json` / `composer.json` | JS + PHP dependencies and QA tools |
 | `_archive/` | Archived prototypes (dashboard v1, portal v1) |
 | `BACKLOG.md` | All tickets with status, priorities, and dependencies |
 
@@ -100,8 +127,8 @@ This project has a comprehensive `.github/` setup — see files before creating 
 
 | Primitive | Count | Location |
 |-----------|-------|----------|
-| Instructions | 9 | `.github/instructions/` — auto-loaded by `applyTo` file patterns |
+| Instructions | 11 | `.github/instructions/` — auto-loaded by `applyTo` file patterns |
 | Agents | 11 | `.github/agents/` — domain-specific with restricted tool sets |
 | Skills | 6 | `.github/skills/` — reusable workflows (TDD, code-review, ship-feature, stack-mgmt, tickets, WP) |
-| Prompts | 14 | `.github/prompts/` — quick-action slash commands |
-| Hooks | 1 | `.github/hooks/safety-checks.json` — blocks destructive commands + PHP lint |
+| Prompts | 15 | `.github/prompts/` — quick-action slash commands |
+| Hooks | 3 | `.github/hooks/` — safety-checks.json + php-lint-check.sh + format-on-save.sh |

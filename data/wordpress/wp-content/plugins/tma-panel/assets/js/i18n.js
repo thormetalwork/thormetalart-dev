@@ -22,6 +22,21 @@
 			'nav.leads': 'Leads',
 			'nav.notes': 'Notas',
 			'nav.audit': 'Audit Log',
+			'nav.googleSetup': 'Google Setup',
+
+			// Google Setup
+			'google.title': 'Configuración de Google — Acceso API',
+			'google.warning': '⚠️ IMPORTANTE: Esta solicitud DEBE hacerse desde la cuenta thormetalwork@gmail.com',
+			'google.step1': 'Paso 1: Abrir el formulario de solicitud',
+			'google.step1.desc': 'Haz clic en el botón (asegúrate de estar logueado como thormetalwork@gmail.com):',
+			'google.step2': 'Paso 2: Llenar con estos datos',
+			'google.step3': 'Paso 3: Descripción del uso (copiar y pegar)',
+			'google.step4': 'Paso 4: Después de enviar',
+			'google.step4.items': 'Recibirás un email de confirmación|Google revisará la solicitud (1-3 días hábiles)|Cuando aprueben, recibirás otro email|Avísanos para activar la integración',
+			'google.refs': 'Links de referencia',
+			'google.prereqs': 'Requisitos previos (completados)',
+			'google.openForm': 'Abrir Formulario de Solicitud GBP API',
+			'google.copyDesc': 'Descripción para copiar y pegar',
 
 			// Common
 			'common.loading': 'Cargando...',
@@ -123,6 +138,21 @@
 			'nav.leads': 'Leads',
 			'nav.notes': 'Notes',
 			'nav.audit': 'Audit Log',
+			'nav.googleSetup': 'Google Setup',
+
+			// Google Setup
+			'google.title': 'Google Configuration — API Access',
+			'google.warning': '⚠️ IMPORTANT: This request MUST be made from the thormetalwork@gmail.com account',
+			'google.step1': 'Step 1: Open the request form',
+			'google.step1.desc': 'Click the button (make sure you are logged in as thormetalwork@gmail.com):',
+			'google.step2': 'Step 2: Fill in with these details',
+			'google.step3': 'Step 3: Usage description (copy and paste)',
+			'google.step4': 'Step 4: After submitting',
+			'google.step4.items': 'You will receive a confirmation email|Google will review the request (1-3 business days)|When approved, you will receive another email|Let us know to activate the integration',
+			'google.refs': 'Reference links',
+			'google.prereqs': 'Prerequisites (completed)',
+			'google.openForm': 'Open GBP API Request Form',
+			'google.copyDesc': 'Description to copy and paste',
 
 			// Common
 			'common.loading': 'Loading...',

@@ -251,6 +251,7 @@
 		documents: renderDocuments,
 		leads: renderLeads,
 		notes: renderNotes,
+		'google-setup': renderGoogleSetup,
 		audit: renderAudit,
 	};
 
@@ -259,6 +260,7 @@
 		documents: 'nav.documents',
 		leads: 'nav.leads',
 		notes: 'nav.notes',
+		'google-setup': 'nav.googleSetup',
 		audit: 'nav.audit',
 	};
 
@@ -1347,6 +1349,120 @@
 			}
 		} catch (err) {
 			showError(container, t('error.loading_notes') + ': ' + getErrorMessage(err));
+		}
+	}
+
+	/* ═══════════════════════════════════════════════════════════════
+	   Section: Google Setup
+	   ═══════════════════════════════════════════════════════════════ */
+
+	function renderGoogleSetup(container) {
+		if (!user.isAdmin) {
+			showError(container, 'Restricted');
+			return;
+		}
+
+		var formData = [
+			{ field: t('google.step2') === 'Step 2: Fill in with these details' ? 'Request type' : 'Tipo de solicitud', value: 'Solicitud de acceso básico a las APIs' },
+			{ field: 'Project ID', value: 'thor-metal-art' },
+			{ field: 'Project Number', value: '940256671703' },
+			{ field: t('google.step2') === 'Step 2: Fill in with these details' ? 'Company name' : 'Nombre de la empresa', value: 'Thor Metal Art LLC' },
+			{ field: t('google.step2') === 'Step 2: Fill in with these details' ? 'Website' : 'Sitio web', value: 'https://thormetalart.com' },
+			{ field: t('google.step2') === 'Step 2: Fill in with these details' ? 'Contact email' : 'Correo de contacto', value: 'thormetalwork@gmail.com' },
+			{ field: t('google.step2') === 'Step 2: Fill in with these details' ? 'Number of locations' : 'Cantidad de ubicaciones', value: '1' },
+		];
+
+		var description = 'We need API access to display our Google Business Profile information (reviews, ratings, photos, business hours, and contact info) on our custom internal business dashboard. We manage a single verified business location (Thor Metal Art LLC) in Miami, FL. The dashboard is used exclusively by the business owner to monitor online presence, track customer reviews, and analyze KPIs. We do not share or redistribute the data.';
+
+		var step4Items = t('google.step4.items').split('|');
+
+		var prereqs = [
+			{ text: 'Cuenta Google: thormetalwork@gmail.com', done: true },
+			{ text: 'Perfil de Empresa: verificado y activo', done: true },
+			{ text: 'Proyecto GCP: thor-metal-art (940256671703)', done: true },
+			{ text: 'OAuth2: marca verificada', done: true },
+			{ text: 'APIs GBP: 4 APIs habilitadas', done: true },
+			{ text: 'Privacy Policy: publicada', done: true },
+			{ text: 'Terms of Service: publicados', done: true },
+		];
+
+		var refs = [
+			{ label: 'Formulario GBP API', url: 'https://support.google.com/business/contact/api_default?hl=es' },
+			{ label: 'Google Cloud Console — Credenciales', url: 'https://console.cloud.google.com/apis/credentials?project=thor-metal-art' },
+			{ label: 'GBP API Quotas', url: 'https://console.cloud.google.com/apis/api/mybusinessaccountmanagement.googleapis.com/quotas?project=thor-metal-art' },
+			{ label: 'Docs — Requisitos previos', url: 'https://developers.google.com/my-business/content/prereqs' },
+			{ label: 'Google Business Profile Manager', url: 'https://business.google.com' },
+		];
+
+		var html = '<div class="google-setup">';
+
+		// Warning banner
+		html += '<div class="alert alert--warning" style="margin-bottom:24px"><p>' + t('google.warning') + '</p></div>';
+
+		// Step 1
+		html += '<div class="card" style="margin-bottom:24px"><div class="card__header"><h3>' + t('google.step1') + '</h3></div>';
+		html += '<div class="card__body"><p>' + t('google.step1.desc') + '</p>';
+		html += '<div style="text-align:center;margin:16px 0">';
+		html += '<a href="https://support.google.com/business/contact/api_default?hl=es" target="_blank" rel="noopener" class="btn btn--primary" style="display:inline-block;padding:12px 32px;font-size:1rem">';
+		html += '📝 ' + t('google.openForm') + '</a></div>';
+		html += '</div></div>';
+
+		// Step 2
+		html += '<div class="card" style="margin-bottom:24px"><div class="card__header"><h3>' + t('google.step2') + '</h3></div>';
+		html += '<div class="card__body"><table class="table"><thead><tr><th style="width:40%">Campo</th><th>Valor</th></tr></thead><tbody>';
+		formData.forEach(function (row) {
+			html += '<tr><td><strong>' + row.field + '</strong></td><td><code>' + row.value + '</code></td></tr>';
+		});
+		html += '</tbody></table></div></div>';
+
+		// Step 3
+		html += '<div class="card" style="margin-bottom:24px"><div class="card__header"><h3>' + t('google.step3') + '</h3></div>';
+		html += '<div class="card__body"><p>' + t('google.copyDesc') + ':</p>';
+		html += '<div class="code-block" style="background:var(--color-surface-alt, #2a2a2a);padding:16px;border-radius:8px;border:1px solid var(--color-border, #444);cursor:pointer;position:relative" id="gbp-desc-copy">';
+		html += '<p style="margin:0;font-style:italic;line-height:1.6">' + description + '</p>';
+		html += '<small style="display:block;margin-top:8px;opacity:0.6">👆 Click to copy</small>';
+		html += '</div></div></div>';
+
+		// Step 4
+		html += '<div class="card" style="margin-bottom:24px"><div class="card__header"><h3>' + t('google.step4') + '</h3></div>';
+		html += '<div class="card__body"><ol>';
+		step4Items.forEach(function (item) {
+			html += '<li style="margin-bottom:8px">' + item.trim() + '</li>';
+		});
+		html += '</ol></div></div>';
+
+		// References
+		html += '<div class="card" style="margin-bottom:24px"><div class="card__header"><h3>📎 ' + t('google.refs') + '</h3></div>';
+		html += '<div class="card__body"><ul>';
+		refs.forEach(function (ref) {
+			html += '<li style="margin-bottom:8px"><a href="' + ref.url + '" target="_blank" rel="noopener">' + ref.label + '</a></li>';
+		});
+		html += '</ul></div></div>';
+
+		// Prerequisites
+		html += '<div class="card" style="margin-bottom:24px"><div class="card__header"><h3>✅ ' + t('google.prereqs') + '</h3></div>';
+		html += '<div class="card__body"><ul style="list-style:none;padding:0">';
+		prereqs.forEach(function (p) {
+			html += '<li style="margin-bottom:6px">' + (p.done ? '✅' : '⬜') + ' ' + p.text + '</li>';
+		});
+		html += '</ul></div></div>';
+
+		html += '</div>';
+
+		container.innerHTML = html;
+
+		// Copy-to-clipboard handler
+		var copyBlock = document.getElementById('gbp-desc-copy');
+		if (copyBlock) {
+			copyBlock.addEventListener('click', function () {
+				navigator.clipboard.writeText(description).then(function () {
+					var small = copyBlock.querySelector('small');
+					if (small) {
+						small.textContent = '✅ Copied!';
+						setTimeout(function () { small.textContent = '👆 Click to copy'; }, 2000);
+					}
+				});
+			});
 		}
 	}
 

@@ -30,6 +30,12 @@
         "command": ".github/hooks/php-lint-check.sh",
         "cwd": "/srv/stacks/thormetalart-dev",
         "timeout": 10
+      },
+      {
+        "type": "command",
+        "command": ".github/hooks/format-on-save.sh",
+        "cwd": "/srv/stacks/thormetalart-dev",
+        "timeout": 15
       }
     ]
   }
