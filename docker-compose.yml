@@ -71,6 +71,7 @@ services:
       GOOGLE_OAUTH_CLIENT_SECRET: "${GOOGLE_OAUTH_CLIENT_SECRET:-}"
       GOOGLE_OAUTH_REFRESH_TOKEN: "${GOOGLE_OAUTH_REFRESH_TOKEN:-}"
       GSC_SITE_URL: "${GSC_SITE_URL:-}"
+      GCP_API_KEY: "${GCP_API_KEY:-}"
     volumes:
       - ./data/wordpress:/var/www/html
     networks:

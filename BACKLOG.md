@@ -101,7 +101,7 @@
       When extraigo CSS a dashboard/css/styles.css
       Then el dashboard se ve idéntico
       And el CSS se cachea correctamente en el browser
-    
+
     Scenario: JS extraído a archivo externo
       Given dashboard/index.html tiene scripts inline
       When extraigo JS a dashboard/js/app.js
@@ -252,7 +252,7 @@
       Given WordPress instalado
       When hago POST a xmlrpc.php
       Then recibo 403 Forbidden
-    
+
     Scenario: REST API restringida
       Given usuario no autenticado
       When pido /wp-json/wp/v2/users
@@ -2037,9 +2037,185 @@
 
 ---
 
+## � FASE 18 — Google Ecosystem: Integración Real de APIs
+
+> **Contexto:** GCP Project `thor-metal-art` (940256671703). OAuth2 brand verificada (APPROVED).
+> OAuth2 scopes: business.manage, analytics.readonly, webmasters.readonly.
+> **Última actualización:** 2026-04-09
+
+- [x] **TICKET-DASH-009: Integración real GA4 Data API + Search Console API**
+  - **Fuente:** Auditoría del dashboard — 100% datos mock, 0 llamadas API reales
+  - **Historia de Usuario:** Como administrador, quiero que el cron del panel haga llamadas reales a GA4 y Search Console para tener KPIs actualizados sin datos ficticios.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: OAuth2 token refresh funcional
+      Given credenciales OAuth2 configuradas en .env
+      When el cron ejecuta sync_all_sources()
+      Then obtiene access token de Google (cacheado en transient 55 min)
+
+    Scenario: GA4 Data API retorna métricas reales
+      Given GA4 property 532291061 configurada
+      When el cron sincroniza fuente "ga4"
+      Then inserta/actualiza sessions, users, pageviews, bounce_rate, conversions, top_pages
+
+    Scenario: Search Console API retorna métricas reales
+      Given GSC site sc-domain:thormetalart.com verificado
+      When el cron sincroniza fuente "gsc"
+      Then inserta/actualiza clicks, impressions, ctr, avg_position, top_queries, top_pages
+
+    Scenario: UPSERT evita duplicados
+      Given ya existe un KPI para el período actual
+      When el cron ejecuta de nuevo
+      Then actualiza el valor existente en vez de crear duplicado
+    ```
+  - **Archivos:**
+    - `data/wordpress/wp-content/plugins/tma-panel/includes/class-tma-panel-google-auth.php` (NEW)
+    - `data/wordpress/wp-content/plugins/tma-panel/includes/class-tma-panel-cron.php` (MODIFIED)
+    - `data/wordpress/wp-content/plugins/tma-panel/tma-panel.php` (MODIFIED)
+    - `docker-compose.yml` (MODIFIED — env vars)
+    - `data/wordpress/wp-config.php` (MODIFIED — constants)
+    - `.env` / `.env.example` (MODIFIED — OAuth2 + GSC vars)
+  - **Dependencias:** Ninguna
+  - **Estimación:** 4 horas
+  - **Prioridad:** P1
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2026-04-09
+
+- [x] **TICKET-INF-001: Fix MCP MySQL y Redis (VS Code Copilot)**
+  - **Fuente:** MCPs no conectaban — VS Code no resuelve ${VAR} de shell
+  - **Historia de Usuario:** Como desarrollador, quiero que los MCPs de MySQL y Redis funcionen desde VS Code para consultar datos directamente.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: MCP MySQL conecta
+      Given mcp.json con valores literales
+      When VS Code carga los MCPs
+      Then MySQL MCP conecta a 127.0.0.1:3311
+
+    Scenario: MCP Redis conecta
+      Given mcp.json con password literal en URL
+      When VS Code carga los MCPs
+      Then Redis MCP conecta a localhost:6379 con auth
+    ```
+  - **Archivos:**
+    - `.vscode/mcp.json` (MODIFIED)
+  - **Dependencias:** Ninguna
+  - **Estimación:** 30 min
+  - **Prioridad:** P1
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2026-04-09
+
+- [x] **TICKET-INF-002: Eliminar stack thormetalart-src obsoleto**
+  - **Fuente:** Auditoría de servidor — stack inactivo con container names duplicados
+  - **Historia de Usuario:** Como administrador, quiero eliminar el stack obsoleto para evitar conflictos y confusión.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: Stack archivado y eliminado
+      Given thormetalart-src en /srv/stacks/
+      When archivo a tar.gz y elimino
+      Then /srv/stacks/ solo tiene traefik, dev, prod
+      And backup en /srv/backups/thormetalart-src-archive-20260409.tar.gz
+    ```
+  - **Archivos:**
+    - `/srv/stacks/thormetalart-src/` (DELETED)
+  - **Dependencias:** Ninguna
+  - **Estimación:** 15 min
+  - **Prioridad:** P2
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2026-04-09
+
+- [x] **TICKET-DASH-010: Sección Google Setup en panel (admin-only)**
+  - **Fuente:** Necesidad de documentar configuración GBP para cliente/admin
+  - **Historia de Usuario:** Como admin, quiero una sección en el panel con los datos del formulario GBP API para poder completar la solicitud.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: Sección visible solo para admin
+      Given usuario con rol tma_admin
+      When navego al panel
+      Then veo enlace "Google Setup" en el sidebar
+      And la sección muestra datos del formulario, links de referencia, checklist
+
+    Scenario: Sección oculta para cliente
+      Given usuario con rol tma_client
+      When navego al panel
+      Then NO veo "Google Setup" en el sidebar
+    ```
+  - **Archivos:**
+    - `data/wordpress/wp-content/plugins/tma-panel/templates/panel.php` (MODIFIED)
+    - `data/wordpress/wp-content/plugins/tma-panel/assets/js/panel.js` (MODIFIED)
+    - `data/wordpress/wp-content/plugins/tma-panel/assets/js/i18n.js` (MODIFIED)
+  - **Dependencias:** Ninguna
+  - **Estimación:** 2 horas
+  - **Prioridad:** P2
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2026-04-09
+
+- [ ] **TICKET-SEO-007: Google Business Profile API — integración real**
+  - **Fuente:** GBP API quota = 0, formulario de solicitud enviado
+  - **Historia de Usuario:** Como administrador, quiero datos reales de GBP (reseñas, impressions, actions) en el dashboard para monitorear la presencia local.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: GBP data en dashboard
+      Given GBP API quota aprobada por Google
+      When el cron sincroniza fuente "gbp"
+      Then inserta reviews, impressions, actions reales desde GBP API
+    ```
+  - **Archivos:**
+    - `data/wordpress/wp-content/plugins/tma-panel/includes/class-tma-panel-cron.php` (MODIFIED)
+    - `.env` (MODIFIED — GBP_ACCOUNT_ID, GBP_LOCATION_ID)
+  - **Dependencias:** Aprobación de quota de Google (formulario enviado)
+  - **Estimación:** 3 horas
+  - **Prioridad:** P1
+  - **Status:** 🚫 BLOQUEADO
+  - **Bloqueador:** Esperando aprobación de quota de Google Business Profile API
+
+- [ ] **TICKET-DASH-011: Instagram Graph API — integración real**
+  - **Fuente:** Dashboard muestra placeholder para Instagram
+  - **Historia de Usuario:** Como administrador, quiero datos reales de Instagram (followers, reach, engagement) en el dashboard.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: Instagram data en dashboard
+      Given Facebook App configurada con IG Business Account
+      When el cron sincroniza fuente "instagram"
+      Then inserta followers, reach, engagement_rate reales
+    ```
+  - **Archivos:**
+    - `data/wordpress/wp-content/plugins/tma-panel/includes/class-tma-panel-cron.php` (MODIFIED)
+    - `.env` (MODIFIED — IG_ACCESS_TOKEN, IG_BUSINESS_ACCOUNT_ID)
+  - **Dependencias:** Crear Facebook App + conectar cuenta IG business
+  - **Estimación:** 4 horas
+  - **Prioridad:** P2
+  - **Status:** 🚫 BLOQUEADO
+  - **Bloqueador:** Requiere creación de Facebook Developer App + vincular cuenta IG business
+
+- [ ] **TICKET-WP-020: Google Maps embed real en página de contacto**
+  - **Fuente:** TICKET-WP-019 completado con placeholder, API key ya disponible
+  - **Historia de Usuario:** Como visitante, quiero ver la ubicación de Thor Metal Art en un mapa interactivo en la página de contacto.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: Mapa Google Maps visible
+      Given API key de Google Maps configurada
+      When cargo /contact/
+      Then veo mapa embebido con ubicación de Thor Metal Art
+      And mapa es responsive y tiene lazy loading
+
+    Scenario: Marker en ubicación correcta
+      Given coordenadas de Miami-Dade
+      When veo el mapa
+      Then marker en dirección de Thor Metal Art
+    ```
+  - **Archivos:**
+    - `data/wordpress/wp-content/themes/theme-tma/parts/contact-map.html` (NEW o MODIFIED)
+    - O `data/wordpress/wp-content/mu-plugins/tma-service-pages.php` (MODIFIED)
+  - **Dependencias:** Ninguna — API key ya existe y está restringida
+  - **Estimación:** 1 hora
+  - **Prioridad:** P2
+  - **Status:** ⏸️ PENDIENTE
+
+---
+
 ## 📊 Resumen
 
-| Fase | Total | ✅ | ⏸️ | 🔄 | Progreso |
+| Fase | Total | ✅ | ⏸️ | 🚫 | Progreso |
 |------|-------|----|-----|-----|----------|
 | 1 — Infraestructura | 3 | 3 | 0 | 0 | 100% |
 | 2 — Dashboard | 3 | 3 | 0 | 0 | 100% |
@@ -2049,13 +2225,14 @@
 | 6 — Leads/CRM | 1 | 1 | 0 | 0 | 100% |
 | 7 — Portal Docs | 4 | 4 | 0 | 0 | 100% |
 | 8 — TMA Panel Base | 10 | 10 | 0 | 0 | 100% |
-| 9 — Dashboard Datos Reales | 5 | 5 | 0 | 0 | 100% |
+| 9 — Dashboard Datos Reales | 7 | 5 | 0 | 2 | 71% |
 | 10 — Portal Integrado | 3 | 3 | 0 | 0 | 100% |
 | 11 — Leads Dinámico | 3 | 3 | 0 | 0 | 100% |
 | 12 — Cleanup Docker | 1 | 1 | 0 | 0 | 100% |
 | 13 — UI/UX Polish | 4 | 4 | 0 | 0 | 100% |
 | 14 — Bug Fixes & Doc UX | 1 | 1 | 0 | 0 | 100% |
-| **15 — Website V1: Templates** | **10** | **10** | **0** | **0** | **100%** |
-| **16 — Website V1: Visual** | **4** | **4** | **0** | **0** | **100%** |
-| **17 — Website V1: SEO+Conv** | **6** | **6** | **0** | **0** | **100%** |
-| **TOTAL** | **64** | **64** | **0** | **0** | **100%** |
+| 15 — Website V1: Templates | 10 | 10 | 0 | 0 | 100% |
+| 16 — Website V1: Visual | 4 | 4 | 0 | 0 | 100% |
+| 17 — Website V1: SEO+Conv | 6 | 6 | 0 | 0 | 100% |
+| **18 — Google Ecosystem** | **7** | **4** | **1** | **2** | **57%** |
+| **TOTAL** | **71** | **68** | **1** | **2** | **96%** |

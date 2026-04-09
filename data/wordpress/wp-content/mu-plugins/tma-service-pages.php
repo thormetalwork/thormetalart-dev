@@ -331,14 +331,18 @@ add_action( 'admin_init', 'tma_maybe_provision_website_v1_pages' );
  * @return string
  */
 function tma_shortcode_contact_map() {
-	$public_address = get_option( 'tma_public_address', '' );
-	if ( empty( $public_address ) ) {
-		return '<p>Serving Miami-Dade and Broward County, Florida.</p>';
+	$search_query = get_option( 'tma_public_address', 'Thor Metal Art LLC, Miami, FL' );
+	$api_key      = defined( 'GCP_API_KEY' ) ? GCP_API_KEY : '';
+
+	if ( ! empty( $api_key ) ) {
+		$src = 'https://www.google.com/maps/embed/v1/place?key='
+			. rawurlencode( $api_key )
+			. '&q=' . rawurlencode( $search_query )
+			. '&zoom=13';
+	} else {
+		$src = 'https://www.google.com/maps?q=' . rawurlencode( $search_query ) . '&output=embed';
 	}
 
-	$map_query = rawurlencode( $public_address );
-	$src       = 'https://www.google.com/maps?q=' . $map_query . '&output=embed';
-
-	return '<iframe title="Thor Metal Art Map" loading="lazy" referrerpolicy="no-referrer-when-downgrade" style="width:100%;min-height:320px;border:0;border-radius:10px" src="' . esc_url( $src ) . '"></iframe>';
+	return '<iframe title="Thor Metal Art Map" loading="lazy" referrerpolicy="no-referrer-when-downgrade" style="width:100%;min-height:320px;border:0;border-radius:10px" allowfullscreen src="' . esc_url( $src ) . '"></iframe>';
 }
 add_shortcode( 'tma_contact_map', 'tma_shortcode_contact_map' );
