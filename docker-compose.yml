@@ -65,6 +65,18 @@ services:
       WORDPRESS_TABLE_PREFIX: ${WORDPRESS_TABLE_PREFIX}
       WORDPRESS_DEBUG: "${WORDPRESS_DEBUG:-0}"
       REDIS_PASSWORD: ${REDIS_PASSWORD}
+      GA4_MEASUREMENT_ID: "${GA4_MEASUREMENT_ID:-}"
+      GA4_PROPERTY_ID: "${GA4_PROPERTY_ID:-}"
+      GOOGLE_OAUTH_CLIENT_ID: "${GOOGLE_OAUTH_CLIENT_ID:-}"
+      GOOGLE_OAUTH_CLIENT_SECRET: "${GOOGLE_OAUTH_CLIENT_SECRET:-}"
+      GOOGLE_OAUTH_REFRESH_TOKEN: "${GOOGLE_OAUTH_REFRESH_TOKEN:-}"
+      GSC_SITE_URL: "${GSC_SITE_URL:-}"
+      GCP_API_KEY: "${GCP_API_KEY:-}"
+      GCP_SERVER_API_KEY: "${GCP_SERVER_API_KEY:-}"
+      RECAPTCHA_SITE_KEY: "${RECAPTCHA_SITE_KEY:-}"
+      GBP_API_KEY: "${GBP_API_KEY:-}"
+      IG_ACCESS_TOKEN: "${IG_ACCESS_TOKEN:-}"
+      IG_BUSINESS_ACCOUNT_ID: "${IG_BUSINESS_ACCOUNT_ID:-}"
     volumes:
       - ./data/wordpress:/var/www/html
     networks:
@@ -92,6 +104,12 @@ services:
     restart: always
     mem_limit: 256m
     cpus: 0.5
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
     depends_on:
       mysql:
         condition: service_healthy

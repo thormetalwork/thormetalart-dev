@@ -7,7 +7,8 @@
  *
  * Shortcode: [tma_contact_form]
  * Features: Honeypot anti-spam, nonce CSRF, rate limiting, UTM tracking,
- *           admin leads table, email notification, bilingual EN/ES.
+ *           reCAPTCHA Enterprise v3, admin leads table, email notification,
+ *           bilingual EN/ES.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -167,6 +168,7 @@ function tma_form_labels( $lang = 'es' ) {
             'error'          => 'Hubo un error al enviar tu mensaje. Inténtalo de nuevo.',
             'rate_limit'     => 'Ya enviaste un mensaje recientemente. Espera unos minutos.',
             'spam'           => 'Envío no válido.',
+            'recaptcha_fail' => 'Verificación de seguridad fallida. Recarga la página e inténtalo de nuevo.',
         ],
         'en' => [
             'name'           => 'Full name',
@@ -184,12 +186,71 @@ function tma_form_labels( $lang = 'es' ) {
             'error'          => 'There was an error sending your message. Please try again.',
             'rate_limit'     => 'You already sent a message recently. Please wait a few minutes.',
             'spam'           => 'Invalid submission.',
+            'recaptcha_fail' => 'Security verification failed. Please reload the page and try again.',
         ],
     ];
     return $labels[ $lang ] ?? $labels['es'];
 }
 
-/* ─── 4. AJAX Handler ──────────────────────────────────────────── */
+/* ─── 4. reCAPTCHA Enterprise Verification ─────────────────────── */
+
+/**
+ * Verify a reCAPTCHA Enterprise token via the Assessment API.
+ *
+ * @param string $token The reCAPTCHA token from the client.
+ * @return bool|WP_Error True if score >= 0.5, false/WP_Error otherwise.
+ */
+function tma_verify_recaptcha( $token ) {
+    $api_key  = GCP_SERVER_API_KEY;
+    $site_key = RECAPTCHA_SITE_KEY;
+    $project  = 'thor-metal-art';
+
+    $url = sprintf(
+        'https://recaptchaenterprise.googleapis.com/v1/projects/%s/assessments?key=%s',
+        $project,
+        $api_key
+    );
+
+    $body = wp_json_encode( [
+        'event' => [
+            'token'          => $token,
+            'siteKey'        => $site_key,
+            'expectedAction' => 'CONTACT_FORM',
+        ],
+    ] );
+
+    $response = wp_remote_post( $url, [
+        'headers' => [ 'Content-Type' => 'application/json' ],
+        'body'    => $body,
+        'timeout' => 10,
+    ] );
+
+    if ( is_wp_error( $response ) ) {
+        // Log but don't block — fail open on network errors to avoid losing leads.
+        error_log( '[TMA reCAPTCHA] API error: ' . $response->get_error_message() );
+        return true;
+    }
+
+    $status = wp_remote_retrieve_response_code( $response );
+    $data   = json_decode( wp_remote_retrieve_body( $response ), true );
+
+    if ( 200 !== $status || empty( $data['tokenProperties']['valid'] ) ) {
+        error_log( '[TMA reCAPTCHA] Invalid token or API error. Status: ' . $status );
+        return false;
+    }
+
+    $score = $data['riskAnalysis']['score'] ?? 0;
+
+    // Score threshold: 0.0 = bot, 1.0 = human. 0.5 is Google's recommendation.
+    if ( $score < 0.5 ) {
+        error_log( sprintf( '[TMA reCAPTCHA] Low score: %.1f — likely bot.', $score ) );
+        return false;
+    }
+
+    return true;
+}
+
+/* ─── 5. AJAX Handler ──────────────────────────────────────────── */
 
 add_action( 'wp_ajax_tma_submit_lead',        'tma_handle_lead_submission' );
 add_action( 'wp_ajax_nopriv_tma_submit_lead',  'tma_handle_lead_submission' );
@@ -202,6 +263,19 @@ function tma_handle_lead_submission() {
 
     $locale = isset( $_POST['tma_locale'] ) && $_POST['tma_locale'] === 'en' ? 'en' : 'es';
     $labels = tma_form_labels( $locale );
+
+    // reCAPTCHA Enterprise v3 verification.
+    if ( defined( 'RECAPTCHA_SITE_KEY' ) && RECAPTCHA_SITE_KEY && defined( 'GCP_SERVER_API_KEY' ) && GCP_SERVER_API_KEY ) {
+        $recaptcha_token = sanitize_text_field( wp_unslash( $_POST['g-recaptcha-response'] ?? '' ) );
+        if ( empty( $recaptcha_token ) ) {
+            wp_send_json_error( [ 'message' => $labels['spam'] ], 403 );
+        }
+
+        $recaptcha_result = tma_verify_recaptcha( $recaptcha_token );
+        if ( is_wp_error( $recaptcha_result ) || ! $recaptcha_result ) {
+            wp_send_json_error( [ 'message' => $labels['recaptcha_fail'] ], 403 );
+        }
+    }
 
     // Honeypot check.
     if ( ! empty( $_POST['tma_website'] ) ) {
@@ -468,10 +542,12 @@ function tma_enqueue_form_assets() {
     if ( $enqueued ) return;
     $enqueued = true;
 
-    // Register AJAX URL for frontend.
+    // Register AJAX URL + reCAPTCHA key for frontend.
+    $recaptcha_key = defined( 'RECAPTCHA_SITE_KEY' ) ? RECAPTCHA_SITE_KEY : '';
     wp_enqueue_script( 'jquery' );
     wp_add_inline_script( 'jquery', 'var tmaAjax = ' . wp_json_encode( [
-        'url'   => admin_url( 'admin-ajax.php' ),
+        'url'          => admin_url( 'admin-ajax.php' ),
+        'recaptchaKey' => $recaptcha_key,
     ] ) . ';' );
 
     // Inline CSS.
@@ -513,18 +589,11 @@ function tma_enqueue_form_assets() {
         form.querySelector("[name=tma_utm_medium]").value = params.get("utm_medium") || "";
         form.querySelector("[name=tma_utm_campaign]").value = params.get("utm_campaign") || "";
 
-        form.addEventListener("submit", function(e) {
-            e.preventDefault();
-            var btn = document.getElementById("tma-cf-btn");
-            var fb  = document.getElementById("tma-cf-feedback");
-            btn.disabled = true;
-            fb.className = "tma-cf-feedback";
-            fb.textContent = "";
-
-            var fd = new FormData(form);
+        function sendForm(fd) {
             fetch(tmaAjax.url, { method: "POST", body: fd, credentials: "same-origin" })
                 .then(function(r) { return r.json(); })
                 .then(function(data) {
+                    var fb = document.getElementById("tma-cf-feedback");
                     if (data.success) {
                         fb.className = "tma-cf-feedback success";
                         fb.textContent = data.data.message;
@@ -535,16 +604,59 @@ function tma_enqueue_form_assets() {
                     }
                 })
                 .catch(function() {
+                    var fb = document.getElementById("tma-cf-feedback");
                     fb.className = "tma-cf-feedback error";
                     fb.textContent = "Error de conexión.";
                 })
-                .finally(function() { btn.disabled = false; });
+                .finally(function() {
+                    document.getElementById("tma-cf-btn").disabled = false;
+                });
+        }
+
+        form.addEventListener("submit", function(e) {
+            e.preventDefault();
+            var btn = document.getElementById("tma-cf-btn");
+            var fb  = document.getElementById("tma-cf-feedback");
+            btn.disabled = true;
+            fb.className = "tma-cf-feedback";
+            fb.textContent = "";
+
+            var fd = new FormData(form);
+
+            /* reCAPTCHA Enterprise v3 — get token before submit */
+            if (tmaAjax.recaptchaKey && typeof grecaptcha !== "undefined" && grecaptcha.enterprise) {
+                grecaptcha.enterprise.ready(function() {
+                    grecaptcha.enterprise.execute(tmaAjax.recaptchaKey, {action: "CONTACT_FORM"})
+                        .then(function(token) {
+                            fd.append("g-recaptcha-response", token);
+                            sendForm(fd);
+                        })
+                        .catch(function() {
+                            /* Fail open — send without token if reCAPTCHA JS fails */
+                            sendForm(fd);
+                        });
+                });
+            } else {
+                sendForm(fd);
+            }
         });
     });
     ';
     wp_register_script( 'tma-contact-form-js', false, [ 'jquery' ], '1.0', true );
     wp_enqueue_script( 'tma-contact-form-js' );
     wp_add_inline_script( 'tma-contact-form-js', $js );
+
+    // reCAPTCHA Enterprise v3 script.
+    $recaptcha_key = defined( 'RECAPTCHA_SITE_KEY' ) ? RECAPTCHA_SITE_KEY : '';
+    if ( $recaptcha_key ) {
+        wp_enqueue_script(
+            'google-recaptcha-enterprise',
+            'https://www.google.com/recaptcha/enterprise.js?render=' . esc_attr( $recaptcha_key ),
+            [],
+            null,
+            true
+        );
+    }
 }
 
 /* ─── 8. REST Endpoint for Dashboard API ───────────────────────── */

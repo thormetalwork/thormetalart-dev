@@ -251,6 +251,7 @@
 		documents: renderDocuments,
 		leads: renderLeads,
 		notes: renderNotes,
+		'google-setup': renderGoogleSetup,
 		audit: renderAudit,
 	};
 
@@ -259,6 +260,7 @@
 		documents: 'nav.documents',
 		leads: 'nav.leads',
 		notes: 'nav.notes',
+		'google-setup': 'nav.googleSetup',
 		audit: 'nav.audit',
 	};
 
@@ -1347,6 +1349,219 @@
 			}
 		} catch (err) {
 			showError(container, t('error.loading_notes') + ': ' + getErrorMessage(err));
+		}
+	}
+
+	/* ═══════════════════════════════════════════════════════════════
+	   Section: Google Setup
+	   ═══════════════════════════════════════════════════════════════ */
+
+	function renderGoogleSetup(container) {
+		if (!user.isAdmin) {
+			showError(container, 'Restricted');
+			return;
+		}
+
+		/* ── Integration status data ── */
+		var integrations = [
+			{
+				id: 'oauth2',
+				icon: '🔑',
+				name: t('google.int.oauth2'),
+				status: 'active',
+				details: [
+					{ label: 'Client ID', value: '940256671703-tmgeh0p9...', mono: true },
+					{ label: t('google.int.brand'), value: t('google.int.verified') },
+					{ label: 'Scopes', value: 'analytics.readonly, webmasters.readonly, business.manage', mono: true },
+					{ label: t('google.int.tokenCache'), value: 'WordPress transient (~55 min)' },
+				],
+			},
+			{
+				id: 'ga4',
+				icon: '📊',
+				name: 'Google Analytics 4 (GA4)',
+				status: 'active',
+				details: [
+					{ label: 'Property ID', value: 'properties/532291061', mono: true },
+					{ label: 'Measurement ID', value: 'G-LC2XS0JTTS', mono: true },
+					{ label: 'API', value: 'GA4 Data API (v1beta) — analyticsdata.googleapis.com' },
+					{ label: t('google.int.metrics'), value: 'sessions, users, pageviews, bounce_rate, conversions, top_pages' },
+					{ label: t('google.int.sync'), value: t('google.int.dailyCron') },
+					{ label: t('google.int.dataNote'), value: t('google.int.ga4AccumulatingData') },
+				],
+			},
+			{
+				id: 'gsc',
+				icon: '🔍',
+				name: 'Google Search Console',
+				status: 'active',
+				details: [
+					{ label: 'Site', value: 'sc-domain:thormetalart.com', mono: true },
+					{ label: t('google.int.verification'), value: 'siteOwner (DNS)' },
+					{ label: 'API', value: 'Search Console API (v3) — webmasters.googleapis.com' },
+					{ label: t('google.int.metrics'), value: 'clicks, impressions, CTR, avg_position, top_queries, top_pages' },
+					{ label: t('google.int.sync'), value: t('google.int.dailyCron') },
+					{ label: t('google.int.dataNote'), value: t('google.int.gscAccumulatingData') },
+				],
+			},
+			{
+				id: 'maps',
+				icon: '🗺️',
+				name: 'Google Maps',
+				status: 'ready',
+				details: [
+					{ label: 'API Key', value: t('google.int.restricted') },
+					{ label: t('google.int.usage'), value: t('google.int.mapsUsage') },
+				],
+			},
+			{
+				id: 'gbp',
+				icon: '🏢',
+				name: 'Google Business Profile API',
+				status: 'blocked',
+				details: [
+					{ label: t('google.int.blocker'), value: t('google.int.gbpBlocker') },
+					{ label: t('google.int.action'), value: t('google.int.gbpAction') },
+					{ label: t('google.int.metrics'), value: 'reviews, rating, impressions, actions, photos' },
+				],
+			},
+			{
+				id: 'instagram',
+				icon: '📸',
+				name: 'Instagram Graph API',
+				status: 'blocked',
+				details: [
+					{ label: t('google.int.blocker'), value: t('google.int.igBlocker') },
+					{ label: t('google.int.action'), value: t('google.int.igAction') },
+					{ label: t('google.int.metrics'), value: 'followers, reach, engagement_rate' },
+				],
+			},
+		];
+
+		var statusLabels = {
+			active: { text: t('google.status.active'), cls: 'badge--success' },
+			ready: { text: t('google.status.ready'), cls: 'badge--info' },
+			blocked: { text: t('google.status.blocked'), cls: 'badge--warning' },
+		};
+
+		/* ── Summary counts ── */
+		var countActive = integrations.filter(function (i) { return i.status === 'active'; }).length;
+		var countReady = integrations.filter(function (i) { return i.status === 'ready'; }).length;
+		var countBlocked = integrations.filter(function (i) { return i.status === 'blocked'; }).length;
+
+		var html = '<div class="google-setup">';
+
+		/* ── Summary cards ── */
+		html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:24px">';
+		html += '<div class="card" style="text-align:center;padding:20px"><div style="font-size:2rem;font-weight:700;color:var(--color-success,#4caf50)">' + countActive + '</div><div style="opacity:0.7">' + t('google.status.active') + '</div></div>';
+		html += '<div class="card" style="text-align:center;padding:20px"><div style="font-size:2rem;font-weight:700;color:var(--color-info,#2196f3)">' + countReady + '</div><div style="opacity:0.7">' + t('google.status.ready') + '</div></div>';
+		html += '<div class="card" style="text-align:center;padding:20px"><div style="font-size:2rem;font-weight:700;color:var(--color-warning,#ff9800)">' + countBlocked + '</div><div style="opacity:0.7">' + t('google.status.blocked') + '</div></div>';
+		html += '</div>';
+
+		/* ── Integration cards ── */
+		integrations.forEach(function (integ) {
+			var badge = statusLabels[integ.status] || statusLabels.blocked;
+			html += '<div class="card" style="margin-bottom:16px">';
+			html += '<div class="card__header" style="display:flex;align-items:center;justify-content:space-between">';
+			html += '<h3 style="margin:0">' + integ.icon + ' ' + escapeHtml(integ.name) + '</h3>';
+			html += '<span class="badge ' + badge.cls + '">' + badge.text + '</span>';
+			html += '</div>';
+			html += '<div class="card__body"><table class="table"><tbody>';
+			integ.details.forEach(function (d) {
+				var val = d.mono ? '<code>' + escapeHtml(d.value) + '</code>' : escapeHtml(d.value);
+				html += '<tr><td style="width:35%;font-weight:600">' + escapeHtml(d.label) + '</td><td>' + val + '</td></tr>';
+			});
+			html += '</tbody></table></div></div>';
+		});
+
+		/* ── GBP Form section (kept for action) ── */
+		html += '<div class="card" style="margin-bottom:16px;border:2px solid var(--color-warning,#ff9800)">';
+		html += '<div class="card__header" style="background:var(--color-warning-bg,rgba(255,152,0,0.1))"><h3>📝 ' + t('google.gbpFormTitle') + '</h3></div>';
+		html += '<div class="card__body">';
+		html += '<div class="alert alert--warning" style="margin-bottom:16px"><p>' + t('google.warning') + '</p></div>';
+
+		var formData = [
+			{ field: t('google.field.requestType'), value: 'Solicitud de acceso básico a las APIs' },
+			{ field: 'Project ID', value: 'thor-metal-art' },
+			{ field: 'Project Number', value: '940256671703' },
+			{ field: t('google.field.company'), value: 'Thor Metal Art LLC' },
+			{ field: t('google.field.website'), value: 'https://thormetalart.com' },
+			{ field: t('google.field.email'), value: 'thormetalwork@gmail.com' },
+			{ field: t('google.field.locations'), value: '1' },
+		];
+
+		html += '<table class="table"><thead><tr><th style="width:40%">' + t('google.field.col') + '</th><th>' + t('google.field.valCol') + '</th></tr></thead><tbody>';
+		formData.forEach(function (row) {
+			html += '<tr><td><strong>' + escapeHtml(row.field) + '</strong></td><td><code>' + escapeHtml(row.value) + '</code></td></tr>';
+		});
+		html += '</tbody></table>';
+
+		var description = 'We need API access to display our Google Business Profile information (reviews, ratings, photos, business hours, and contact info) on our custom internal business dashboard. We manage a single verified business location (Thor Metal Art LLC) in Miami, FL. The dashboard is used exclusively by the business owner to monitor online presence, track customer reviews, and analyze KPIs. We do not share or redistribute the data.';
+
+		html += '<p style="margin-top:16px"><strong>' + t('google.copyDesc') + ':</strong></p>';
+		html += '<div class="code-block" style="background:var(--color-surface-alt,#2a2a2a);padding:16px;border-radius:8px;border:1px solid var(--color-border,#444);cursor:pointer;position:relative" id="gbp-desc-copy">';
+		html += '<p style="margin:0;font-style:italic;line-height:1.6">' + escapeHtml(description) + '</p>';
+		html += '<small style="display:block;margin-top:8px;opacity:0.6">👆 Click to copy</small>';
+		html += '</div>';
+
+		html += '<div style="text-align:center;margin:20px 0">';
+		html += '<a href="https://support.google.com/business/contact/api_default?hl=es" target="_blank" rel="noopener" class="btn btn--primary" style="display:inline-block;padding:12px 32px;font-size:1rem">';
+		html += '📝 ' + t('google.openForm') + '</a></div>';
+		html += '</div></div>';
+
+		/* ── Infra/Environment ── */
+		html += '<div class="card" style="margin-bottom:16px">';
+		html += '<div class="card__header"><h3>⚙️ ' + t('google.infra.title') + '</h3></div>';
+		html += '<div class="card__body"><table class="table"><tbody>';
+		var infraItems = [
+			{ label: 'GCP Project', value: 'thor-metal-art (940256671703)', mono: true },
+			{ label: t('google.infra.apisEnabled'), value: '62 APIs' },
+			{ label: t('google.infra.billing'), value: t('google.infra.billingDetail') },
+			{ label: t('google.infra.serviceAccount'), value: 'tma-dashboard@thor-metal-art.iam.gserviceaccount.com', mono: true },
+			{ label: t('google.infra.secretManager'), value: '4 secrets (api-key, ga4-measurement-id, ga4-property-id, oauth-refresh-token)' },
+			{ label: t('google.infra.cronSchedule'), value: t('google.infra.cronDetail') },
+		];
+		infraItems.forEach(function (d) {
+			var val = d.mono ? '<code>' + escapeHtml(d.value) + '</code>' : escapeHtml(d.value);
+			html += '<tr><td style="width:35%;font-weight:600">' + escapeHtml(d.label) + '</td><td>' + val + '</td></tr>';
+		});
+		html += '</tbody></table></div></div>';
+
+		/* ── References ── */
+		var refs = [
+			{ label: 'Google Cloud Console', url: 'https://console.cloud.google.com/home/dashboard?project=thor-metal-art' },
+			{ label: 'GA4 Admin', url: 'https://analytics.google.com/analytics/web/#/a532291061p532291061/admin' },
+			{ label: 'Search Console', url: 'https://search.google.com/search-console?resource_id=sc-domain:thormetalart.com' },
+			{ label: 'GBP API Request Form', url: 'https://support.google.com/business/contact/api_default?hl=es' },
+			{ label: 'GBP API Quotas', url: 'https://console.cloud.google.com/apis/api/mybusinessaccountmanagement.googleapis.com/quotas?project=thor-metal-art' },
+			{ label: 'API Credentials', url: 'https://console.cloud.google.com/apis/credentials?project=thor-metal-art' },
+			{ label: 'Google Business Profile Manager', url: 'https://business.google.com' },
+		];
+
+		html += '<div class="card" style="margin-bottom:16px">';
+		html += '<div class="card__header"><h3>📎 ' + t('google.refs') + '</h3></div>';
+		html += '<div class="card__body"><ul style="list-style:none;padding:0">';
+		refs.forEach(function (ref) {
+			html += '<li style="margin-bottom:8px">🔗 <a href="' + ref.url + '" target="_blank" rel="noopener">' + escapeHtml(ref.label) + '</a></li>';
+		});
+		html += '</ul></div></div>';
+
+		html += '</div>';
+
+		container.innerHTML = html;
+
+		/* ── Copy-to-clipboard ── */
+		var copyBlock = document.getElementById('gbp-desc-copy');
+		if (copyBlock) {
+			copyBlock.addEventListener('click', function () {
+				navigator.clipboard.writeText(description).then(function () {
+					var small = copyBlock.querySelector('small');
+					if (small) {
+						small.textContent = '✅ Copied!';
+						setTimeout(function () { small.textContent = '👆 Click to copy'; }, 2000);
+					}
+				});
+			});
 		}
 	}
 

@@ -10,6 +10,84 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
+ * Resolve current language code (en|es) with TranslatePress fallback.
+ *
+ * @return string
+ */
+if ( ! function_exists( 'tma_get_current_language_code' ) ) {
+function tma_get_current_language_code() {
+	if ( function_exists( 'trp_get_current_language' ) ) {
+		$current = (string) trp_get_current_language();
+		if ( 0 === strpos( strtolower( $current ), 'es' ) ) {
+			return 'es';
+		}
+		return 'en';
+	}
+
+	$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? (string) wp_unslash( $_SERVER['REQUEST_URI'] ) : '/';
+	$request_uri = strtolower( $request_uri );
+
+	if ( '/es' === $request_uri || 0 === strpos( $request_uri, '/es/' ) ) {
+		return 'es';
+	}
+
+	return 'en';
+}
+}
+
+/**
+ * Translate portfolio UI labels to Spanish when current language is ES.
+ *
+ * @param string $text English source text.
+ * @return string
+ */
+function tma_translate_portfolio_ui_label( $text ) {
+	if ( 'es' !== tma_get_current_language_code() ) {
+		return $text;
+	}
+
+	$map = array(
+		'Home'                                           => 'Inicio',
+		'Portfolio'                                      => 'Portafolio',
+		'All'                                            => 'Todos',
+		'Location:'                                      => 'Ubicacion:',
+		'Year:'                                          => 'Ano:',
+		'Material:'                                      => 'Material:',
+		'Our Work'                                       => 'Nuestro Trabajo',
+		'Every piece is custom. Every project is unique.' => 'Cada pieza es personalizada. Cada proyecto es unico.',
+		'Portfolio coming soon. Contact us to see examples of our work.' => 'Portafolio en camino. Contactanos para ver ejemplos de nuestro trabajo.',
+		'Request a Quote'                                => 'Solicitar Cotizacion',
+		'Back to Portfolio'                              => 'Volver al Portafolio',
+		'No projects found in this category yet.'        => 'No se encontraron proyectos en esta categoria.',
+	);
+
+	return isset( $map[ $text ] ) ? $map[ $text ] : $text;
+}
+
+/**
+ * Translate project type names on ES pages.
+ *
+ * @param string $name English term name.
+ * @return string
+ */
+function tma_translate_project_type_name( $name ) {
+	if ( 'es' !== tma_get_current_language_code() ) {
+		return $name;
+	}
+
+	$map = array(
+		'Art'       => 'Arte',
+		'Gates'     => 'Portones',
+		'Railings'  => 'Barandas',
+		'Fences'    => 'Cercas',
+		'Furniture' => 'Muebles',
+		'Stairs'    => 'Escaleras',
+	);
+
+	return isset( $map[ $name ] ) ? $map[ $name ] : $name;
+}
+
+/**
  * Register navigation menu locations.
  */
 function tma_register_nav_menus() {
@@ -173,19 +251,19 @@ function tma_shortcode_breadcrumbs() {
 	}
 
 	$items   = array();
-	$items[] = sprintf( '<a href="%s">%s</a>', esc_url( home_url( '/' ) ), esc_html__( 'Home', 'thormetalart' ) );
+	$items[] = sprintf( '<a href="%s">%s</a>', esc_url( home_url( '/' ) ), esc_html( tma_translate_portfolio_ui_label( 'Home' ) ) );
 
 	if ( is_post_type_archive( 'tma_portfolio' ) ) {
-		$items[] = '<span class="current-item">' . esc_html__( 'Portfolio', 'thormetalart' ) . '</span>';
+		$items[] = '<span class="current-item">' . esc_html( tma_translate_portfolio_ui_label( 'Portfolio' ) ) . '</span>';
 	} elseif ( is_singular( 'tma_portfolio' ) ) {
-		$items[] = sprintf( '<a href="%s">%s</a>', esc_url( get_post_type_archive_link( 'tma_portfolio' ) ), esc_html__( 'Portfolio', 'thormetalart' ) );
+		$items[] = sprintf( '<a href="%s">%s</a>', esc_url( get_post_type_archive_link( 'tma_portfolio' ) ), esc_html( tma_translate_portfolio_ui_label( 'Portfolio' ) ) );
 		$items[] = '<span class="current-item">' . esc_html( get_the_title() ) . '</span>';
 	} elseif ( is_page() ) {
 		$items[] = '<span class="current-item">' . esc_html( get_the_title() ) . '</span>';
 	} elseif ( is_tax( 'tma_project_type' ) ) {
 		$term    = get_queried_object();
-		$items[] = sprintf( '<a href="%s">%s</a>', esc_url( get_post_type_archive_link( 'tma_portfolio' ) ), esc_html__( 'Portfolio', 'thormetalart' ) );
-		$items[] = '<span class="current-item">' . esc_html( $term->name ) . '</span>';
+		$items[] = sprintf( '<a href="%s">%s</a>', esc_url( get_post_type_archive_link( 'tma_portfolio' ) ), esc_html( tma_translate_portfolio_ui_label( 'Portfolio' ) ) );
+		$items[] = '<span class="current-item">' . esc_html( tma_translate_project_type_name( $term->name ) ) . '</span>';
 	}
 
 	return '<nav class="tma-breadcrumbs" aria-label="Breadcrumb">' . implode( ' &gt; ', $items ) . '</nav>';
@@ -209,13 +287,13 @@ function tma_shortcode_portfolio_meta() {
 
 	$items = array();
 	if ( $location ) {
-		$items[] = '<strong>' . esc_html__( 'Location:', 'thormetalart' ) . '</strong> ' . esc_html( $location );
+		$items[] = '<strong>' . esc_html( tma_translate_portfolio_ui_label( 'Location:' ) ) . '</strong> ' . esc_html( $location );
 	}
 	if ( $year ) {
-		$items[] = '<strong>' . esc_html__( 'Year:', 'thormetalart' ) . '</strong> ' . esc_html( $year );
+		$items[] = '<strong>' . esc_html( tma_translate_portfolio_ui_label( 'Year:' ) ) . '</strong> ' . esc_html( $year );
 	}
 	if ( $material ) {
-		$items[] = '<strong>' . esc_html__( 'Material:', 'thormetalart' ) . '</strong> ' . esc_html( $material );
+		$items[] = '<strong>' . esc_html( tma_translate_portfolio_ui_label( 'Material:' ) ) . '</strong> ' . esc_html( $material );
 	}
 
 	if ( empty( $items ) ) {
@@ -245,14 +323,14 @@ function tma_shortcode_portfolio_filters() {
 
 	$current = get_query_var( 'tma_project_type' );
 	$out     = '<div class="tma-portfolio-filters">';
-	$out    .= sprintf( '<a class="%s" href="%s">%s</a>', empty( $current ) ? 'active' : '', esc_url( get_post_type_archive_link( 'tma_portfolio' ) ), esc_html__( 'All', 'thormetalart' ) );
+	$out    .= sprintf( '<a class="%s" href="%s">%s</a>', empty( $current ) ? 'active' : '', esc_url( get_post_type_archive_link( 'tma_portfolio' ) ), esc_html( tma_translate_portfolio_ui_label( 'All' ) ) );
 
 	foreach ( $terms as $term ) {
 		$out .= sprintf(
 			'<a class="%s" href="%s">%s</a>',
 			$current === $term->slug ? 'active' : '',
 			esc_url( get_term_link( $term ) ),
-			esc_html( $term->name )
+			esc_html( tma_translate_project_type_name( $term->name ) )
 		);
 	}
 
@@ -260,6 +338,83 @@ function tma_shortcode_portfolio_filters() {
 	return $out;
 }
 add_shortcode( 'tma_portfolio_filters', 'tma_shortcode_portfolio_filters' );
+
+/**
+ * Keep project type names translated in frontend term output.
+ *
+ * @param string       $name Term name.
+ * @param WP_Term|null $term Term object.
+ * @return string
+ */
+function tma_filter_project_type_term_name( $name, $term ) {
+	if ( is_admin() ) {
+		return $name;
+	}
+
+	if ( ! is_object( $term ) || ! isset( $term->taxonomy ) || 'tma_project_type' !== $term->taxonomy ) {
+		return $name;
+	}
+
+	return tma_translate_project_type_name( $name );
+}
+add_filter( 'term_name', 'tma_filter_project_type_term_name', 10, 2 );
+
+/**
+ * Render small EN/ES i18n strings for block templates.
+ *
+ * @param array<string, string> $atts Shortcode attributes.
+ * @return string
+ */
+function tma_shortcode_i18n( $atts ) {
+	$atts = shortcode_atts(
+		array(
+			'key' => '',
+		),
+		$atts,
+		'tma_i18n'
+	);
+
+	$key  = sanitize_text_field( (string) $atts['key'] );
+	$lang = tma_get_current_language_code();
+
+	$map = array(
+		'our_work' => array(
+			'en' => 'Our Work',
+			'es' => 'Nuestro Trabajo',
+		),
+		'portfolio_archive_subtitle' => array(
+			'en' => 'Every piece is custom. Every project is unique.',
+			'es' => 'Cada pieza es personalizada. Cada proyecto es unico.',
+		),
+		'portfolio_empty_state' => array(
+			'en' => 'Portfolio coming soon. Contact us to see examples of our work.',
+			'es' => 'Portafolio en camino. Contactanos para ver ejemplos de nuestro trabajo.',
+		),
+		'request_quote' => array(
+			'en' => 'Request a Quote',
+			'es' => 'Solicitar Cotizacion',
+		),
+		'back_to_portfolio' => array(
+			'en' => 'Back to Portfolio',
+			'es' => 'Volver al Portafolio',
+		),
+		'portfolio_tax_empty' => array(
+			'en' => 'No projects found in this category yet.',
+			'es' => 'No se encontraron proyectos en esta categoria.',
+		),
+	);
+
+	if ( ! isset( $map[ $key ] ) ) {
+		return '';
+	}
+
+	if ( isset( $map[ $key ][ $lang ] ) ) {
+		return esc_html( $map[ $key ][ $lang ] );
+	}
+
+	return esc_html( $map[ $key ]['en'] );
+}
+add_shortcode( 'tma_i18n', 'tma_shortcode_i18n' );
 
 /**
  * Sync selected pages into menus on publish.

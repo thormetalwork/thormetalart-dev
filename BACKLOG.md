@@ -101,7 +101,7 @@
       When extraigo CSS a dashboard/css/styles.css
       Then el dashboard se ve idéntico
       And el CSS se cachea correctamente en el browser
-    
+
     Scenario: JS extraído a archivo externo
       Given dashboard/index.html tiene scripts inline
       When extraigo JS a dashboard/js/app.js
@@ -252,7 +252,7 @@
       Given WordPress instalado
       When hago POST a xmlrpc.php
       Then recibo 403 Forbidden
-    
+
     Scenario: REST API restringida
       Given usuario no autenticado
       When pido /wp-json/wp/v2/users
@@ -2037,9 +2037,516 @@
 
 ---
 
-## 📊 Resumen
+## � FASE 18 — Google Ecosystem: Integración Real de APIs
 
-| Fase | Total | ✅ | ⏸️ | 🔄 | Progreso |
+> **Contexto:** GCP Project `thor-metal-art` (940256671703). OAuth2 brand verificada (APPROVED).
+> OAuth2 scopes: business.manage, analytics.readonly, webmasters.readonly.
+> **Última actualización:** 2026-04-09
+
+- [x] **TICKET-DASH-009: Integración real GA4 Data API + Search Console API**
+  - **Fuente:** Auditoría del dashboard — 100% datos mock, 0 llamadas API reales
+  - **Historia de Usuario:** Como administrador, quiero que el cron del panel haga llamadas reales a GA4 y Search Console para tener KPIs actualizados sin datos ficticios.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: OAuth2 token refresh funcional
+      Given credenciales OAuth2 configuradas en .env
+      When el cron ejecuta sync_all_sources()
+      Then obtiene access token de Google (cacheado en transient 55 min)
+
+    Scenario: GA4 Data API retorna métricas reales
+      Given GA4 property 532291061 configurada
+      When el cron sincroniza fuente "ga4"
+      Then inserta/actualiza sessions, users, pageviews, bounce_rate, conversions, top_pages
+
+    Scenario: Search Console API retorna métricas reales
+      Given GSC site sc-domain:thormetalart.com verificado
+      When el cron sincroniza fuente "gsc"
+      Then inserta/actualiza clicks, impressions, ctr, avg_position, top_queries, top_pages
+
+    Scenario: UPSERT evita duplicados
+      Given ya existe un KPI para el período actual
+      When el cron ejecuta de nuevo
+      Then actualiza el valor existente en vez de crear duplicado
+    ```
+  - **Archivos:**
+    - `data/wordpress/wp-content/plugins/tma-panel/includes/class-tma-panel-google-auth.php` (NEW)
+    - `data/wordpress/wp-content/plugins/tma-panel/includes/class-tma-panel-cron.php` (MODIFIED)
+    - `data/wordpress/wp-content/plugins/tma-panel/tma-panel.php` (MODIFIED)
+    - `docker-compose.yml` (MODIFIED — env vars)
+    - `data/wordpress/wp-config.php` (MODIFIED — constants)
+    - `.env` / `.env.example` (MODIFIED — OAuth2 + GSC vars)
+  - **Dependencias:** Ninguna
+  - **Estimación:** 4 horas
+  - **Prioridad:** P1
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2026-04-09
+
+- [x] **TICKET-INF-001: Fix MCP MySQL y Redis (VS Code Copilot)**
+  - **Fuente:** MCPs no conectaban — VS Code no resuelve ${VAR} de shell
+  - **Historia de Usuario:** Como desarrollador, quiero que los MCPs de MySQL y Redis funcionen desde VS Code para consultar datos directamente.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: MCP MySQL conecta
+      Given mcp.json con valores literales
+      When VS Code carga los MCPs
+      Then MySQL MCP conecta a 127.0.0.1:3311
+
+    Scenario: MCP Redis conecta
+      Given mcp.json con password literal en URL
+      When VS Code carga los MCPs
+      Then Redis MCP conecta a localhost:6379 con auth
+    ```
+  - **Archivos:**
+    - `.vscode/mcp.json` (MODIFIED)
+  - **Dependencias:** Ninguna
+  - **Estimación:** 30 min
+  - **Prioridad:** P1
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2026-04-09
+
+- [x] **TICKET-INF-002: Eliminar stack thormetalart-src obsoleto**
+  - **Fuente:** Auditoría de servidor — stack inactivo con container names duplicados
+  - **Historia de Usuario:** Como administrador, quiero eliminar el stack obsoleto para evitar conflictos y confusión.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: Stack archivado y eliminado
+      Given thormetalart-src en /srv/stacks/
+      When archivo a tar.gz y elimino
+      Then /srv/stacks/ solo tiene traefik, dev, prod
+      And backup en /srv/backups/thormetalart-src-archive-20260409.tar.gz
+    ```
+  - **Archivos:**
+    - `/srv/stacks/thormetalart-src/` (DELETED)
+  - **Dependencias:** Ninguna
+  - **Estimación:** 15 min
+  - **Prioridad:** P2
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2026-04-09
+
+- [x] **TICKET-DASH-010: Sección Google Setup en panel (admin-only)**
+  - **Fuente:** Necesidad de documentar configuración GBP para cliente/admin
+  - **Historia de Usuario:** Como admin, quiero una sección en el panel con los datos del formulario GBP API para poder completar la solicitud.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: Sección visible solo para admin
+      Given usuario con rol tma_admin
+      When navego al panel
+      Then veo enlace "Google Setup" en el sidebar
+      And la sección muestra datos del formulario, links de referencia, checklist
+
+    Scenario: Sección oculta para cliente
+      Given usuario con rol tma_client
+      When navego al panel
+      Then NO veo "Google Setup" en el sidebar
+    ```
+  - **Archivos:**
+    - `data/wordpress/wp-content/plugins/tma-panel/templates/panel.php` (MODIFIED)
+    - `data/wordpress/wp-content/plugins/tma-panel/assets/js/panel.js` (MODIFIED)
+    - `data/wordpress/wp-content/plugins/tma-panel/assets/js/i18n.js` (MODIFIED)
+  - **Dependencias:** Ninguna
+  - **Estimación:** 2 horas
+  - **Prioridad:** P2
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2026-04-09
+
+- [ ] **TICKET-SEO-007: Google Business Profile API — integración real**
+  - **Fuente:** GBP API quota = 0, formulario de solicitud enviado
+  - **Historia de Usuario:** Como administrador, quiero datos reales de GBP (reseñas, impressions, actions) en el dashboard para monitorear la presencia local.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: GBP data en dashboard
+      Given GBP API quota aprobada por Google
+      When el cron sincroniza fuente "gbp"
+      Then inserta reviews, impressions, actions reales desde GBP API
+    ```
+  - **Archivos:**
+    - `data/wordpress/wp-content/plugins/tma-panel/includes/class-tma-panel-cron.php` (MODIFIED)
+    - `.env` (MODIFIED — GBP_ACCOUNT_ID, GBP_LOCATION_ID)
+  - **Dependencias:** Aprobación de quota de Google (formulario enviado)
+  - **Estimación:** 3 horas
+  - **Prioridad:** P1
+  - **Status:** 🚫 BLOQUEADO
+  - **Bloqueador:** Esperando aprobación de quota de Google Business Profile API
+
+- [ ] **TICKET-DASH-011: Instagram Graph API — integración real**
+  - **Fuente:** Dashboard muestra placeholder para Instagram
+  - **Historia de Usuario:** Como administrador, quiero datos reales de Instagram (followers, reach, engagement) en el dashboard.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: Instagram data en dashboard
+      Given Facebook App configurada con IG Business Account
+      When el cron sincroniza fuente "instagram"
+      Then inserta followers, reach, engagement_rate reales
+    ```
+  - **Archivos:**
+    - `data/wordpress/wp-content/plugins/tma-panel/includes/class-tma-panel-cron.php` (MODIFIED)
+    - `.env` (MODIFIED — IG_ACCESS_TOKEN, IG_BUSINESS_ACCOUNT_ID)
+  - **Dependencias:** Crear Facebook App + conectar cuenta IG business
+  - **Estimación:** 4 horas
+  - **Prioridad:** P2
+  - **Status:** 🚫 BLOQUEADO
+  - **Bloqueador:** Requiere creación de Facebook Developer App + vincular cuenta IG business
+
+- [ ] **TICKET-WP-020: Google Maps embed real en página de contacto**
+  - **Fuente:** TICKET-WP-019 completado con placeholder, API key ya disponible
+  - **Historia de Usuario:** Como visitante, quiero ver la ubicación de Thor Metal Art en un mapa interactivo en la página de contacto.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: Mapa Google Maps visible
+      Given API key de Google Maps configurada
+      When cargo /contact/
+      Then veo mapa embebido con ubicación de Thor Metal Art
+      And mapa es responsive y tiene lazy loading
+
+    Scenario: Marker en ubicación correcta
+      Given coordenadas de Miami-Dade
+      When veo el mapa
+      Then marker en dirección de Thor Metal Art
+    ```
+  - **Archivos:**
+    - `data/wordpress/wp-content/themes/theme-tma/parts/contact-map.html` (NEW o MODIFIED)
+    - O `data/wordpress/wp-content/mu-plugins/tma-service-pages.php` (MODIFIED)
+  - **Dependencias:** Ninguna — API key ya existe y está restringida
+  - **Estimación:** 1 hora
+  - **Prioridad:** P2
+  - **Status:** ⏸️ PENDIENTE
+
+---
+
+## � FASE 19 — Website V1: Contenido Visual Real (Google Drive → WordPress)
+
+> **Fuente:** Auditoría de 80 fotos en Google Drive (carpeta Thor Metal Art/Fotos Init) + análisis de placeholders en el sitio web.
+> **Objetivo:** Descargar, procesar y subir imágenes reales del cliente al sitio web, reemplazando los gradientes placeholder en hero, about section, portfolio y CTA. Crear proyectos de portfolio con contenido fotográfico real.
+> **Nota:** Las fotos fueron proporcionadas por Karel Frometa vía Google Drive. Incluyen fotos de taller, proceso de fabricación, piezas artísticas y escultura del fénix. Resoluciones van desde 1366px hasta 8256px.
+
+- [x] **TICKET-WP-021: Descargar y procesar imágenes de Google Drive para web**
+  - **Fuente:** Auditoría de Google Drive — 80 fotos en Thor Metal Art/Fotos Init
+  - **Historia de Usuario:** Como desarrollador, quiero descargar las mejores fotos del Google Drive de Karel y procesarlas (resize, compresión, WebP) para tener imágenes optimizadas listas para el sitio web.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: Imágenes descargadas desde Google Drive
+      Given 80 fotos disponibles en Google Drive
+      When selecciono las 15-20 mejores según la propuesta
+      Then se descargan a un directorio temporal local
+
+    Scenario: Imágenes procesadas para web
+      Given imágenes originales descargadas (hasta 8256px, 23MB)
+      When proceso las imágenes
+      Then max width 1920px, calidad JPEG 85%, formato JPG
+      And cada imagen pesa menos de 500KB
+      And nombres de archivo limpios con slugs descriptivos
+
+    Scenario: Imágenes copiadas a uploads de WordPress
+      Given imágenes procesadas
+      When las copio al directorio de uploads
+      Then están en data/wordpress/wp-content/uploads/2026/04/
+      And organizadas por propósito (hero, about, portfolio, process)
+    ```
+  - **Archivos:**
+    - `data/wordpress/wp-content/uploads/2026/04/` (NEW — imágenes procesadas)
+  - **Dependencias:** Ninguna
+  - **Estimación:** 2 horas
+  - **Prioridad:** P0
+  - **Status:** ✅ COMPLETADO
+
+- [x] **TICKET-WP-022: Imagen hero real en homepage — reemplazar gradiente placeholder**
+  - **Fuente:** front-page.html hero section con gradiente CSS como placeholder
+  - **Historia de Usuario:** Como visitante, quiero ver una imagen impactante de metalwork real en el hero de la homepage para sentir inmediatamente la calidad y carácter artesanal de Thor Metal Art.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: Hero con imagen de fondo real
+      Given imagen "foto expectacular" procesada y subida
+      When cargo la homepage
+      Then el wp:cover block muestra imagen de Karel inspeccionando panel decorativo
+      And overlay oscuro al 60% mantiene legibilidad del texto
+      And la imagen tiene loading="eager" (LCP element)
+
+    Scenario: Texto hero legible sobre imagen
+      Given hero con imagen de fondo
+      When veo el texto
+      Then H1 "Custom Metal Fabrication & Art in Miami" es legible en blanco
+      And botones CTA visibles y contrastados
+
+    Scenario: Responsive en mobile
+      Given hero visible en viewport < 768px
+      When veo la sección
+      Then la imagen se adapta sin distorsión (object-fit: cover)
+      And la altura mínima se mantiene
+    ```
+  - **Archivos:**
+    - `data/wordpress/wp-content/themes/thormetalart/templates/front-page.html` (MODIFIED — agregar url al wp:cover)
+  - **Dependencias:** TICKET-WP-021
+  - **Estimación:** 30 minutos
+  - **Prioridad:** P0
+  - **Status:** ✅ COMPLETADO
+
+- [x] **TICKET-WP-023: Imagen real en About section — reemplazar placeholder**
+  - **Fuente:** front-page.html about section con div.tma-image-placeholder
+  - **Historia de Usuario:** Como visitante, quiero ver una foto real de Karel en su taller en la sección About para conectar con la persona detrás de Thor Metal Art.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: About section con imagen real
+      Given imagen "karel foto taller" procesada y subida
+      When cargo la homepage y navego a la sección About
+      Then veo foto de Karel en el taller con panel decorativo de fondo
+      And imagen tiene border-radius y estilo consistente con el tema
+      And alt text descriptivo para SEO y accesibilidad
+
+    Scenario: Layout 58/42 mantenido
+      Given imagen insertada en columna del 42%
+      When veo en desktop
+      Then la imagen ocupa el ancho de la columna sin overflow
+      And se mantiene el verticalAlignment center con el texto de la izquierda
+
+    Scenario: Responsive en mobile
+      Given viewport < 768px
+      When veo la sección About
+      Then la imagen se muestra debajo del texto a ancho completo
+    ```
+  - **Archivos:**
+    - `data/wordpress/wp-content/themes/thormetalart/templates/front-page.html` (MODIFIED — reemplazar placeholder)
+    - `data/wordpress/wp-content/themes/thormetalart/style.css` (MODIFIED — remover o adaptar .tma-image-placeholder)
+  - **Dependencias:** TICKET-WP-021
+  - **Estimación:** 30 minutos
+  - **Prioridad:** P0
+  - **Status:** ✅ COMPLETADO
+
+- [x] **TICKET-WP-024: Crear 6 proyectos de Portfolio con imágenes reales**
+  - **Fuente:** CPT tma_portfolio existente + fotos de Google Drive
+  - **Historia de Usuario:** Como Karel, quiero que mi portafolio muestre proyectos reales con fotos de alta calidad para que los clientes vean la calidad y diversidad de mi trabajo.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: 6 proyectos creados con metadata completa
+      Given imágenes procesadas y subidas a WordPress
+      When creo los 6 proyectos vía WP-CLI o base de datos directa
+      Then cada proyecto tiene: título, excerpt, featured image, taxonomía, meta fields (location, year, material)
+
+    Scenario: Proyectos distribuidos por categoría
+      Given 6 proyectos creados
+      When verifico las categorías
+      Then distribución: Art (2), fabricación/proceso (2), stainless steel (1), forja artística (1)
+
+    Scenario: Portfolio grid visible en homepage
+      Given proyectos creados con featured images
+      When cargo la homepage sección "Recent Work"
+      Then muestra los 3 proyectos más recientes con imagen, título y excerpt
+      And no muestra el mensaje "Portfolio coming soon"
+
+    Scenario: Archive portfolio funcional
+      Given proyectos creados
+      When navego a /portfolio/
+      Then grid de 3 columnas muestra los 6 proyectos con featured images
+      And filtros por tipo funcionan
+    ```
+  - **Proyectos propuestos:**
+    - Escultura Fénix (Art) — fenix-grafiti-al-fondo.jpg
+    - Panel Decorativo Water Jet (Art) — plancha-cortada.jpg
+    - Pieza Artística Forjada (Art) — pieza-artistica-torqueada.jpg
+    - Piezas Stainless Steel (Fabrication) — pieza-stainless-steel.jpg
+    - Cuchilla Artesanal (Art) — detalles-de-cuchilla.jpg
+    - Trabajo de Soldadura TIG (Fabrication) — soldadura-tig-de-frente.jpg
+  - **Archivos:**
+    - Base de datos: tablas `tma_posts`, `tma_postmeta`, `tma_term_relationships` (INSERT)
+    - `data/wordpress/wp-content/uploads/2026/04/` (NEW — featured images)
+  - **Dependencias:** TICKET-WP-021, TICKET-WP-003 (CPT existente), TICKET-WP-012 (templates)
+  - **Estimación:** 2 horas
+  - **Prioridad:** P0
+  - **Status:** ✅ COMPLETADO
+
+- [x] **TICKET-WP-025: Imagen de fondo en CTA final de homepage**
+  - **Fuente:** front-page.html sección CTA final con gradiente CSS
+  - **Historia de Usuario:** Como visitante, quiero ver una imagen de fondo dramática en el CTA final de la homepage para sentir urgencia y motivación para contactar.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: CTA final con imagen de fondo
+      Given imagen "buena foto soldando" procesada y subida
+      When cargo la homepage y navego al CTA final
+      Then veo imagen de soldadura como fondo con overlay oscuro
+      And texto "Ready to Start Your Project?" legible en blanco
+      And botones CTA visibles
+
+    Scenario: Gradiente como fallback
+      Given imagen CTA definida
+      When la imagen no carga por algún motivo
+      Then se muestra el gradiente oscuro anterior como fallback
+    ```
+  - **Archivos:**
+    - `data/wordpress/wp-content/themes/thormetalart/templates/front-page.html` (MODIFIED — CTA con wp:cover + imagen)
+    - `data/wordpress/wp-content/themes/thormetalart/style.css` (MODIFIED — ajustar .tma-final-cta)
+  - **Dependencias:** TICKET-WP-021
+  - **Estimación:** 30 minutos
+  - **Prioridad:** P1
+  - **Status:** ✅ COMPLETADO
+
+---
+
+## 🔥 FASE 20 — Website V1: Cobertura Visual Completa + Deployment
+
+> **Fuente:** Auditoría post-FASE 19 (servicios, plantillas secundarias, portfolio legacy sin featured images).
+> **Objetivo:** Completar cobertura visual en todo el sitio (no solo homepage), eliminar placeholders restantes, migrar contenido legacy y desplegar en producción.
+
+- [x] **TICKET-WP-026: Hero covers reales para todas las páginas de servicios**
+  - **Fuente:** `tma-service-pages.php` usa `tma-service-hero-fallback` sin imagen real.
+  - **Historia de Usuario:** Como visitante, quiero ver hero images reales en cada servicio para entender calidad y estilo de Thor Metal Art desde el primer scroll.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: Servicio con hero real
+      Given páginas de servicios generadas
+      When abro cualquier URL de servicio
+      Then veo un bloque wp:cover con imagen real y overlay legible
+
+    Scenario: Regeneración automática
+      Given páginas ya creadas con versión anterior
+      When se ejecuta el provisioner
+      Then se actualizan automáticamente al nuevo contenido visual
+    ```
+  - **Archivos:**
+    - `data/wordpress/wp-content/mu-plugins/tma-service-pages.php` (MODIFIED)
+    - `data/wordpress/wp-content/themes/thormetalart/style.css` (MODIFIED)
+  - **Dependencias:** TICKET-WP-021
+  - **Estimación:** 2 horas
+  - **Prioridad:** P0
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2026-04-20
+  - **Notas de cierre:** Se reemplazó fallback por `wp:cover` con imágenes reales por servicio y se versionó el provisioner a `v2` para actualizar páginas generadas existentes.
+
+- [x] **TICKET-WP-027: Art Commissions + How We Work con galerías reales**
+  - **Fuente:** páginas core con placeholder o texto sin apoyo visual.
+  - **Historia de Usuario:** Como cliente potencial, quiero ver evidencia visual del proceso y trabajo artístico para aumentar confianza antes de contactar.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: Art Commissions con imágenes reales
+      Given página /art-commissions/
+      When cargo la página
+      Then veo hero con imagen real y galería de piezas artísticas
+
+    Scenario: How We Work con proceso visual
+      Given página /how-we-work/
+      When cargo la página
+      Then veo hero y galería del proceso (corte, doblado, máquina, pulido)
+    ```
+  - **Archivos:**
+    - `data/wordpress/wp-content/mu-plugins/tma-service-pages.php` (MODIFIED)
+  - **Dependencias:** TICKET-WP-021
+  - **Estimación:** 1.5 horas
+  - **Prioridad:** P0
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2026-04-20
+  - **Notas de cierre:** Ambas páginas core ahora incluyen hero visual y galerías reales usando assets procesados en `/uploads/2026/04/`.
+
+- [x] **TICKET-WP-028: Backfill de featured images para portfolio legacy**
+  - **Fuente:** 12 posts `tma_portfolio` (IDs 32-43) sin `_thumbnail_id`.
+  - **Historia de Usuario:** Como visitante, quiero ver todas las tarjetas de portfolio con imágenes para poder evaluar trabajos rápidamente.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: Legacy portfolio con thumbnails
+      Given posts legacy sin featured image
+      When corre la migración one-time
+      Then cada post publicado tiene `_thumbnail_id` asignado
+
+    Scenario: Migración idempotente
+      Given migración ejecutada una vez
+      When vuelve a correr init
+      Then no repite trabajo ni altera thumbnails ya asignados
+    ```
+  - **Archivos:**
+    - `data/wordpress/wp-content/mu-plugins/tma-service-pages.php` (MODIFIED)
+  - **Dependencias:** TICKET-WP-021, TICKET-WP-024
+  - **Estimación:** 1 hora
+  - **Prioridad:** P0
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2026-04-20
+  - **Notas de cierre:** Se implementó migración one-time idempotente en `init` para asignar `_thumbnail_id` a portfolios legacy sin imagen; verificado en DEV/PROD con conteo en 0 faltantes.
+
+- [x] **TICKET-WP-029: Plantillas secundarias sin placeholders (home/index/page/contact)**
+  - **Fuente:** placeholders aún presentes en templates secundarios del tema.
+  - **Historia de Usuario:** Como visitante, quiero consistencia visual en todas las rutas para percibir una marca profesional y confiable.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: home/index sin placeholders
+      Given templates home e index
+      When se renderizan
+      Then muestran imágenes reales en la sección About
+
+    Scenario: page template con featured image
+      Given una página con imagen destacada
+      When se renderiza con page.html
+      Then muestra post-featured-image sobre el contenido
+
+    Scenario: contact con apoyo visual
+      Given página /contact/
+      When la veo
+      Then incluye imagen del taller además del mapa
+    ```
+  - **Archivos:**
+    - `data/wordpress/wp-content/themes/thormetalart/templates/home.html` (MODIFIED)
+    - `data/wordpress/wp-content/themes/thormetalart/templates/index.html` (MODIFIED)
+    - `data/wordpress/wp-content/themes/thormetalart/templates/page.html` (MODIFIED)
+    - `data/wordpress/wp-content/themes/thormetalart/templates/page-contact.html` (MODIFIED)
+    - `data/wordpress/wp-content/themes/thormetalart/style.css` (MODIFIED)
+  - **Dependencias:** TICKET-WP-021
+  - **Estimación:** 1.5 horas
+  - **Prioridad:** P1
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2026-04-20
+  - **Notas de cierre:** Se removieron placeholders de `home.html` e `index.html`, se agregó `post-featured-image` en `page.html` y visual de taller en `page-contact.html`.
+
+- [x] **TICKET-WP-030: Validación end-to-end visual en DEV**
+  - **Fuente:** cambios en plugin + templates + contenido generado.
+  - **Historia de Usuario:** Como desarrollador, quiero validar técnicamente que el sitio renderiza imágenes correctamente en todas las páginas objetivo antes de desplegar.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: Verificación técnica DEV
+      Given cambios aplicados
+      When ejecuto checks HTTP y consultas DB
+      Then páginas clave responden 200
+      And no quedan portfolios publicados sin `_thumbnail_id`
+      And contenido generado incluye bloques visuales esperados
+    ```
+  - **Archivos:**
+    - `BACKLOG.md` (MODIFIED)
+  - **Dependencias:** TICKET-WP-026, TICKET-WP-027, TICKET-WP-028, TICKET-WP-029
+  - **Estimación:** 1 hora
+  - **Prioridad:** P0
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2026-04-20
+  - **Notas de cierre:** Validación técnica realizada: sintaxis PHP OK, rutas clave con HTTP 200, páginas objetivo con `wp:cover`, y portfolios publish sin faltantes de thumbnail.
+
+- [x] **TICKET-WP-031: Deployment a PROD + verificación post-deploy**
+  - **Fuente:** solicitud de despliegue inmediato luego de completar correcciones visuales.
+  - **Historia de Usuario:** Como dueño del negocio, quiero que la mejora visual completa esté en producción para mostrar portafolio real y servicios con imágenes a clientes finales.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: Deploy de archivos visuales
+      Given cambios validados en DEV
+      When sincronizo archivos a PROD
+      Then PROD contiene plugin y templates actualizados
+
+    Scenario: Verificación funcional en PROD
+      Given deploy realizado
+      When consulto URLs e imágenes clave
+      Then homepage, servicios y portfolio responden correctamente
+    ```
+  - **Archivos:**
+    - `data/wordpress/wp-content/mu-plugins/tma-service-pages.php` (MODIFIED)
+    - `data/wordpress/wp-content/themes/thormetalart/templates/page.html` (MODIFIED)
+    - `data/wordpress/wp-content/themes/thormetalart/templates/page-contact.html` (MODIFIED)
+    - `data/wordpress/wp-content/themes/thormetalart/templates/home.html` (MODIFIED)
+    - `data/wordpress/wp-content/themes/thormetalart/templates/index.html` (MODIFIED)
+    - `data/wordpress/wp-content/themes/thormetalart/style.css` (MODIFIED)
+  - **Dependencias:** TICKET-WP-030
+  - **Estimación:** 1.5 horas
+  - **Prioridad:** P0
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2026-04-20
+  - **Notas de cierre:** Deploy manual DEV→PROD realizado para plugin, templates, estilos y backlog. Checksums iguales, URLs PROD en 200 y verificación DB de covers/thumbnails en PASS.
+  - **Post-deploy addendum (2026-04-21):** Se detectaron gaps en la DB de PROD: 0 attachments en media library, 6 portfolios nuevos faltantes, y 18 portfolios sin asignaciones de taxonomía. Se ejecutó migración WP-CLI: (1) 20 imágenes registradas en media library (IDs 68–87), (2) 6 portfolios nuevos creados con featured images y meta fields (IDs 88–93), (3) taxonomía `tma_project_type` asignada a los 18 portfolios vía `wp post term set`, (4) 12 portfolios legacy con featured images asignadas (compartidas de los 6 portfolios reales). Estado final: `portfolio publicados=18`, `con featured image=18`, `con categoría=18`, `attachments=20`, `portfolio/ HTTP 200`.
+
+---
+
+## �📊 Resumen
+
+| Fase | Total | ✅ | ⏸️ | 🚫 | Progreso |
 |------|-------|----|-----|-----|----------|
 | 1 — Infraestructura | 3 | 3 | 0 | 0 | 100% |
 | 2 — Dashboard | 3 | 3 | 0 | 0 | 100% |
@@ -2049,13 +2556,16 @@
 | 6 — Leads/CRM | 1 | 1 | 0 | 0 | 100% |
 | 7 — Portal Docs | 4 | 4 | 0 | 0 | 100% |
 | 8 — TMA Panel Base | 10 | 10 | 0 | 0 | 100% |
-| 9 — Dashboard Datos Reales | 5 | 5 | 0 | 0 | 100% |
+| 9 — Dashboard Datos Reales | 7 | 5 | 0 | 2 | 71% |
 | 10 — Portal Integrado | 3 | 3 | 0 | 0 | 100% |
 | 11 — Leads Dinámico | 3 | 3 | 0 | 0 | 100% |
 | 12 — Cleanup Docker | 1 | 1 | 0 | 0 | 100% |
 | 13 — UI/UX Polish | 4 | 4 | 0 | 0 | 100% |
 | 14 — Bug Fixes & Doc UX | 1 | 1 | 0 | 0 | 100% |
-| **15 — Website V1: Templates** | **10** | **10** | **0** | **0** | **100%** |
-| **16 — Website V1: Visual** | **4** | **4** | **0** | **0** | **100%** |
-| **17 — Website V1: SEO+Conv** | **6** | **6** | **0** | **0** | **100%** |
-| **TOTAL** | **64** | **64** | **0** | **0** | **100%** |
+| 15 — Website V1: Templates | 10 | 10 | 0 | 0 | 100% |
+| 16 — Website V1: Visual | 4 | 4 | 0 | 0 | 100% |
+| 17 — Website V1: SEO+Conv | 6 | 6 | 0 | 0 | 100% |
+| 18 — Google Ecosystem | 7 | 4 | 1 | 2 | 57% |
+| **19 — Visual Real (Drive)** | **5** | **5** | **0** | **0** | **100%** |
+| **20 — Visual Full + Deploy** | **6** | **6** | **0** | **0** | **100%** |
+| **TOTAL** | **82** | **79** | **1** | **2** | **96%** |
