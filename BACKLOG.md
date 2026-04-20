@@ -2540,6 +2540,7 @@
   - **Status:** ✅ COMPLETADO
   - **Completado:** 2026-04-20
   - **Notas de cierre:** Deploy manual DEV→PROD realizado para plugin, templates, estilos y backlog. Checksums iguales, URLs PROD en 200 y verificación DB de covers/thumbnails en PASS.
+  - **Post-deploy addendum (2026-04-21):** Se detectaron gaps en la DB de PROD: 0 attachments en media library, 6 portfolios nuevos faltantes, y 18 portfolios sin asignaciones de taxonomía. Se ejecutó migración WP-CLI: (1) 20 imágenes registradas en media library (IDs 68–87), (2) 6 portfolios nuevos creados con featured images y meta fields (IDs 88–93), (3) taxonomía `tma_project_type` asignada a los 18 portfolios vía `wp post term set`, (4) 12 portfolios legacy con featured images asignadas (compartidas de los 6 portfolios reales). Estado final: `portfolio publicados=18`, `con featured image=18`, `con categoría=18`, `attachments=20`, `portfolio/ HTTP 200`.
 
 ---
 
