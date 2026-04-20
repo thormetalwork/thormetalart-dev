@@ -15,6 +15,12 @@
         "type": "command",
         "command": "bash -c 'INPUT=$(cat /dev/stdin 2>/dev/null || echo \"\"); TOOL=$(echo \"$INPUT\" | python3 -c \"import sys,json; d=json.load(sys.stdin); print(d.get(\\\"toolName\\\",\\\"\\\"))\" 2>/dev/null || echo \"\"); if echo \"$TOOL\" | grep -qiE \"create_file|replace_string|edit\"; then CONTENT=$(echo \"$INPUT\" | python3 -c \"import sys,json; d=json.load(sys.stdin); i=d.get(\\\"input\\\",{}); print(i.get(\\\"newString\\\",i.get(\\\"content\\\",\\\"\\\")))\" 2>/dev/null || echo \"\"); if echo \"$CONTENT\" | grep -qiE \"innerHTML\\s*=.*\\$|\\$_(GET|POST|REQUEST|SERVER)\\[|exec\\(|shell_exec\\(|system\\(|eval\\(|FLUSHALL|md5\\(.*password|sha1\\(.*password\"; then echo \"{\\\"systemMessage\\\":\\\"🔒 Security Alert: Potentially insecure pattern detected (innerHTML with vars, unsanitized superglobals, exec/eval, FLUSHALL, or weak hashing). Review security.instructions.md before proceeding.\\\"}\"; fi; fi'",
         "timeout": 5
+      },
+      {
+        "type": "command",
+        "command": ".github/hooks/sql-guard.sh",
+        "cwd": "/srv/stacks/thormetalart-dev",
+        "timeout": 5
       }
     ],
     "SessionStart": [

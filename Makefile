@@ -1,7 +1,7 @@
-.PHONY: up down restart logs build status backup restore clean \
+.PHONY: up down restart logs logs-wp logs-mysql build status backup restore clean \
        test test-all test-panel test-dash test-lead test-portal test-docker \
        lint lint-php lint-js lint-format lint-phpcs lint-phpstan \
-       format fix
+       format fix shell-wp shell-mysql
 
 # ── Stack Management ─────────────────────────────────────────────
 up:

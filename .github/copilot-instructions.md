@@ -26,73 +26,49 @@ Thor Metal Art is a Docker-based production stack for a custom metal fabrication
 - MySQL exposed only on `127.0.0.1:3311` (local access)
 - Redis: 64MB limit, LRU eviction policy for WP Object Cache
 - WordPress custom Dockerfile with PECL Redis extension
-- All services have health checks with retries
+- All services have health checks with retries and `depends_on: service_healthy`
 
 ## Code Style & Conventions
 
 - **Language:** Bilingual EN/ES — all user-facing content must support both languages
-- **PHP:** WordPress coding standards (WPCS)
-- **Shell scripts:** Use `set -e`, quote variables, validate `.env` before operations
-- **HTML/CSS/JS:** Vanilla JS, no frameworks; Chart.js 4.x for visualizations
-- **Docker:** Use health checks, depend on `service_healthy`, limit resources
+- **PHP:** WordPress coding standards (WPCS) — see [.github/instructions/wordpress.instructions.md](.github/instructions/wordpress.instructions.md)
+- **Shell scripts:** `set -e`, quote variables, validate `.env` — see [.github/instructions/scripts.instructions.md](.github/instructions/scripts.instructions.md)
+- **HTML/CSS/JS:** Vanilla JS, no frameworks; Chart.js 4.x — see [.github/instructions/dashboard.instructions.md](.github/instructions/dashboard.instructions.md)
+- **Docker:** Health checks, resource limits — see [.github/instructions/docker.instructions.md](.github/instructions/docker.instructions.md)
+- **Security:** OWASP Top 10 compliance — see [.github/instructions/security.instructions.md](.github/instructions/security.instructions.md)
 
 ## Branding
 
-See `docs/README.md` for full branding guide (colors, fonts, tone, site sections). Key values: Primary `#1A1A1A`, Accent `#B8860B`, Fonts: Cormorant Garamond / DM Sans.
+See [docs/README.md](docs/README.md) for full branding guide. Key values: Primary `#1A1A1A`, Accent `#B8860B`, Fonts: Cormorant Garamond / DM Sans.
 
 ## Build and Test
 
+All operations use `make` targets. Key commands:
+
 ```bash
-# Stack management
-make up          # Start stack
-make down        # Stop stack
-make restart     # Stop + start
-make build       # Rebuild without cache
-make status      # Show container status
-make clean       # Down + remove volumes
-
-# Logs
-make logs        # Tail all logs
-make logs-wp     # Tail WordPress only
-make logs-mysql  # Tail MySQL only
-
-# Database & cache
-make backup      # Backup database (10-file rotation)
-make shell-wp    # WordPress container shell
-make shell-mysql # MySQL container shell
-
-# Testing
-make test        # Test all connections
-make test-all    # Run ALL test suites
-make test-panel  # Panel tests only
-make test-dash   # Dashboard tests only
-make test-lead   # Lead tests only
-make test-portal # Portal tests only
-make test-docker # Docker tests only
-
-# Code quality
-make lint        # Run all linters
-make lint-php    # PHP syntax check
-make lint-js     # ESLint
-make lint-format # Prettier check
-make lint-phpcs  # WordPress coding standards
-make lint-phpstan # Static analysis
-make format      # Auto-fix formatting
-make fix         # Auto-fix lint issues
+make up / make down / make restart   # Stack lifecycle
+make build                           # Rebuild without cache
+make backup                          # Database backup (10-file rotation)
+make test-all                        # Run ALL test suites
+make lint                            # Run all linters
+make format                          # Auto-fix formatting
 ```
+
+Run `make help` or see the [Makefile](Makefile) for all 28+ targets including per-service logs, shell access, and scoped test suites (`make test-panel`, `make test-dash`, `make test-lead`, etc.).
 
 ## Development Workflow
 
-- **Tickets:** `BACKLOG.md` is the single source of truth. Format: `TICKET-{SCOPE}-{NUM}` (14 scopes: WP, DOCK, DASH, SEO, LEAD, PANEL, etc.)
+- **Tickets:** [BACKLOG.md](BACKLOG.md) is the single source of truth. Format: `TICKET-{SCOPE}-{NUM}`
 - **Branching:** `main` ← `dev` ← `feat/TICKET-XXX-short-desc` (also `fix/`, `hotfix/`)
 - **Commits:** `{type}(TICKET-XXX): description` (types: feat, fix, refactor, test, docs, chore)
 - **TDD mandatory:** RED → GREEN → REFACTOR for all features
-- **Tests:** Bash scripts in `tests/` using pass/fail counters pattern. Naming: `test-{scope}-{num}-{description}.sh`
-- **Acceptance criteria:** Gherkin format (Given/When/Then) in every ticket
+- **Tests:** Bash scripts in `tests/` with pass/fail counters. Naming: `test-{scope}-{num}-{description}.sh`
+
+See [.github/instructions/workflows.instructions.md](.github/instructions/workflows.instructions.md) for full branching strategy, PR requirements, and quality gates.
 
 ## Environment
 
-- Secrets in `.env` (never commit — in `.gitignore`)
+- Secrets in `.env` (never commit — in `.gitignore`). See [.github/instructions/env-validation.instructions.md](.github/instructions/env-validation.instructions.md)
 - Database: `thormetalart_wp`, user: `thormetalart`, prefix: `tma_`
 - Backups: `/backups/` with 10-file rotation
 
@@ -102,33 +78,33 @@ make fix         # Auto-fix lint issues
 |------|---------|
 | `docker-compose.yml` | Service orchestration (4 services) |
 | `docker/wordpress/Dockerfile` | Custom WP image with Redis PECL |
-| `Makefile` | 28 operational targets (stack, test, lint) |
+| `Makefile` | 28+ operational targets (stack, test, lint) |
 | `.env` / `.env.example` | Secrets (gitignored) / variable template |
 | `scripts/` | Operational scripts (backup, restore, test, cache) |
 | `tests/` | Bash test scripts (TDD, integration) |
 | `data/wordpress/` | WordPress files (volume mount) |
 | `data/mysql/` | MySQL data (volume mount) |
-| `docs/` | Project docs and client deliverables — see `docs/README.md` for branding |
-| `.github/` | AI ecosystem (instructions, agents, skills, prompts, hooks, CI) |
-| `package.json` / `composer.json` | JS + PHP dependencies and QA tools |
-| `_archive/` | Archived prototypes (dashboard v1, portal v1) |
+| `docs/` | Project docs and branding — see [docs/README.md](docs/README.md) |
+| `.github/` | AI customization ecosystem — see [.github/README.md](.github/README.md) |
 | `BACKLOG.md` | All tickets with status, priorities, and dependencies |
+| `_archive/` | Archived prototypes (dashboard v1, portal v1) |
 
-## Security
+## CI Pipeline
 
-- Never expose database credentials in code or logs
-- MySQL only on localhost, external access via phpMyAdmin + Traefik
-- WordPress table prefix `tma_` (non-default)
-- All `.env`, `data/`, `backups/`, `*.sql.gz` in `.gitignore`
+GitHub Actions ([.github/workflows/ci.yml](.github/workflows/ci.yml)) runs on push to `main`, `dev`, `feat/**`, `fix/**`:
+- **lint-php** — PHP syntax + PHPCS/WPCS (strict on `main`, warnings on branches)
+- **lint-js** — ESLint + Prettier format check
+- **php-static-analysis** — PHPStan (strict on `main`)
+- **validate-docker** — `docker compose config` syntax validation
 
 ## AI Customization Ecosystem
 
-This project has a comprehensive `.github/` setup — see files before creating new ones:
+This project has a comprehensive `.github/` setup — **check [.github/README.md](.github/README.md) before creating new files:**
 
 | Primitive | Count | Location |
 |-----------|-------|----------|
-| Instructions | 11 | `.github/instructions/` — auto-loaded by `applyTo` file patterns |
-| Agents | 11 | `.github/agents/` — domain-specific with restricted tool sets |
-| Skills | 6 | `.github/skills/` — reusable workflows (TDD, code-review, ship-feature, stack-mgmt, tickets, WP) |
-| Prompts | 15 | `.github/prompts/` — quick-action slash commands |
-| Hooks | 3 | `.github/hooks/` — safety-checks.json + php-lint-check.sh + format-on-save.sh |
+| Instructions | 13 | `.github/instructions/` — auto-loaded by `applyTo` file patterns |
+| Agents | 12 | `.github/agents/` — domain-specific with restricted tool sets |
+| Skills | 7 | `.github/skills/` — reusable workflows (TDD, code-review, ship-feature, stack-mgmt, tickets, WP, API) |
+| Prompts | 21 | `.github/prompts/` — quick-action slash commands |
+| Hooks | 4 | `.github/hooks/` — safety-checks.json + php-lint-check.sh + format-on-save.sh + sql-guard.sh |

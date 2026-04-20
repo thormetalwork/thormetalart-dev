@@ -20,6 +20,7 @@ function tma_get_services() {
 			'title'        => 'Custom Metal Gates Miami',
 			'hero_heading' => 'Custom Metal Gates Miami',
 			'subheading'   => 'Hand-Crafted. Built to Last. Designed for You.',
+			'hero_image'   => '/wp-content/uploads/2026/04/tma-portfolio-waterjet-panel.jpg',
 			'intro'        => 'Your gate is the first thing people see. At Thor Metal Art, we design and fabricate custom metal gates that combine security with style. Every gate is built for your property dimensions, design direction, and long-term durability in South Florida conditions.',
 			'includes'     => array(
 				'Custom design from sketch, inspiration images, or from-scratch concept',
@@ -51,6 +52,7 @@ function tma_get_services() {
 			'title'        => 'Metal Railings Miami',
 			'hero_heading' => 'Metal Railings Miami',
 			'subheading'   => 'Custom Design for Stairs, Balconies and Decks.',
+			'hero_image'   => '/wp-content/uploads/2026/04/tma-portfolio-tig-welding.jpg',
 			'intro'        => 'Every railing should protect and elevate the space visually. We fabricate custom metal railings for staircases, balconies, and pool decks with full code compliance and premium finishes.',
 			'includes'     => array(
 				'Interior and exterior custom railing systems',
@@ -82,6 +84,7 @@ function tma_get_services() {
 			'title'        => 'Custom Metal Fences Miami',
 			'hero_heading' => 'Custom Metal Fences Miami',
 			'subheading'   => 'Decorative and Security Solutions Built to Last.',
+			'hero_image'   => '/wp-content/uploads/2026/04/tma-workshop-facade.jpg',
 			'intro'        => 'A fence should protect the property while matching the architecture. We design and fabricate decorative and security metal fences for homes and businesses in South Florida.',
 			'includes'     => array(
 				'Perimeter security fence systems',
@@ -113,6 +116,7 @@ function tma_get_services() {
 			'title'        => 'Custom Metal Furniture Miami',
 			'hero_heading' => 'Custom Metal Furniture Miami',
 			'subheading'   => 'One-of-a-Kind Pieces Built to Order.',
+			'hero_image'   => '/wp-content/uploads/2026/04/tma-portfolio-stainless-steel.jpg',
 			'intro'        => 'Our custom furniture combines industrial precision with artisan craft. We fabricate tables, shelving, frames, and statement pieces designed around your space and concept.',
 			'includes'     => array(
 				'Design consultation for dimensions and style',
@@ -144,6 +148,7 @@ function tma_get_services() {
 			'title'        => 'Metal Stairs Miami',
 			'hero_heading' => 'Metal Stairs and Handrails Miami',
 			'subheading'   => 'Structural Precision with Visual Impact.',
+			'hero_image'   => '/wp-content/uploads/2026/04/tma-process-bending.jpg',
 			'intro'        => 'We fabricate custom stair systems and handrails for residential and commercial spaces: floating stairs, spiral designs, and industrial-style structures with architectural presence.',
 			'includes'     => array(
 				'Floating and spiral stair options',
@@ -191,8 +196,10 @@ function tma_service_page_content( $service ) {
 		$faq_html .= '<!-- wp:html --><details class="tma-faq-item"><summary>' . esc_html( $faq['q'] ) . '</summary><p>' . esc_html( $faq['a'] ) . '</p></details><!-- /wp:html -->';
 	}
 
+	$hero_image = ! empty( $service['hero_image'] ) ? esc_url_raw( $service['hero_image'] ) : '';
+
 	return '<!-- wp:group {"layout":{"type":"constrained","contentSize":"1200px"}} --><div class="wp-block-group">'
-		. '<!-- wp:group {"className":"tma-service-hero-fallback"} --><div class="wp-block-group tma-service-hero-fallback"><!-- wp:heading {"textAlign":"center","level":1} --><h1 class="wp-block-heading has-text-align-center">' . esc_html( $service['hero_heading'] ) . '</h1><!-- /wp:heading --><!-- wp:paragraph {"align":"center"} --><p class="has-text-align-center">' . esc_html( $service['subheading'] ) . '</p><!-- /wp:paragraph --></div><!-- /wp:group -->'
+		. '<!-- wp:cover {"url":"' . $hero_image . '","dimRatio":60,"overlayColor":"primary","isDark":true,"minHeight":360,"minHeightUnit":"px","className":"tma-service-hero-cover","focalPoint":{"x":0.5,"y":0.45}} --><div class="wp-block-cover is-dark tma-service-hero-cover" style="min-height:360px"><span aria-hidden="true" class="wp-block-cover__background has-primary-background-color has-background-dim-60 has-background-dim"></span><img class="wp-block-cover__image-background" alt="Thor Metal Art custom project" src="' . $hero_image . '" style="object-position:50% 45%" data-object-fit="cover" data-object-position="50% 45%"/><div class="wp-block-cover__inner-container"><!-- wp:heading {"textAlign":"center","level":1} --><h1 class="wp-block-heading has-text-align-center">' . esc_html( $service['hero_heading'] ) . '</h1><!-- /wp:heading --><!-- wp:paragraph {"align":"center"} --><p class="has-text-align-center">' . esc_html( $service['subheading'] ) . '</p><!-- /wp:paragraph --></div></div><!-- /wp:cover -->'
 		. '<!-- wp:paragraph {"fontSize":"large"} --><p class="has-large-font-size">' . esc_html( $service['intro'] ) . '</p><!-- /wp:paragraph -->'
 		. '<!-- wp:heading {"level":2} --><h2 class="wp-block-heading">What\'s Included</h2><!-- /wp:heading -->'
 		. '<!-- wp:list --><ul>' . $includes_items . '</ul><!-- /wp:list -->'
@@ -215,11 +222,11 @@ function tma_get_core_pages() {
 	return array(
 		'art-commissions' => array(
 			'title'   => 'Metal as Art & Commissions',
-			'content' => '<!-- wp:group {"layout":{"type":"constrained","contentSize":"1200px"}} --><div class="wp-block-group"><!-- wp:group {"className":"tma-service-hero-fallback"} --><div class="wp-block-group tma-service-hero-fallback"><!-- wp:heading {"textAlign":"center","level":1} --><h1 class="wp-block-heading has-text-align-center">Metal as Art</h1><!-- /wp:heading --><!-- wp:paragraph {"align":"center"} --><p class="has-text-align-center">Original Sculptures and Commissioned Pieces by Karel Frometa — Miami</p><!-- /wp:paragraph --></div><!-- /wp:group --><!-- wp:heading {"level":2} --><h2 class="wp-block-heading">Artist Statement</h2><!-- /wp:heading --><!-- wp:paragraph --><p>I have been working with metal as both a fabricator and an artist. Every weld, cut, and surface decision is technical and aesthetic at the same time. My work ranges from interior statement pieces to large commissioned installations.</p><!-- /wp:paragraph --><!-- wp:paragraph --><p>Each commission is unique and developed in direct conversation with the client.</p><!-- /wp:paragraph --><!-- wp:heading {"level":2} --><h2 class="wp-block-heading">How to Commission a Piece</h2><!-- /wp:heading --><!-- wp:list --><ul><li>Conversation: we define concept, size, material, and budget.</li><li>Concept and Proposal: sketch and timeline with clear scope.</li><li>Fabrication: built in our Miami studio with progress updates.</li><li>Delivery and Installation: final delivery with on-site support if required.</li></ul><!-- /wp:list --><!-- wp:group {"className":"tma-image-placeholder"} --><div class="wp-block-group tma-image-placeholder"><!-- wp:paragraph {"align":"center"} --><p class="has-text-align-center">Art gallery placeholder — upload sculptures and commissions</p><!-- /wp:paragraph --></div><!-- /wp:group --><!-- wp:buttons --><div class="wp-block-buttons"><!-- wp:button --><div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="/contact/">Commission a Piece</a></div><!-- /wp:button --></div><!-- /wp:buttons --></div><!-- /wp:group -->',
+			'content' => '<!-- wp:group {"layout":{"type":"constrained","contentSize":"1200px"}} --><div class="wp-block-group"><!-- wp:cover {"url":"/wp-content/uploads/2026/04/tma-portfolio-fenix-sculpture.jpg","dimRatio":65,"overlayColor":"primary","isDark":true,"minHeight":360,"minHeightUnit":"px","className":"tma-service-hero-cover"} --><div class="wp-block-cover is-dark tma-service-hero-cover" style="min-height:360px"><span aria-hidden="true" class="wp-block-cover__background has-primary-background-color has-background-dim-60 has-background-dim"></span><img class="wp-block-cover__image-background" alt="Metal sculpture by Karel Frometa" src="/wp-content/uploads/2026/04/tma-portfolio-fenix-sculpture.jpg" data-object-fit="cover"/><div class="wp-block-cover__inner-container"><!-- wp:heading {"textAlign":"center","level":1} --><h1 class="wp-block-heading has-text-align-center">Metal as Art</h1><!-- /wp:heading --><!-- wp:paragraph {"align":"center"} --><p class="has-text-align-center">Original Sculptures and Commissioned Pieces by Karel Frometa - Miami</p><!-- /wp:paragraph --></div></div><!-- /wp:cover --><!-- wp:heading {"level":2} --><h2 class="wp-block-heading">Artist Statement</h2><!-- /wp:heading --><!-- wp:paragraph --><p>I have been working with metal as both a fabricator and an artist. Every weld, cut, and surface decision is technical and aesthetic at the same time. My work ranges from interior statement pieces to large commissioned installations.</p><!-- /wp:paragraph --><!-- wp:paragraph --><p>Each commission is unique and developed in direct conversation with the client.</p><!-- /wp:paragraph --><!-- wp:heading {"level":2} --><h2 class="wp-block-heading">How to Commission a Piece</h2><!-- /wp:heading --><!-- wp:list --><ul><li>Conversation: we define concept, size, material, and budget.</li><li>Concept and Proposal: sketch and timeline with clear scope.</li><li>Fabrication: built in our Miami studio with progress updates.</li><li>Delivery and Installation: final delivery with on-site support if required.</li></ul><!-- /wp:list --><!-- wp:gallery {"linkTo":"none","columns":3,"className":"tma-service-gallery"} --><figure class="wp-block-gallery has-nested-images columns-3 is-cropped tma-service-gallery"><!-- wp:image {"sizeSlug":"large","linkDestination":"none"} --><figure class="wp-block-image size-large"><img src="/wp-content/uploads/2026/04/tma-portfolio-forged-art-piece.jpg" alt="Forged art piece" /></figure><!-- /wp:image --><!-- wp:image {"sizeSlug":"large","linkDestination":"none"} --><figure class="wp-block-image size-large"><img src="/wp-content/uploads/2026/04/tma-portfolio-artisan-blade.jpg" alt="Artisan blade metalwork" /></figure><!-- /wp:image --><!-- wp:image {"sizeSlug":"large","linkDestination":"none"} --><figure class="wp-block-image size-large"><img src="/wp-content/uploads/2026/04/tma-fenix-full.jpg" alt="Phoenix sculpture full body" /></figure><!-- /wp:image --></figure><!-- /wp:gallery --><!-- wp:buttons --><div class="wp-block-buttons"><!-- wp:button --><div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="/contact/">Commission a Piece</a></div><!-- /wp:button --></div><!-- /wp:buttons --></div><!-- /wp:group -->',
 		),
 		'how-we-work'     => array(
 			'title'   => 'How We Work',
-			'content' => '<!-- wp:group {"layout":{"type":"constrained","contentSize":"1200px"}} --><div class="wp-block-group"><!-- wp:heading {"level":1} --><h1 class="wp-block-heading">How We Work</h1><!-- /wp:heading --><!-- wp:paragraph --><p>From first call to finished installation — everything is handled in-house by our Miami team.</p><!-- /wp:paragraph --><!-- wp:columns --><div class="wp-block-columns"><!-- wp:column --><div class="wp-block-column"><h3>1. Free Estimate</h3><p>Tell us your idea and constraints.</p></div><!-- /wp:column --><!-- wp:column --><div class="wp-block-column"><h3>2. Design &amp; Quote</h3><p>We provide concept and clear pricing.</p></div><!-- /wp:column --></div><!-- /wp:columns --><!-- wp:columns --><div class="wp-block-columns"><!-- wp:column --><div class="wp-block-column"><h3>3. Production</h3><p>Water jet cutting, welding, and finishing.</p></div><!-- /wp:column --><!-- wp:column --><div class="wp-block-column"><h3>4. Quality Check</h3><p>Structural and finish verification before install.</p></div><!-- /wp:column --></div><!-- /wp:columns --><!-- wp:columns --><div class="wp-block-columns"><!-- wp:column --><div class="wp-block-column"><h3>5. Installation</h3><p>Final installation and handover with clean-up.</p></div><!-- /wp:column --></div><!-- /wp:columns --><!-- wp:list --><ul><li>Everything in-house</li><li>Water jet + MIG/TIG welding</li><li>Response within 24 hours</li><li>Licensed and insured</li></ul><!-- /wp:list --><!-- wp:buttons --><div class="wp-block-buttons"><!-- wp:button --><div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="/contact/">Ready to Start? Get a Free Estimate</a></div><!-- /wp:button --></div><!-- /wp:buttons --></div><!-- /wp:group -->',
+			'content' => '<!-- wp:group {"layout":{"type":"constrained","contentSize":"1200px"}} --><div class="wp-block-group"><!-- wp:cover {"url":"/wp-content/uploads/2026/04/tma-karel-welding.jpg","dimRatio":60,"overlayColor":"primary","isDark":true,"minHeight":340,"minHeightUnit":"px","className":"tma-service-hero-cover"} --><div class="wp-block-cover is-dark tma-service-hero-cover" style="min-height:340px"><span aria-hidden="true" class="wp-block-cover__background has-primary-background-color has-background-dim-60 has-background-dim"></span><img class="wp-block-cover__image-background" alt="Karel welding custom metal project" src="/wp-content/uploads/2026/04/tma-karel-welding.jpg" data-object-fit="cover"/><div class="wp-block-cover__inner-container"><!-- wp:heading {"level":1,"textAlign":"center"} --><h1 class="wp-block-heading has-text-align-center">How We Work</h1><!-- /wp:heading --><!-- wp:paragraph {"align":"center"} --><p class="has-text-align-center">From first call to finished installation - everything is handled in-house by our Miami team.</p><!-- /wp:paragraph --></div></div><!-- /wp:cover --><!-- wp:columns --><div class="wp-block-columns"><!-- wp:column --><div class="wp-block-column"><h3>1. Free Estimate</h3><p>Tell us your idea and constraints.</p></div><!-- /wp:column --><!-- wp:column --><div class="wp-block-column"><h3>2. Design &amp; Quote</h3><p>We provide concept and clear pricing.</p></div><!-- /wp:column --></div><!-- /wp:columns --><!-- wp:columns --><div class="wp-block-columns"><!-- wp:column --><div class="wp-block-column"><h3>3. Production</h3><p>Water jet cutting, welding, and finishing.</p></div><!-- /wp:column --><!-- wp:column --><div class="wp-block-column"><h3>4. Quality Check</h3><p>Structural and finish verification before install.</p></div><!-- /wp:column --></div><!-- /wp:columns --><!-- wp:columns --><div class="wp-block-columns"><!-- wp:column --><div class="wp-block-column"><h3>5. Installation</h3><p>Final installation and handover with clean-up.</p></div><!-- /wp:column --></div><!-- /wp:columns --><!-- wp:gallery {"linkTo":"none","columns":4,"className":"tma-service-gallery"} --><figure class="wp-block-gallery has-nested-images columns-4 is-cropped tma-service-gallery"><!-- wp:image {"sizeSlug":"medium_large","linkDestination":"none"} --><figure class="wp-block-image size-medium_large"><img src="/wp-content/uploads/2026/04/tma-process-cutting.jpg" alt="Metal cutting process" /></figure><!-- /wp:image --><!-- wp:image {"sizeSlug":"medium_large","linkDestination":"none"} --><figure class="wp-block-image size-medium_large"><img src="/wp-content/uploads/2026/04/tma-process-bending.jpg" alt="Metal bending process" /></figure><!-- /wp:image --><!-- wp:image {"sizeSlug":"medium_large","linkDestination":"none"} --><figure class="wp-block-image size-medium_large"><img src="/wp-content/uploads/2026/04/tma-process-machine.jpg" alt="Machine precision process" /></figure><!-- /wp:image --><!-- wp:image {"sizeSlug":"medium_large","linkDestination":"none"} --><figure class="wp-block-image size-medium_large"><img src="/wp-content/uploads/2026/04/tma-process-polishing.jpg" alt="Polishing and finishing process" /></figure><!-- /wp:image --></figure><!-- /wp:gallery --><!-- wp:list --><ul><li>Everything in-house</li><li>Water jet + MIG/TIG welding</li><li>Response within 24 hours</li><li>Licensed and insured</li></ul><!-- /wp:list --><!-- wp:buttons --><div class="wp-block-buttons"><!-- wp:button --><div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="/contact/">Ready to Start? Get a Free Estimate</a></div><!-- /wp:button --></div><!-- /wp:buttons --></div><!-- /wp:group -->',
 		),
 		'contact'          => array(
 			'title'   => 'Contact Thor Metal Art',
@@ -293,14 +300,101 @@ add_action( 'after_switch_theme', 'tma_provision_website_v1_pages' );
  */
 function tma_maybe_provision_website_v1_pages_once() {
 	$version = get_option( 'tma_pages_version', '' );
-	if ( 'v1' === $version ) {
+	if ( 'v2' === $version ) {
 		return;
 	}
 
 	tma_provision_website_v1_pages();
-	update_option( 'tma_pages_version', 'v1', false );
+	update_option( 'tma_pages_version', 'v2', false );
 }
 add_action( 'init', 'tma_maybe_provision_website_v1_pages_once', 50 );
+
+/**
+ * Find attachment id by _wp_attached_file value.
+ *
+ * @param string $relative_file Relative file path in uploads.
+ * @return int
+ */
+function tma_get_attachment_id_by_file( $relative_file ) {
+	$attachments = get_posts(
+		array(
+			'post_type'      => 'attachment',
+			'post_status'    => 'inherit',
+			'posts_per_page' => 1,
+			'fields'         => 'ids',
+			'meta_key'       => '_wp_attached_file',
+			'meta_value'     => $relative_file,
+		)
+	);
+
+	return ! empty( $attachments ) ? (int) $attachments[0] : 0;
+}
+
+/**
+ * Pick an image file for a legacy portfolio post based on taxonomy.
+ *
+ * @param array<int, string> $term_slugs Term slugs.
+ * @param int                $index      Loop index.
+ * @return string
+ */
+function tma_pick_legacy_thumbnail_file( $term_slugs, $index ) {
+	$map = array(
+		'gates'     => array( 'tma-portfolio-waterjet-panel.jpg', 'tma-workshop-facade.jpg' ),
+		'railings'  => array( 'tma-portfolio-tig-welding.jpg', 'tma-detail-weld.jpg' ),
+		'fences'    => array( 'tma-workshop-facade.jpg', 'tma-portfolio-waterjet-panel.jpg' ),
+		'furniture' => array( 'tma-portfolio-stainless-steel.jpg', 'tma-process-polishing.jpg' ),
+		'stairs'    => array( 'tma-process-bending.jpg', 'tma-portfolio-tig-welding.jpg' ),
+		'art'       => array( 'tma-portfolio-fenix-sculpture.jpg', 'tma-portfolio-forged-art-piece.jpg' ),
+	);
+
+	foreach ( $term_slugs as $slug ) {
+		if ( isset( $map[ $slug ] ) ) {
+			$images = $map[ $slug ];
+			return $images[ $index % count( $images ) ];
+		}
+	}
+
+	$fallback = array( 'tma-portfolio-fenix-sculpture.jpg', 'tma-karel-welding.jpg' );
+	return $fallback[ $index % count( $fallback ) ];
+}
+
+/**
+ * Backfill thumbnails for legacy portfolio posts created without featured image.
+ */
+function tma_backfill_legacy_portfolio_thumbnails_once() {
+	$version = get_option( 'tma_portfolio_thumbnails_version', '' );
+	if ( 'v2' === $version ) {
+		return;
+	}
+
+	$portfolio_ids = get_posts(
+		array(
+			'post_type'      => 'tma_portfolio',
+			'post_status'    => 'publish',
+			'posts_per_page' => -1,
+			'fields'         => 'ids',
+			'orderby'        => 'ID',
+			'order'          => 'ASC',
+		)
+	);
+
+	foreach ( $portfolio_ids as $index => $portfolio_id ) {
+		if ( has_post_thumbnail( $portfolio_id ) ) {
+			continue;
+		}
+
+		$term_slugs = wp_get_post_terms( $portfolio_id, 'tma_project_type', array( 'fields' => 'slugs' ) );
+		$image_file = tma_pick_legacy_thumbnail_file( is_array( $term_slugs ) ? $term_slugs : array(), $index );
+		$attach_id  = tma_get_attachment_id_by_file( '2026/04/' . $image_file );
+
+		if ( $attach_id > 0 ) {
+			set_post_thumbnail( $portfolio_id, $attach_id );
+		}
+	}
+
+	update_option( 'tma_portfolio_thumbnails_version', 'v2', false );
+}
+add_action( 'init', 'tma_backfill_legacy_portfolio_thumbnails_once', 60 );
 
 /**
  * Admin action to manually trigger generation.
