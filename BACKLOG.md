@@ -2578,7 +2578,9 @@
   - **Dependencias:** Ninguna
   - **Estimación:** 0.5 horas
   - **Prioridad:** P1
-  - **Status:** 🔄 EN PROGRESO
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2026-04-21
+  - **Notas de cierre:** Filtro `trp_stop_translating_page` registrado en `tma-panel.php` al nivel de carga del plugin (antes de `init:0`). Usa `tma_panel_current_route()` para detectar panel domain y `/panel` path. 7/7 tests verdes.
 
 - [ ] **TICKET-WP-033: Reparar encoding + completar traducciones ES del sitio principal**
   - **Fuente:** Auditoría TranslatePress 2026-04-21 — 199 traducciones con artifacts de encoding (tildes/ñ corruptas), 368/567 strings sin traducir (65%), 126/296 gettext strings sin traducir (43%)
