@@ -2618,7 +2618,9 @@
   - **Dependencias:** TICKET-WP-032 (excluir panel primero para tener BD limpia)
   - **Estimación:** 4 horas
   - **Prioridad:** P1
-  - **Status:** ⏸️ PENDIENTE
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2026-04-21
+  - **Notas de cierre:** Encoding era correcto (UTF-8 válido, el `?` era artefacto del cliente MySQL sin charset). Migración SQL `scripts/migrate-translations-wp033.sh`: ~90 traducciones reales (UI, CTA, formularios, materiales, proyectos, legal) + limpieza de 161 strings SQL junk + 316 strings técnicos/internos. Resultado: 0/567 sin traducir. 19/19 tests verdes.
 
 - [ ] **TICKET-PANEL-016: Internacionalizar templates PHP del panel con data-i18n**
   - **Fuente:** Auditoría TranslatePress 2026-04-21 — `login.php`, `forgot-password.php` y `reset-password.php` tienen texto HTML hardcodeado en español sin usar el sistema `data-i18n` ni `TMA_i18n.t()`, por lo que el selector ES/EN del panel no funciona en las pantallas de login
@@ -2658,7 +2660,7 @@
   - **Dependencias:** Ninguna (sistema i18n.js ya funcional)
   - **Estimación:** 2 horas
   - **Prioridad:** P2
-  - **Status:** ⏸️ PENDIENTE
+  - **Status:** 🔄 EN PROGRESO
 
 ---
 
