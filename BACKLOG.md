@@ -2544,7 +2544,123 @@
 
 ---
 
-## �📊 Resumen
+## 📋 FASE 21 — TranslatePress: Arquitectura Limpia + Traducciones
+
+> **Fuente:** Auditoría TranslatePress 2026-04-21 — investigación de conflictos entre el sistema i18n propio del panel (i18n.js) y el plugin TranslatePress-Multilingual v3.1.4.
+> **Problema central:** TranslatePress procesa innecesariamente el HTML del panel. Las traducciones del sitio tienen 368/567 strings sin traducir (65%) y artifacts de encoding en las 199 traducciones automáticas. Los templates PHP del panel tienen texto hardcodeado en español sin pasar por data-i18n.
+> **Arquitectura correcta:** TranslatePress opera SOLO en `dev.thormetalart.com`. El panel (`panel-dev.thormetalart.com`) usa exclusivamente `i18n.js` + `data-i18n`.
+
+- [ ] **TICKET-WP-032: Excluir dominio panel de TranslatePress con filtro trp_stop_translating_page**
+  - **Fuente:** Auditoría TranslatePress 2026-04-21 — TP intercepta HTML del panel via ob_start en `init` prioridad 0, antes del Router del panel (prioridad 1)
+  - **Historia de Usuario:** Como desarrollador, quiero que TranslatePress no procese ninguna request del panel para que las dos arquitecturas de i18n sean completamente independientes y no haya riesgo de interferencia futura.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: Panel excluido de TranslatePress
+      Given TranslatePress activo y panel activo
+      When accedo a panel-dev.thormetalart.com
+      Then TranslatePress NO inicia ob_start para esa request
+      And el panel responde normalmente con su propio HTML
+      And no se añaden atributos trp-* al HTML del panel
+
+    Scenario: Sitio principal no afectado
+      Given filtro activo en tma-panel.php
+      When accedo a dev.thormetalart.com
+      Then TranslatePress sigue funcionando con normalidad
+      And /es/ devuelve contenido traducido
+
+    Scenario: Panel REST API no afectada
+      Given filtro activo
+      When el panel SPA hace fetch a /wp-json/tma-panel/v1/*
+      Then los endpoints responden sin interferencia de TP
+    ```
+  - **Archivos a Modificar:**
+    - `data/wordpress/wp-content/plugins/tma-panel/tma-panel.php` (MODIFIED — agregar filtro trp_stop_translating_page)
+  - **Dependencias:** Ninguna
+  - **Estimación:** 0.5 horas
+  - **Prioridad:** P1
+  - **Status:** 🔄 EN PROGRESO
+
+- [ ] **TICKET-WP-033: Reparar encoding + completar traducciones ES del sitio principal**
+  - **Fuente:** Auditoría TranslatePress 2026-04-21 — 199 traducciones con artifacts de encoding (tildes/ñ corruptas), 368/567 strings sin traducir (65%), 126/296 gettext strings sin traducir (43%)
+  - **Historia de Usuario:** Como visitante hispanohablante, quiero ver el sitio dev.thormetalart.com en español correcto (sin caracteres corruptos ni textos sin traducir) para poder leerlo con naturalidad y confianza en el negocio.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: Sin artifacts de encoding en traducciones existentes
+      Given 199 strings con status=2 (machine translated)
+      When reviso las traducciones en tma_trp_dictionary_en_us_es_es
+      Then ninguna traducción contiene caracteres corruptos (ej: "Qu Incluye" → "Qué Incluye")
+      And tildes y eñes se muestran correctamente en /es/
+
+    Scenario: Strings críticos del sitio traducidos
+      Given sitio principal en dev.thormetalart.com
+      When navego a dev.thormetalart.com/es/
+      Then navigation, hero, CTAs y secciones principales muestran texto en español
+      And no hay bloques de texto en inglés mezclados con el español
+
+    Scenario: Gettext strings del tema traducidos
+      Given 296 strings en tma_trp_gettext_original_strings
+      When verifico tma_trp_gettext_es_es
+      Then los strings del tema thormetalart (botones, labels, mensajes WP) tienen traducción ES
+      And status es 1 (human) o 2 (machine) — no 0 (untranslated)
+
+    Scenario: Página /es/ accesible y funcional
+      Given configuración trp_settings con url-slug es_ES=es
+      When accedo a dev.thormetalart.com/es/
+      Then devuelve HTTP 200
+      And el HTML contiene lang="es"
+      And el language switcher muestra idioma activo correcto
+    ```
+  - **Archivos a Modificar:**
+    - `tma_trp_dictionary_en_us_es_es` (DB — corregir encoding + completar strings via TranslatePress editor o SQL import)
+    - `tma_trp_gettext_es_es` (DB — completar gettext strings faltantes)
+  - **Dependencias:** TICKET-WP-032 (excluir panel primero para tener BD limpia)
+  - **Estimación:** 4 horas
+  - **Prioridad:** P1
+  - **Status:** ⏸️ PENDIENTE
+
+- [ ] **TICKET-PANEL-016: Internacionalizar templates PHP del panel con data-i18n**
+  - **Fuente:** Auditoría TranslatePress 2026-04-21 — `login.php`, `forgot-password.php` y `reset-password.php` tienen texto HTML hardcodeado en español sin usar el sistema `data-i18n` ni `TMA_i18n.t()`, por lo que el selector ES/EN del panel no funciona en las pantallas de login
+  - **Historia de Usuario:** Como usuario del panel, quiero que las pantallas de login, recuperación y reset de contraseña respondan al selector de idioma ES/EN del panel, igual que el resto de la interfaz.
+  - **Criterios de Aceptación:**
+    ```gherkin
+    Scenario: Login template responde al cambio de idioma
+      Given usuario en panel-dev.thormetalart.com/login
+      When JavaScript carga y lee localStorage('tma_panel_lang')='en'
+      Then labels "Email o usuario" cambia a "Email or username"
+      And "Contraseña" cambia a "Password"
+      And "Recordarme" cambia a "Remember me"
+      And "Entrar" cambia a "Sign In"
+      And "¿Olvidaste tu contraseña?" cambia a "Forgot your password?"
+
+    Scenario: Forgot-password template internacionalizado
+      Given usuario en /login con idioma seleccionado
+      When navega a /forgot-password
+      Then el idioma persiste (localStorage) y los labels están en el idioma correcto
+
+    Scenario: Keys nuevas en diccionario i18n.js
+      Given i18n.js actualizado
+      When reviso claves del diccionario
+      Then existen claves: login.email, login.password, login.remember, login.submit, login.forgot, login.title, login.subtitle, auth.forgot_title, auth.reset_title, auth.send_reset, auth.back_login (y sus equivalentes EN)
+
+    Scenario: Textos hardcodeados en PHP eliminados
+      Given templates actualizados
+      When reviso el HTML generado
+      Then los textos visibles al usuario tienen atributos data-i18n correspondientes
+      And los mensajes de error PHP (esc_html__) siguen usando el sistema PHP para mensajes de servidor
+    ```
+  - **Archivos a Modificar:**
+    - `data/wordpress/wp-content/plugins/tma-panel/templates/login.php` (MODIFIED — agregar data-i18n a labels)
+    - `data/wordpress/wp-content/plugins/tma-panel/templates/forgot-password.php` (MODIFIED — agregar data-i18n)
+    - `data/wordpress/wp-content/plugins/tma-panel/templates/reset-password.php` (MODIFIED — agregar data-i18n)
+    - `data/wordpress/wp-content/plugins/tma-panel/assets/js/i18n.js` (MODIFIED — agregar keys login.* y auth.*)
+  - **Dependencias:** Ninguna (sistema i18n.js ya funcional)
+  - **Estimación:** 2 horas
+  - **Prioridad:** P2
+  - **Status:** ⏸️ PENDIENTE
+
+---
+
+## 📊 Resumen
 
 | Fase | Total | ✅ | ⏸️ | 🚫 | Progreso |
 |------|-------|----|-----|-----|----------|
@@ -2566,6 +2682,7 @@
 | 16 — Website V1: Visual | 4 | 4 | 0 | 0 | 100% |
 | 17 — Website V1: SEO+Conv | 6 | 6 | 0 | 0 | 100% |
 | 18 — Google Ecosystem | 7 | 4 | 1 | 2 | 57% |
-| **19 — Visual Real (Drive)** | **5** | **5** | **0** | **0** | **100%** |
-| **20 — Visual Full + Deploy** | **6** | **6** | **0** | **0** | **100%** |
-| **TOTAL** | **82** | **79** | **1** | **2** | **96%** |
+| 19 — Visual Real (Drive) | 5 | 5 | 0 | 0 | 100% |
+| 20 — Visual Full + Deploy | 6 | 6 | 0 | 0 | 100% |
+| **21 — TranslatePress i18n** | **3** | **0** | **3** | **0** | **0%** |
+| **TOTAL** | **85** | **79** | **4** | **2** | **93%** |
