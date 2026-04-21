@@ -2660,7 +2660,9 @@
   - **Dependencias:** Ninguna (sistema i18n.js ya funcional)
   - **Estimación:** 2 horas
   - **Prioridad:** P2
-  - **Status:** 🔄 EN PROGRESO
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2026-04-22
+  - **Notas de cierre:** Agregados atributos `data-i18n` a todos los labels/botones visibles en `login.php`, `forgot-password.php` y `reset-password.php`. Cada template carga `i18n.js` y llama `TMA_i18n.init()`. Añadidas 14 claves nuevas (login.* + auth.*) en diccionarios ES y EN de `i18n.js`. 49/49 tests verdes. Rama: feat/TICKET-PANEL-016-i18n-templates.
 
 ---
 
