@@ -197,6 +197,17 @@ add_action(
 );
 
 /* ═══════════════════════════════════════════════════════════════════
+   TranslatePress — Exclude panel routes from output buffer processing
+   ═══════════════════════════════════════════════════════════════════ */
+
+// TranslatePress hooks ob_start() at init:0. The panel router fires at init:1
+// and exits early. Adding this filter at plugin-load time (before init runs)
+// ensures TP skips the ob_start() entirely for any panel domain / path request.
+add_filter( 'trp_stop_translating_page', function ( bool $stop ): bool {
+	return $stop || ( null !== tma_panel_current_route() );
+} );
+
+/* ═══════════════════════════════════════════════════════════════════
    Init — Router intercepts panel domain before WP query resolution
    ═══════════════════════════════════════════════════════════════════ */
 
