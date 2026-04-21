@@ -150,8 +150,8 @@ if ( 'POST' === $_SERVER['REQUEST_METHOD'] ) {
 <body>
 	<div class="card">
 		<div class="card__brand">
-			<div class="card__logo">Thor Metal Art</div>
-			<div class="card__subtitle">Recuperar contraseña</div>
+			<div class="card__logo" data-i18n="login.title">Thor Metal Art</div>
+			<div class="card__subtitle" data-i18n="auth.forgot_title">Recuperar contraseña</div>
 		</div>
 
 		<?php if ( $message ) : ?>
@@ -166,14 +166,18 @@ if ( 'POST' === $_SERVER['REQUEST_METHOD'] ) {
 		<form method="post">
 			<?php wp_nonce_field( 'tma_panel_forgot', 'tma_forgot_nonce' ); ?>
 
-			<label for="user_login">Email o usuario</label>
+			<label for="user_login" data-i18n="login.email">Email o usuario</label>
 			<input type="text" name="user_login" id="user_login" autocomplete="email" required>
 
-			<button type="submit" class="btn">Enviar enlace de recuperación</button>
+			<button type="submit" class="btn" data-i18n="auth.send_reset">Enviar enlace de recuperación</button>
 		</form>
 		<?php endif; ?>
 
-		<a href="<?php echo esc_url( tma_panel_url( '/login' ) ); ?>" class="back-link">← Volver al login</a>
+		<a href="<?php echo esc_url( tma_panel_url( '/login' ) ); ?>" class="back-link" data-i18n="auth.back_login">← Volver al login</a>
 	</div>
+
+	<!-- i18n Dictionary -->
+	<script src="<?php echo esc_url( TMA_PANEL_URL . 'assets/js/i18n.js' ); ?>?v=<?php echo esc_attr( TMA_PANEL_VERSION ); ?>"></script>
+	<script>(function () { TMA_i18n.init(); })();</script>
 </body>
 </html>

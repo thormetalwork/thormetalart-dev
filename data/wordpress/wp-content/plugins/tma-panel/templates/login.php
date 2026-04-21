@@ -109,8 +109,8 @@ defined( 'ABSPATH' ) || exit;
 <body>
 	<div class="login-card">
 		<div class="login-card__brand">
-			<div class="login-card__logo">Thor Metal Art</div>
-			<div class="login-card__subtitle">Panel Ejecutivo</div>
+			<div class="login-card__logo" data-i18n="login.title">Thor Metal Art</div>
+			<div class="login-card__subtitle" data-i18n="login.subtitle">Panel Ejecutivo</div>
 		</div>
 
 		<div id="login-error" class="login-error"></div>
@@ -118,27 +118,31 @@ defined( 'ABSPATH' ) || exit;
 		<form id="login-form" method="post">
 			<?php wp_nonce_field( 'tma_panel_login', 'tma_login_nonce' ); ?>
 
-			<label for="log">Email o usuario</label>
+			<label for="log" data-i18n="login.email">Email o usuario</label>
 			<input type="text" name="log" id="log" autocomplete="username" required>
 
-			<label for="pwd">Contraseña</label>
+			<label for="pwd" data-i18n="login.password">Contraseña</label>
 			<input type="password" name="pwd" id="pwd" autocomplete="current-password" required>
 
 			<div class="remember-row">
 				<input type="checkbox" name="rememberme" id="rememberme" value="forever">
-				<label for="rememberme">Recordarme</label>
+				<label for="rememberme" data-i18n="login.remember">Recordarme</label>
 			</div>
 
-			<button type="submit" class="btn-login">Entrar</button>
+			<button type="submit" class="btn-login" data-i18n="login.submit">Entrar</button>
 		</form>
 
 		<div style="text-align:center; margin-top:16px;">
-			<a href="<?php echo esc_url( tma_panel_url( '/forgot-password' ) ); ?>" style="color:#a8a29e; font-size:0.8125rem; text-decoration:none;">¿Olvidaste tu contraseña?</a>
+			<a href="<?php echo esc_url( tma_panel_url( '/forgot-password' ) ); ?>" style="color:#a8a29e; font-size:0.8125rem; text-decoration:none;" data-i18n="login.forgot">¿Olvidaste tu contraseña?</a>
 		</div>
 	</div>
 
+	<!-- i18n Dictionary -->
+	<script src="<?php echo esc_url( TMA_PANEL_URL . 'assets/js/i18n.js' ); ?>?v=<?php echo esc_attr( TMA_PANEL_VERSION ); ?>"></script>
+
 	<script>
 	(function() {
+		TMA_i18n.init();
 		var form = document.getElementById('login-form');
 		var errorEl = document.getElementById('login-error');
 

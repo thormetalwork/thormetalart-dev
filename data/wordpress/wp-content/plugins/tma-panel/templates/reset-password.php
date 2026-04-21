@@ -147,8 +147,8 @@ if ( 'POST' === $_SERVER['REQUEST_METHOD'] && ! is_wp_error( $user ) ) {
 <body>
 	<div class="card">
 		<div class="card__brand">
-			<div class="card__logo">Thor Metal Art</div>
-			<div class="card__subtitle">Restablecer contraseña</div>
+			<div class="card__logo" data-i18n="login.title">Thor Metal Art</div>
+			<div class="card__subtitle" data-i18n="auth.reset_title">Restablecer contraseña</div>
 		</div>
 
 		<?php if ( $message ) : ?>
@@ -163,15 +163,19 @@ if ( 'POST' === $_SERVER['REQUEST_METHOD'] && ! is_wp_error( $user ) ) {
 			<input type="hidden" name="key" value="<?php echo esc_attr( $key ); ?>">
 			<input type="hidden" name="login" value="<?php echo esc_attr( $login ); ?>">
 
-			<label for="pass1">Nueva contraseña</label>
+			<label for="pass1" data-i18n="auth.new_password">Nueva contraseña</label>
 			<input type="password" name="pass1" id="pass1" autocomplete="new-password" required minlength="8">
 
-			<label for="pass2">Confirmar contraseña</label>
+			<label for="pass2" data-i18n="auth.confirm_password">Confirmar contraseña</label>
 			<input type="password" name="pass2" id="pass2" autocomplete="new-password" required minlength="8">
 
-			<button type="submit" class="btn">Restablecer contraseña</button>
+			<button type="submit" class="btn" data-i18n="auth.reset_submit">Restablecer contraseña</button>
 		</form>
 		<?php endif; ?>
 	</div>
+
+	<!-- i18n Dictionary -->
+	<script src="<?php echo esc_url( TMA_PANEL_URL . 'assets/js/i18n.js' ); ?>?v=<?php echo esc_attr( TMA_PANEL_VERSION ); ?>"></script>
+	<script>(function () { TMA_i18n.init(); })();</script>
 </body>
 </html>

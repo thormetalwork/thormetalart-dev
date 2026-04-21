@@ -168,6 +168,23 @@
 			'error.loading_notes': 'Error cargando notas',
 			'error.loading_audit': 'Error cargando audit log',
 			'error.export_failed': 'Error al exportar',
+
+			// Auth templates
+			'login.title': 'Thor Metal Art',
+			'login.subtitle': 'Panel Ejecutivo',
+			'login.email': 'Email o usuario',
+			'login.password': 'Contraseña',
+			'login.remember': 'Recordarme',
+			'login.submit': 'Entrar',
+			'login.forgot': '¿Olvidaste tu contraseña?',
+			'auth.forgot_title': 'Recuperar contraseña',
+			'auth.forgot_desc': 'Ingresa tu email y te enviaremos instrucciones',
+			'auth.send_reset': 'Enviar enlace de recuperación',
+			'auth.back_login': '← Volver al login',
+			'auth.reset_title': 'Restablecer contraseña',
+			'auth.new_password': 'Nueva contraseña',
+			'auth.confirm_password': 'Confirmar contraseña',
+			'auth.reset_submit': 'Restablecer contraseña',
 		},
 
 		en: {
@@ -323,6 +340,23 @@
 			'error.loading_notes': 'Error loading notes',
 			'error.loading_audit': 'Error loading audit log',
 			'error.export_failed': 'Export failed',
+
+			// Auth templates
+			'login.title': 'Thor Metal Art',
+			'login.subtitle': 'Executive Panel',
+			'login.email': 'Email or username',
+			'login.password': 'Password',
+			'login.remember': 'Remember me',
+			'login.submit': 'Sign In',
+			'login.forgot': 'Forgot your password?',
+			'auth.forgot_title': 'Forgot your password?',
+			'auth.forgot_desc': 'Enter your email and we will send you instructions',
+			'auth.send_reset': 'Send recovery link',
+			'auth.back_login': '← Back to login',
+			'auth.reset_title': 'Reset password',
+			'auth.new_password': 'New password',
+			'auth.confirm_password': 'Confirm password',
+			'auth.reset_submit': 'Reset password',
 		},
 	};
 
