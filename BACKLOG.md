@@ -2664,6 +2664,53 @@
   - **Completado:** 2026-04-22
   - **Notas de cierre:** Agregados atributos `data-i18n` a todos los labels/botones visibles en `login.php`, `forgot-password.php` y `reset-password.php`. Cada template carga `i18n.js` y llama `TMA_i18n.init()`. Añadidas 14 claves nuevas (login.* + auth.*) en diccionarios ES y EN de `i18n.js`. 49/49 tests verdes. Rama: feat/TICKET-PANEL-016-i18n-templates.
 
+- [ ] **TICKET-WP-035: Fix accesibilidad WCAG 2.1 AA — contraste de links y botones**
+  - **Fuente:** Auditoría visual 2026-04-22 — reportado contraste insuficiente en links de cuerpo y texto de botones CTA en `thormetalart.com`
+  - **Historia de Usuario:** Como usuario de `thormetalart.com`, quiero que todos los textos, links y botones cumplan WCAG 2.1 AA (contraste ≥ 4.5:1 normal, ≥ 3:1 grande) para una experiencia accesible y legible.
+  - **Fallos detectados:**
+    - Links `#B8860B` (accent gold) sobre `#F5F5F0` (background) → **2.98:1** ❌ (req. 4.5:1)
+    - Botones texto `#FFFFFF` sobre `#B8860B` (gold) → **3.25:1** ❌ (req. 4.5:1)
+  - **Fix aplicado:**
+    - `theme.json` → `elements.link.color.text: "#7c5a07"` (dark gold, **5.76:1** ✅)
+    - `theme.json` → `elements.button.color.text: "var(--wp--preset--color--primary)"` (#1A1A1A, **5.35:1** ✅)
+    - `style.css` → `.tma-quote-btn` y `.tma-final-cta` botones: `color: var(--tma-black)` (era `#fff`)
+    - `style.css` → hover states para ambos botones (dark bg + offwhite text, **17.40:1** ✅)
+    - `style.css` → header links: `text-decoration: none`; footer links: `text-decoration: none` con hover underline
+    - `style.css` → `--tma-link: #7c5a07` añadida a `:root`
+  - **Ratios finales (todos pasan WCAG AA):**
+    - Links cuerpo `#7c5a07` / `#F5F5F0` → 5.76:1 ✅
+    - Botón `#1A1A1A` / `#B8860B` → 5.35:1 ✅
+    - Hover botón `#F5F5F0` / `#1A1A1A` → 15.91:1 ✅
+    - Footer `#F5F5F0` / `#1A1A1A` → 15.91:1 ✅ (sin cambio)
+    - Panel dark UI → todos ≥ 6:1 ✅ (sin cambio)
+  - **Archivos modificados:**
+    - `data/wordpress/wp-content/themes/thormetalart/theme.json`
+    - `data/wordpress/wp-content/themes/thormetalart/style.css`
+  - **Dependencias:** Ninguna
+  - **Estimación:** 2 horas
+  - **Prioridad:** P2
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2026-04-22
+
+- [ ] **TICKET-WP-034: Hotfix traducciones portfolio PROD — en-dash vs em-dash**
+  - **Fuente:** Bug report 2026-04-22 — 3 títulos de portfolio en inglés en `thormetalart.com/es/portfolio/` + horario footer en inglés en todas las páginas ES
+  - **Historia de Usuario:** Como visitante hispanohablante de `thormetalart.com/es/`, quiero ver los títulos del portfolio y el horario del footer en español, sin mezcla de inglés en la versión ES del sitio.
+  - **Causa Raíz:**
+    - Los posts 90/92/93 en PROD usan **en-dash** (`–`, U+2013) en sus títulos; DEV usa **em-dash** (`—`, U+2014).
+    - La migración WP-033 solo añadió traducciones para las variantes con em-dash (basadas en DEV).
+    - El Paso 2 (cleanup técnico) marcó las variantes en-dash de PROD como `status=2, translated=original`, haciendo que TranslatePress las sirva en inglés aunque las considere "ya procesadas".
+    - Mismo patrón en el horario del footer y otras strings de portfolio.
+  - **Fix aplicado:** `scripts/fix-prod-portfolio-translations.sql` — 37 UPDATEs directos en `tma_trp_dictionary_en_us_es_es` de PROD usando IDs concretos con guarda `AND original = translated` para idempotencia.
+  - **Strings corregidos:** 3 títulos portfolio (IDs 371/376/373), horario footer (170/171), nav labels (380/381), 6 specs de material (396/404/400/407/388/392), 3 subtítulos cortos (382/384/383), 10 descripciones largas portfolio (393/394/389/390/401/402/385/386/397/398/405/406), 3 testimonios (173/230/165), 3 atribuciones (166/174/231), 2 textos genéricos estudio (303/217).
+  - **Verificación:** `thormetalart.com/es/portfolio/` → 12/12 títulos en español. `thormetalart.com/es/portfolio/tig-welding-structural-work/` → título + descripción + material en español. Footer → `Lun – Vie: 8:00 AM – 6:00 PM`. Redis PROD flushed.
+  - **Archivos creados:**
+    - `scripts/fix-prod-portfolio-translations.sql` (CREATED — script idempotente, safe re-run)
+  - **Dependencias:** WP-033 (migración base)
+  - **Estimación:** 1 hora
+  - **Prioridad:** P1
+  - **Status:** ✅ COMPLETADO
+  - **Completado:** 2026-04-22
+
 ---
 
 ## 📊 Resumen
@@ -2690,5 +2737,5 @@
 | 18 — Google Ecosystem | 7 | 4 | 1 | 2 | 57% |
 | 19 — Visual Real (Drive) | 5 | 5 | 0 | 0 | 100% |
 | 20 — Visual Full + Deploy | 6 | 6 | 0 | 0 | 100% |
-| **21 — TranslatePress i18n** | **3** | **0** | **3** | **0** | **0%** |
-| **TOTAL** | **85** | **79** | **4** | **2** | **93%** |
+| **21 — TranslatePress i18n** | **5** | **5** | **0** | **0** | **100%** |
+| **TOTAL** | **87** | **84** | **3** | **2** | **97%** |
