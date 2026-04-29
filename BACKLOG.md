@@ -2802,6 +2802,28 @@
     - **Status:** ✅ COMPLETADO
     - **Completado:** 2026-04-29
 
+- [ ] **TICKET-WP-042: Blog — Enlace "Blog" en menú de navegación (header + footer)**
+    - **Problema:** La página `/blog/` existe (ID=79, publish) pero no aparece en el menú principal ni en el footer. El `header.html` usa `wp:navigation` FSE inline sin link a /blog/.
+    - **Archivos a modificar:**
+        - `data/wordpress/wp-content/themes/thormetalart/parts/header.html`
+        - `data/wordpress/wp-content/themes/thormetalart/parts/footer.html`
+    - **Tests:** `tests/test-wp-042-blog-nav.sh`
+    - **Estimación:** 1 hora
+    - **Prioridad:** P0
+    - **Dependencias:** TICKET-WP-036 ✅
+    - **Status:** ⏸️ PENDIENTE
+
+- [ ] **TICKET-WP-043: Blog — Traducciones ES para los 12 posts semilla**
+    - **Problema:** Los 12 posts solo tienen versión en inglés. Al cambiar a español en TranslatePress el contenido no se traduce. Solo post ID=80 tiene strings registrados (IDs 168-221, status=0). Posts 81-91 sin strings.
+    - **Estrategia:** Visitar todos los posts (registra strings) + crear provisioner mu-plugin con traducciones ES.
+    - **Archivos a crear:**
+        - `data/wordpress/wp-content/mu-plugins/tma-blog-translations.php`
+    - **Tests:** `tests/test-wp-043-blog-translations.sh`
+    - **Estimación:** 4 horas
+    - **Prioridad:** P1
+    - **Dependencias:** TICKET-WP-039 ✅, TICKET-WP-042
+    - **Status:** ⏸️ PENDIENTE
+
 ---
 
 ## �📊 Resumen
