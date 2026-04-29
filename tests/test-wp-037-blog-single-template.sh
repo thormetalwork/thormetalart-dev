@@ -111,9 +111,8 @@ grep -q "headline\|get_the_title" "$SCHEMA" \
 echo ""
 echo "▸ Scenario 4: HTTP check for blog post"
 
-# Find any published post
-FIRST_POST_URL=$(curl -s "${BASE_URL}/wp-json/wp/v2/posts?per_page=1&status=publish" \
-    | python3 -c "import sys,json; posts=json.load(sys.stdin); print(posts[0]['link'] if posts else '')" 2>/dev/null || echo "")
+# Use a known seed post URL (WP-039) — REST API requires auth in DEV
+FIRST_POST_URL="${BASE_URL}/fabrication/custom-metal-gate-cost-miami/"
 
 if [[ -n "$FIRST_POST_URL" ]]; then
     STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$FIRST_POST_URL" 2>/dev/null || echo "000")
@@ -129,7 +128,7 @@ if [[ -n "$FIRST_POST_URL" ]]; then
         && pass "BlogPosting schema present in post HTML" \
         || fail "BlogPosting schema missing from post HTML"
 else
-    fail "No published blog posts found — run after WP-039 or create a test post"
+    fail "Seed post URL is empty — check WP-039 deployment"
     fail "Cannot verify BlogPosting schema in HTML (no post)"
 fi
 
