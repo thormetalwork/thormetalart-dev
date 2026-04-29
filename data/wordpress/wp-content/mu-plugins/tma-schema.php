@@ -12,27 +12,27 @@ defined( 'ABSPATH' ) || exit;
  */
 function tma_schema_local_business() {
 	$schema = array(
-		'@context'    => 'https://schema.org',
-		'@type'       => 'LocalBusiness',
-		'@id'         => home_url( '/#localbusiness' ),
-		'name'        => 'Thor Metal Art',
-		'description' => 'Custom metal fabrication, artistic metalwork, gates, railings, fences, stairs, and furniture in Miami.',
-		'url'         => home_url( '/' ),
-		'telephone'   => '+1-305-000-0000',
-		'email'       => 'info@thormetalart.com',
-		'priceRange'  => '$$-$$$$',
-		'address'     => array(
+		'@context'                  => 'https://schema.org',
+		'@type'                     => 'LocalBusiness',
+		'@id'                       => home_url( '/#localbusiness' ),
+		'name'                      => 'Thor Metal Art',
+		'description'               => 'Custom metal fabrication, artistic metalwork, gates, railings, fences, stairs, and furniture in Miami.',
+		'url'                       => home_url( '/' ),
+		'telephone'                 => '+1-305-000-0000',
+		'email'                     => 'info@thormetalart.com',
+		'priceRange'                => '$$-$$$$',
+		'address'                   => array(
 			'@type'           => 'PostalAddress',
 			'addressLocality' => 'Miami',
 			'addressRegion'   => 'FL',
 			'addressCountry'  => 'US',
 		),
-		'geo'         => array(
+		'geo'                       => array(
 			'@type'     => 'GeoCoordinates',
 			'latitude'  => 25.7617,
 			'longitude' => -80.1918,
 		),
-		'sameAs'      => array(
+		'sameAs'                    => array(
 			'https://www.instagram.com/thormetalart/',
 		),
 		'openingHoursSpecification' => array(
@@ -49,7 +49,7 @@ function tma_schema_local_business() {
 				'closes'    => '14:00',
 			),
 		),
-		'hasOfferCatalog' => array(
+		'hasOfferCatalog'           => array(
 			'@type'           => 'OfferCatalog',
 			'name'            => 'Metal Fabrication Services',
 			'itemListElement' => tma_schema_service_catalog(),
@@ -67,12 +67,30 @@ add_action( 'wp_head', 'tma_schema_local_business', 1 );
  */
 function tma_schema_service_catalog() {
 	$services = array(
-		array( 'name' => 'Custom Metal Gates', 'url' => home_url( '/custom-metal-gates-miami/' ) ),
-		array( 'name' => 'Metal Railings', 'url' => home_url( '/metal-railings-miami/' ) ),
-		array( 'name' => 'Metal Fences', 'url' => home_url( '/metal-fences-miami/' ) ),
-		array( 'name' => 'Custom Metal Furniture', 'url' => home_url( '/custom-metal-furniture-miami/' ) ),
-		array( 'name' => 'Metal Stairs', 'url' => home_url( '/metal-stairs-miami/' ) ),
-		array( 'name' => 'Art Commissions', 'url' => home_url( '/art-commissions/' ) ),
+		array(
+			'name' => 'Custom Metal Gates',
+			'url'  => home_url( '/custom-metal-gates-miami/' ),
+		),
+		array(
+			'name' => 'Metal Railings',
+			'url'  => home_url( '/metal-railings-miami/' ),
+		),
+		array(
+			'name' => 'Metal Fences',
+			'url'  => home_url( '/metal-fences-miami/' ),
+		),
+		array(
+			'name' => 'Custom Metal Furniture',
+			'url'  => home_url( '/custom-metal-furniture-miami/' ),
+		),
+		array(
+			'name' => 'Metal Stairs',
+			'url'  => home_url( '/metal-stairs-miami/' ),
+		),
+		array(
+			'name' => 'Art Commissions',
+			'url'  => home_url( '/art-commissions/' ),
+		),
 	);
 
 	$offers = array();
@@ -117,7 +135,7 @@ function tma_schema_service_page() {
 		'@context'    => 'https://schema.org',
 		'@type'       => 'Service',
 		'name'        => get_the_title(),
-		'description' => wp_strip_all_tags( get_the_excerpt() ?: get_the_title() ),
+		'description' => wp_strip_all_tags( get_the_excerpt() ? get_the_excerpt() : get_the_title() ),
 		'url'         => get_permalink(),
 		'provider'    => array( '@id' => home_url( '/#localbusiness' ) ),
 		'areaServed'  => array(
@@ -140,25 +158,55 @@ function tma_schema_faq_page() {
 	}
 
 	$faqs_by_slug = array(
-		'custom-metal-gates-miami' => array(
-			array( 'q' => 'How long does a custom gate take?', 'a' => 'Most custom gates are completed in 3 to 5 weeks after design approval.' ),
-			array( 'q' => 'Do you handle permits?', 'a' => 'Yes, we can manage permits in Miami-Dade and Broward when required.' ),
+		'custom-metal-gates-miami'     => array(
+			array(
+				'q' => 'How long does a custom gate take?',
+				'a' => 'Most custom gates are completed in 3 to 5 weeks after design approval.',
+			),
+			array(
+				'q' => 'Do you handle permits?',
+				'a' => 'Yes, we can manage permits in Miami-Dade and Broward when required.',
+			),
 		),
-		'metal-railings-miami' => array(
-			array( 'q' => 'Are railings code compliant?', 'a' => 'Yes, we fabricate and install based on local code requirements.' ),
-			array( 'q' => 'Can you match existing design styles?', 'a' => 'Yes, we can replicate or modernize existing railing styles.' ),
+		'metal-railings-miami'         => array(
+			array(
+				'q' => 'Are railings code compliant?',
+				'a' => 'Yes, we fabricate and install based on local code requirements.',
+			),
+			array(
+				'q' => 'Can you match existing design styles?',
+				'a' => 'Yes, we can replicate or modernize existing railing styles.',
+			),
 		),
-		'metal-fences-miami' => array(
-			array( 'q' => 'Do you offer security and decorative fences?', 'a' => 'Yes, we build both functional security and decorative perimeter systems.' ),
-			array( 'q' => 'What finish options are available?', 'a' => 'We provide finish options selected for durability in Miami weather.' ),
+		'metal-fences-miami'           => array(
+			array(
+				'q' => 'Do you offer security and decorative fences?',
+				'a' => 'Yes, we build both functional security and decorative perimeter systems.',
+			),
+			array(
+				'q' => 'What finish options are available?',
+				'a' => 'We provide finish options selected for durability in Miami weather.',
+			),
 		),
 		'custom-metal-furniture-miami' => array(
-			array( 'q' => 'Can I commission a custom design?', 'a' => 'Yes, each furniture piece is built to order from your concept and dimensions.' ),
-			array( 'q' => 'Do you work with mixed materials?', 'a' => 'Yes, we can combine metal with wood, glass, or stone elements.' ),
+			array(
+				'q' => 'Can I commission a custom design?',
+				'a' => 'Yes, each furniture piece is built to order from your concept and dimensions.',
+			),
+			array(
+				'q' => 'Do you work with mixed materials?',
+				'a' => 'Yes, we can combine metal with wood, glass, or stone elements.',
+			),
 		),
-		'metal-stairs-miami' => array(
-			array( 'q' => 'Do you build floating and spiral stairs?', 'a' => 'Yes, we fabricate custom floating, spiral, and industrial stair systems.' ),
-			array( 'q' => 'Do you install as well?', 'a' => 'Yes, our team handles fabrication and installation end to end.' ),
+		'metal-stairs-miami'           => array(
+			array(
+				'q' => 'Do you build floating and spiral stairs?',
+				'a' => 'Yes, we fabricate custom floating, spiral, and industrial stair systems.',
+			),
+			array(
+				'q' => 'Do you install as well?',
+				'a' => 'Yes, our team handles fabrication and installation end to end.',
+			),
 		),
 	);
 
@@ -264,8 +312,8 @@ function tma_schema_blog_posting() {
 		return;
 	}
 
-	$author_name  = get_the_author_meta( 'display_name', (int) $post->post_author );
-	$author_url   = get_author_posts_url( (int) $post->post_author );
+	$author_name   = get_the_author_meta( 'display_name', (int) $post->post_author );
+	$author_url    = get_author_posts_url( (int) $post->post_author );
 	$thumbnail_url = has_post_thumbnail( $post->ID )
 		? get_the_post_thumbnail_url( $post->ID, 'large' )
 		: home_url( '/wp-content/uploads/2026/04/tma-portfolio-waterjet-panel.jpg' );
@@ -276,24 +324,24 @@ function tma_schema_blog_posting() {
 	}
 
 	$schema = array(
-		'@context'      => 'https://schema.org',
-		'@type'         => 'BlogPosting',
-		'@id'           => get_permalink( $post->ID ) . '#blogposting',
-		'headline'      => get_the_title( $post->ID ),
-		'description'   => $excerpt,
-		'url'           => get_permalink( $post->ID ),
-		'datePublished' => get_the_date( 'c', $post->ID ),
-		'dateModified'  => get_the_modified_date( 'c', $post->ID ),
-		'image'         => array(
+		'@context'         => 'https://schema.org',
+		'@type'            => 'BlogPosting',
+		'@id'              => get_permalink( $post->ID ) . '#blogposting',
+		'headline'         => get_the_title( $post->ID ),
+		'description'      => $excerpt,
+		'url'              => get_permalink( $post->ID ),
+		'datePublished'    => get_the_date( 'c', $post->ID ),
+		'dateModified'     => get_the_modified_date( 'c', $post->ID ),
+		'image'            => array(
 			'@type' => 'ImageObject',
 			'url'   => $thumbnail_url,
 		),
-		'author'        => array(
+		'author'           => array(
 			'@type' => 'Person',
 			'name'  => $author_name,
 			'url'   => $author_url,
 		),
-		'publisher'     => array(
+		'publisher'        => array(
 			'@id'  => home_url( '/#localbusiness' ),
 			'name' => 'Thor Metal Art',
 		),

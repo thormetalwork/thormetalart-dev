@@ -16,13 +16,13 @@ defined( 'ABSPATH' ) || exit;
  */
 function tma_get_services() {
 	return array(
-		'custom-metal-gates-miami' => array(
-			'title'        => 'Custom Metal Gates Miami',
-			'hero_heading' => 'Custom Metal Gates Miami',
-			'subheading'   => 'Hand-Crafted. Built to Last. Designed for You.',
-			'hero_image'   => '/wp-content/uploads/2026/04/tma-portfolio-waterjet-panel.jpg',
-			'intro'        => 'Your gate is the first thing people see. At Thor Metal Art, we design and fabricate custom metal gates that combine security with style. Every gate is built for your property dimensions, design direction, and long-term durability in South Florida conditions.',
-			'includes'     => array(
+		'custom-metal-gates-miami'     => array(
+			'title'           => 'Custom Metal Gates Miami',
+			'hero_heading'    => 'Custom Metal Gates Miami',
+			'subheading'      => 'Hand-Crafted. Built to Last. Designed for You.',
+			'hero_image'      => '/wp-content/uploads/2026/04/tma-portfolio-waterjet-panel.jpg',
+			'intro'           => 'Your gate is the first thing people see. At Thor Metal Art, we design and fabricate custom metal gates that combine security with style. Every gate is built for your property dimensions, design direction, and long-term durability in South Florida conditions.',
+			'includes'        => array(
 				'Custom design from sketch, inspiration images, or from-scratch concept',
 				'Water jet precision cutting for clean and exact shapes',
 				'MIG and TIG welding for structural integrity',
@@ -30,7 +30,7 @@ function tma_get_services() {
 				'Professional installation and permit support',
 				'Free estimate before any commitment',
 			),
-			'faqs'         => array(
+			'faqs'            => array(
 				array(
 					'q' => 'How long does a custom gate take?',
 					'a' => 'Most projects take between 3 and 5 weeks after design approval, depending on complexity and permit requirements.',
@@ -48,13 +48,13 @@ function tma_get_services() {
 			'spanish_heading' => 'Portones de Metal Personalizados en Miami',
 			'spanish_body'    => 'Fabricamos portones de metal a medida para residencias y negocios. Combinamos seguridad, diseno y durabilidad con fabricacion local en Miami-Dade.',
 		),
-		'metal-railings-miami' => array(
-			'title'        => 'Metal Railings Miami',
-			'hero_heading' => 'Metal Railings Miami',
-			'subheading'   => 'Custom Design for Stairs, Balconies and Decks.',
-			'hero_image'   => '/wp-content/uploads/2026/04/tma-portfolio-tig-welding.jpg',
-			'intro'        => 'Every railing should protect and elevate the space visually. We fabricate custom metal railings for staircases, balconies, and pool decks with full code compliance and premium finishes.',
-			'includes'     => array(
+		'metal-railings-miami'         => array(
+			'title'           => 'Metal Railings Miami',
+			'hero_heading'    => 'Metal Railings Miami',
+			'subheading'      => 'Custom Design for Stairs, Balconies and Decks.',
+			'hero_image'      => '/wp-content/uploads/2026/04/tma-portfolio-tig-welding.jpg',
+			'intro'           => 'Every railing should protect and elevate the space visually. We fabricate custom metal railings for staircases, balconies, and pool decks with full code compliance and premium finishes.',
+			'includes'        => array(
 				'Interior and exterior custom railing systems',
 				'Exact on-site measurement and fabrication to spec',
 				'Architectural detailing and clean visual lines',
@@ -62,7 +62,7 @@ function tma_get_services() {
 				'Code-compliant installation',
 				'Free estimate and timeline planning',
 			),
-			'faqs'         => array(
+			'faqs'            => array(
 				array(
 					'q' => 'Can you match an existing railing style?',
 					'a' => 'Yes. We can replicate or reinterpret existing styles while improving structural performance and finish quality.',
@@ -80,13 +80,13 @@ function tma_get_services() {
 			'spanish_heading' => 'Barandas de Metal Personalizadas en Miami',
 			'spanish_body'    => 'Disenamos e instalamos barandas de metal para escaleras, balcones y terrazas. Seguridad y estilo en una sola solucion.',
 		),
-		'metal-fences-miami' => array(
-			'title'        => 'Custom Metal Fences Miami',
-			'hero_heading' => 'Custom Metal Fences Miami',
-			'subheading'   => 'Decorative and Security Solutions Built to Last.',
-			'hero_image'   => '/wp-content/uploads/2026/04/tma-workshop-facade.jpg',
-			'intro'        => 'A fence should protect the property while matching the architecture. We design and fabricate decorative and security metal fences for homes and businesses in South Florida.',
-			'includes'     => array(
+		'metal-fences-miami'           => array(
+			'title'           => 'Custom Metal Fences Miami',
+			'hero_heading'    => 'Custom Metal Fences Miami',
+			'subheading'      => 'Decorative and Security Solutions Built to Last.',
+			'hero_image'      => '/wp-content/uploads/2026/04/tma-workshop-facade.jpg',
+			'intro'           => 'A fence should protect the property while matching the architecture. We design and fabricate decorative and security metal fences for homes and businesses in South Florida.',
+			'includes'        => array(
 				'Perimeter security fence systems',
 				'Decorative patterns and modern privacy options',
 				'Custom gates integrated with fence layout',
@@ -94,7 +94,7 @@ function tma_get_services() {
 				'Professional installation',
 				'Free estimate and phased project planning',
 			),
-			'faqs'         => array(
+			'faqs'            => array(
 				array(
 					'q' => 'What material works best for Miami weather?',
 					'a' => 'We select material and finish based on exposure and maintenance preferences, with strong anti-corrosion options.',
@@ -113,12 +113,12 @@ function tma_get_services() {
 			'spanish_body'    => 'Creamos cercas de metal decorativas y de seguridad para residencias y comercios, con acabados duraderos para el clima del sur de Florida.',
 		),
 		'custom-metal-furniture-miami' => array(
-			'title'        => 'Custom Metal Furniture Miami',
-			'hero_heading' => 'Custom Metal Furniture Miami',
-			'subheading'   => 'One-of-a-Kind Pieces Built to Order.',
-			'hero_image'   => '/wp-content/uploads/2026/04/tma-portfolio-stainless-steel.jpg',
-			'intro'        => 'Our custom furniture combines industrial precision with artisan craft. We fabricate tables, shelving, frames, and statement pieces designed around your space and concept.',
-			'includes'     => array(
+			'title'           => 'Custom Metal Furniture Miami',
+			'hero_heading'    => 'Custom Metal Furniture Miami',
+			'subheading'      => 'One-of-a-Kind Pieces Built to Order.',
+			'hero_image'      => '/wp-content/uploads/2026/04/tma-portfolio-stainless-steel.jpg',
+			'intro'           => 'Our custom furniture combines industrial precision with artisan craft. We fabricate tables, shelving, frames, and statement pieces designed around your space and concept.',
+			'includes'        => array(
 				'Design consultation for dimensions and style',
 				'Custom fabrication in steel, iron, and mixed materials',
 				'Collaboration with wood, stone, or glass elements',
@@ -126,7 +126,7 @@ function tma_get_services() {
 				'Delivery and installation support',
 				'Free estimate with transparent scope',
 			),
-			'faqs'         => array(
+			'faqs'            => array(
 				array(
 					'q' => 'Can you build from inspiration photos?',
 					'a' => 'Yes. We can work from references, refine proportions, and deliver a custom piece tailored to your space.',
@@ -144,13 +144,13 @@ function tma_get_services() {
 			'spanish_heading' => 'Muebles de Metal Personalizados en Miami',
 			'spanish_body'    => 'Fabricamos muebles unicos en metal para hogares y negocios: mesas, estanterias, bases y piezas decorativas hechas a medida.',
 		),
-		'metal-stairs-miami' => array(
-			'title'        => 'Metal Stairs Miami',
-			'hero_heading' => 'Metal Stairs and Handrails Miami',
-			'subheading'   => 'Structural Precision with Visual Impact.',
-			'hero_image'   => '/wp-content/uploads/2026/04/tma-process-bending.jpg',
-			'intro'        => 'We fabricate custom stair systems and handrails for residential and commercial spaces: floating stairs, spiral designs, and industrial-style structures with architectural presence.',
-			'includes'     => array(
+		'metal-stairs-miami'           => array(
+			'title'           => 'Metal Stairs Miami',
+			'hero_heading'    => 'Metal Stairs and Handrails Miami',
+			'subheading'      => 'Structural Precision with Visual Impact.',
+			'hero_image'      => '/wp-content/uploads/2026/04/tma-process-bending.jpg',
+			'intro'           => 'We fabricate custom stair systems and handrails for residential and commercial spaces: floating stairs, spiral designs, and industrial-style structures with architectural presence.',
+			'includes'        => array(
 				'Floating and spiral stair options',
 				'Handrails integrated with stair architecture',
 				'Structural fabrication with code-aware detailing',
@@ -158,7 +158,7 @@ function tma_get_services() {
 				'On-site installation and alignment',
 				'Free estimate and technical walkthrough',
 			),
-			'faqs'         => array(
+			'faqs'            => array(
 				array(
 					'q' => 'Do you build stairs for renovations and new construction?',
 					'a' => 'Yes. We work with homeowners, contractors, and designers for both renovation and ground-up projects.',
@@ -228,7 +228,7 @@ function tma_get_core_pages() {
 			'title'   => 'How We Work',
 			'content' => '<!-- wp:group {"layout":{"type":"constrained","contentSize":"1200px"}} --><div class="wp-block-group"><!-- wp:cover {"url":"/wp-content/uploads/2026/04/tma-karel-welding.jpg","dimRatio":60,"overlayColor":"primary","isDark":true,"minHeight":340,"minHeightUnit":"px","className":"tma-service-hero-cover"} --><div class="wp-block-cover is-dark tma-service-hero-cover" style="min-height:340px"><span aria-hidden="true" class="wp-block-cover__background has-primary-background-color has-background-dim-60 has-background-dim"></span><img class="wp-block-cover__image-background" alt="Karel welding custom metal project" src="/wp-content/uploads/2026/04/tma-karel-welding.jpg" data-object-fit="cover"/><div class="wp-block-cover__inner-container"><!-- wp:heading {"level":1,"textAlign":"center"} --><h1 class="wp-block-heading has-text-align-center">How We Work</h1><!-- /wp:heading --><!-- wp:paragraph {"align":"center"} --><p class="has-text-align-center">From first call to finished installation - everything is handled in-house by our Miami team.</p><!-- /wp:paragraph --></div></div><!-- /wp:cover --><!-- wp:columns --><div class="wp-block-columns"><!-- wp:column --><div class="wp-block-column"><h3>1. Free Estimate</h3><p>Tell us your idea and constraints.</p></div><!-- /wp:column --><!-- wp:column --><div class="wp-block-column"><h3>2. Design &amp; Quote</h3><p>We provide concept and clear pricing.</p></div><!-- /wp:column --></div><!-- /wp:columns --><!-- wp:columns --><div class="wp-block-columns"><!-- wp:column --><div class="wp-block-column"><h3>3. Production</h3><p>Water jet cutting, welding, and finishing.</p></div><!-- /wp:column --><!-- wp:column --><div class="wp-block-column"><h3>4. Quality Check</h3><p>Structural and finish verification before install.</p></div><!-- /wp:column --></div><!-- /wp:columns --><!-- wp:columns --><div class="wp-block-columns"><!-- wp:column --><div class="wp-block-column"><h3>5. Installation</h3><p>Final installation and handover with clean-up.</p></div><!-- /wp:column --></div><!-- /wp:columns --><!-- wp:gallery {"linkTo":"none","columns":4,"className":"tma-service-gallery"} --><figure class="wp-block-gallery has-nested-images columns-4 is-cropped tma-service-gallery"><!-- wp:image {"sizeSlug":"medium_large","linkDestination":"none"} --><figure class="wp-block-image size-medium_large"><img src="/wp-content/uploads/2026/04/tma-process-cutting.jpg" alt="Metal cutting process" /></figure><!-- /wp:image --><!-- wp:image {"sizeSlug":"medium_large","linkDestination":"none"} --><figure class="wp-block-image size-medium_large"><img src="/wp-content/uploads/2026/04/tma-process-bending.jpg" alt="Metal bending process" /></figure><!-- /wp:image --><!-- wp:image {"sizeSlug":"medium_large","linkDestination":"none"} --><figure class="wp-block-image size-medium_large"><img src="/wp-content/uploads/2026/04/tma-process-machine.jpg" alt="Machine precision process" /></figure><!-- /wp:image --><!-- wp:image {"sizeSlug":"medium_large","linkDestination":"none"} --><figure class="wp-block-image size-medium_large"><img src="/wp-content/uploads/2026/04/tma-process-polishing.jpg" alt="Polishing and finishing process" /></figure><!-- /wp:image --></figure><!-- /wp:gallery --><!-- wp:list --><ul><li>Everything in-house</li><li>Water jet + MIG/TIG welding</li><li>Response within 24 hours</li><li>Licensed and insured</li></ul><!-- /wp:list --><!-- wp:buttons --><div class="wp-block-buttons"><!-- wp:button --><div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="/contact/">Ready to Start? Get a Free Estimate</a></div><!-- /wp:button --></div><!-- /wp:buttons --></div><!-- /wp:group -->',
 		),
-		'contact'          => array(
+		'contact'         => array(
 			'title'   => 'Contact Thor Metal Art',
 			'content' => '<!-- wp:paragraph --><p>This page uses the dedicated block template page-contact.html. Update direct contact details in the content template as needed.</p><!-- /wp:paragraph -->',
 		),
