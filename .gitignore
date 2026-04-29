@@ -2,6 +2,7 @@
 data/*
 !data/wordpress/
 data/wordpress/*
+!data/wordpress/.htaccess
 !data/wordpress/wp-content/
 data/wordpress/wp-content/*
 !data/wordpress/wp-content/plugins/

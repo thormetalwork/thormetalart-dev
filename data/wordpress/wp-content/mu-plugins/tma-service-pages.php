@@ -440,3 +440,117 @@ function tma_shortcode_contact_map() {
 	return '<iframe title="Thor Metal Art Map" loading="lazy" referrerpolicy="no-referrer-when-downgrade" style="width:100%;min-height:320px;border:0;border-radius:10px" allowfullscreen src="' . esc_url( $src ) . '"></iframe>';
 }
 add_shortcode( 'tma_contact_map', 'tma_shortcode_contact_map' );
+
+// ═══════════════════════════════════════════════════════════════════
+// TICKET-WP-036 — Blog: Page, Categories & WordPress Settings
+// ═══════════════════════════════════════════════════════════════════
+
+/**
+ * Return blog categories dataset.
+ *
+ * @return array<string, array<string, string>>
+ */
+function tma_get_blog_categories() {
+	return array(
+		'fabrication'    => array(
+			'name'        => 'Fabrication Guides',
+			'description' => 'Technical guides on metal fabrication processes used at Thor Metal Art.',
+		),
+		'design-ideas'   => array(
+			'name'        => 'Design Ideas',
+			'description' => 'Custom metal gate, fence, and furniture design inspiration for Miami properties.',
+		),
+		'miami-projects' => array(
+			'name'        => 'Miami Projects',
+			'description' => 'Behind-the-scenes looks at completed metalwork projects in Miami-Dade and Broward.',
+		),
+		'care-tips'      => array(
+			'name'        => 'Care & Maintenance',
+			'description' => 'How to maintain metal gates, railings, and fences in South Florida conditions.',
+		),
+		'metal-art'      => array(
+			'name'        => 'Metal Art',
+			'description' => 'Custom metal sculptures and commissioned art pieces by Karel Frometa.',
+		),
+	);
+}
+
+/**
+ * Create blog categories if they do not exist.
+ */
+function tma_provision_blog_categories() {
+	$categories = tma_get_blog_categories();
+
+	foreach ( $categories as $slug => $data ) {
+		if ( ! term_exists( $slug, 'category' ) ) {
+			wp_insert_term(
+				$data['name'],
+				'category',
+				array(
+					'slug'        => $slug,
+					'description' => $data['description'],
+				)
+			);
+		}
+	}
+}
+
+/**
+ * Create the Blog index page and configure WordPress blog settings.
+ */
+function tma_provision_blog() {
+	// 1. Create /blog/ page if it does not exist.
+	$existing = get_page_by_path( 'blog' );
+	if ( ! $existing ) {
+		$blog_page_id = wp_insert_post(
+			array(
+				'post_title'   => 'Blog',
+				'post_name'    => 'blog',
+				'post_content' => '',
+				'post_status'  => 'publish',
+				'post_type'    => 'page',
+				'post_author'  => 3,
+				'meta_input'   => array(
+					'_tma_generated_page' => '1',
+					'_tma_generated_type' => 'blog-index',
+				),
+			)
+		);
+	} else {
+		$blog_page_id = $existing->ID;
+	}
+
+	if ( is_wp_error( $blog_page_id ) || ! $blog_page_id ) {
+		return;
+	}
+
+	// 2. Create blog categories.
+	tma_provision_blog_categories();
+
+	// 3. Configure WordPress reading settings.
+	update_option( 'show_on_front', 'page', true );
+	update_option( 'page_for_posts', (int) $blog_page_id, true );
+
+	// Keep page_on_front at 0 — FSE front-page.html handles root URL.
+	if ( '0' === (string) get_option( 'page_on_front', '0' ) ) {
+		update_option( 'page_on_front', 0, true );
+	}
+
+	// 4. Set permalink structure for blog SEO.
+	update_option( 'permalink_structure', '/%category%/%postname%/', true );
+	flush_rewrite_rules( false );
+}
+
+/**
+ * Provision blog once on init.
+ */
+function tma_maybe_provision_blog_once() {
+	$version = get_option( 'tma_blog_version', '' );
+	if ( 'v1' === $version ) {
+		return;
+	}
+
+	tma_provision_blog();
+	update_option( 'tma_blog_version', 'v1', false );
+}
+add_action( 'init', 'tma_maybe_provision_blog_once', 55 );
