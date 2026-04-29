@@ -2544,6 +2544,119 @@
 
 ---
 
+## 📋 FASE 21 — TranslatePress: Arquitectura Limpia + Traducciones
+
+- [x] **TICKET-WP-026: TranslatePress — Excluir panel de la traducción automática**
+    - **Status:** ✅ COMPLETADO
+    - **Completado:** 2026-04-21
+
+- [x] **TICKET-WP-027: TranslatePress — Strings críticas del panel**
+    - **Status:** ✅ COMPLETADO
+    - **Completado:** 2026-04-22
+
+- [x] **TICKET-WP-028: TranslatePress — Traducciones de templates**
+    - **Status:** ✅ COMPLETADO
+    - **Completado:** 2026-04-22
+
+- [x] **TICKET-WP-029: TranslatePress — i18n JS propio del panel**
+    - **Status:** ✅ COMPLETADO
+    - **Completado:** 2026-04-22
+
+- [x] **TICKET-PANEL-016: Templates i18n — Arquitectura limpia**
+    - **Status:** ✅ COMPLETADO
+    - **Completado:** 2026-04-22
+
+---
+
+## 📋 FASE 22 — Social Media Setup
+
+- [ ] **TICKET-SOC-001: Configurar Instagram Business + hashtags**
+    - **Status:** ⏸️ PENDIENTE
+
+- [ ] **TICKET-SOC-002: Configurar Facebook Business Page**
+    - **Status:** ⏸️ PENDIENTE
+
+- [ ] **TICKET-SOC-003: Configurar LinkedIn Company Page**
+    - **Status:** ⏸️ PENDIENTE
+
+- [ ] **TICKET-SOC-004: Configurar YouTube Channel**
+    - **Status:** ⏸️ PENDIENTE
+
+---
+
+## 📋 FASE 23 — Blog: Contenido SEO + Autoridad de Marca
+
+- [ ] **TICKET-WP-036: Blog — Página /blog/, categorías y configuración WordPress**
+    - **Fuente:** Estrategia SEO — blog es clave para rankear keywords de larga cola en Miami
+    - **Categorías:**
+        | Slug | Nombre EN | Nombre ES |
+        |------|-----------|-----------|
+        | `fabrication` | Fabrication Guides | Guías de Fabricación |
+        | `design-ideas` | Design Ideas | Ideas de Diseño |
+        | `miami-projects` | Miami Projects | Proyectos en Miami |
+        | `care-tips` | Care & Maintenance | Mantenimiento |
+        | `metal-art` | Metal Art | Arte en Metal |
+    - **Archivos a modificar:**
+        - `data/wordpress/wp-content/mu-plugins/tma-service-pages.php`
+    - **Estimación:** 2 horas
+    - **Prioridad:** P1
+    - **Dependencias:** TICKET-WP-041 ✅
+    - **Status:** 🔄 EN PROGRESO
+
+- [ ] **TICKET-WP-037: Blog — Template single.html (FSE) + schema BlogPosting**
+    - **Archivos a crear/modificar:**
+        - `data/wordpress/wp-content/themes/thormetalart/templates/single.html`
+        - `data/wordpress/wp-content/mu-plugins/tma-schema.php`
+    - **Estimación:** 3 horas
+    - **Prioridad:** P1
+    - **Dependencias:** TICKET-WP-036
+    - **Status:** ⏸️ PENDIENTE
+
+- [ ] **TICKET-WP-038: Blog — Templates archive.html e índice de categorías**
+    - **Archivos a crear:**
+        - `data/wordpress/wp-content/themes/thormetalart/templates/archive.html`
+    - **Estimación:** 3 horas
+    - **Prioridad:** P1
+    - **Dependencias:** TICKET-WP-036, TICKET-WP-037
+    - **Status:** ⏸️ PENDIENTE
+
+- [ ] **TICKET-WP-039: Blog — 12 posts semilla (Karel Frometa, SEO, bilingual)**
+    - **Posts:**
+        1. How Much Does a Custom Metal Gate Cost in Miami? (fabrication)
+        2. 7 Metal Gate Styles That Work in Miami's Climate (design-ideas)
+        3. Steel vs. Aluminum Gates: Which Is Right for Miami? (fabrication)
+        4. Inside a Miami Metalwork Project: From Design to Install (miami-projects)
+        5. How to Maintain Metal Railings in South Florida's Salt Air (care-tips)
+        6. 5 Ideas for Custom Metal Furniture That Transform Any Space (design-ideas)
+        7. Metal Sculpture Commissioning: What to Expect (metal-art)
+        8. Why Miami Architects Choose Custom Metalwork (miami-projects)
+        9. Water Jet Cutting vs. Plasma Cutting: A Fabricator's Guide (fabrication)
+        10. How to Choose the Right Metal Fence for Your Miami Property (design-ideas)
+        11. TIG Welding: The Art Behind Structural & Decorative Metalwork (fabrication)
+        12. From Sketch to Steel: Our Custom Metal Gate Process (miami-projects)
+    - **Estimación:** 8 horas
+    - **Prioridad:** P1
+    - **Dependencias:** TICKET-WP-036, TICKET-WP-037, TICKET-WP-038
+    - **Status:** ⏸️ PENDIENTE
+
+- [ ] **TICKET-WP-040: Blog — Sidebar: posts recientes, categorías y CTA**
+    - **Estimación:** 2 horas
+    - **Prioridad:** P2
+    - **Dependencias:** TICKET-WP-037, TICKET-WP-039
+    - **Status:** ⏸️ PENDIENTE
+
+- [x] **TICKET-WP-041: Blog — Author identity fix: Karel Frometa como autor público**
+    - **Cambios implementados (DEV + PROD):** Karel Frometa (ID=3) es el autor público. ppcapiro no accesible.
+    - **Archivos modificados:**
+        - `data/wordpress/wp-content/mu-plugins/tma-security.php`
+        - `data/wordpress/wp-content/themes/thormetalart/functions.php`
+    - **Estimación:** 2 horas
+    - **Prioridad:** P0
+    - **Status:** ✅ COMPLETADO
+    - **Completado:** 2026-04-29
+
+---
+
 ## �📊 Resumen
 
 | Fase | Total | ✅ | ⏸️ | 🚫 | Progreso |
@@ -2568,4 +2681,7 @@
 | 18 — Google Ecosystem | 7 | 4 | 1 | 2 | 57% |
 | **19 — Visual Real (Drive)** | **5** | **5** | **0** | **0** | **100%** |
 | **20 — Visual Full + Deploy** | **6** | **6** | **0** | **0** | **100%** |
-| **TOTAL** | **82** | **79** | **1** | **2** | **96%** |
+| **21 — TranslatePress i18n** | **5**  | **5**  | **0** | **0** | **100%** |
+| **22 — Social Media Setup**  | **4**  | **0**  | **4** | **0** | **0%**   |
+| **23 — Blog SEO + Marca**    | **6**  | **1**  | **5** | **0** | **17%**  |
+| **TOTAL**                    | **99** | **86** | **9** | **4** | **87%**  |
