@@ -2586,7 +2586,7 @@
 
 ## 📋 FASE 23 — Blog: Contenido SEO + Autoridad de Marca
 
-- [ ] **TICKET-WP-036: Blog — Página /blog/, categorías y configuración WordPress**
+- [x] **TICKET-WP-036: Blog — Página /blog/, categorías y configuración WordPress**
     - **Fuente:** Estrategia SEO — blog es clave para rankear keywords de larga cola en Miami
     - **Categorías:**
         | Slug | Nombre EN | Nombre ES |
@@ -2596,12 +2596,15 @@
         | `miami-projects` | Miami Projects | Proyectos en Miami |
         | `care-tips` | Care & Maintenance | Mantenimiento |
         | `metal-art` | Metal Art | Arte en Metal |
-    - **Archivos a modificar:**
+    - **Archivos modificados:**
         - `data/wordpress/wp-content/mu-plugins/tma-service-pages.php`
+        - `data/wordpress/.htaccess` (creado — necesario para mod_rewrite con Apache)
     - **Estimación:** 2 horas
     - **Prioridad:** P1
     - **Dependencias:** TICKET-WP-041 ✅
-    - **Status:** 🔄 EN PROGRESO
+    - **Status:** ✅ COMPLETADO
+    - **Completado:** 2026-04-29
+    - **Notas de cierre:** Blog page (ID=79, /blog/) creada. 5 categorías provisionadas. WordPress configurado: show_on_front=page, page_for_posts=79, permalink_structure=/%category%/%postname%/. .htaccess creado (faltaba, causaba 404 en todos los permalinks). Deploy DEV+PROD verificado. 19/19 tests PASS.
 
 - [ ] **TICKET-WP-037: Blog — Template single.html (FSE) + schema BlogPosting**
     - **Archivos a crear/modificar:**
@@ -2683,5 +2686,5 @@
 | **20 — Visual Full + Deploy** | **6** | **6** | **0** | **0** | **100%** |
 | **21 — TranslatePress i18n** | **5**  | **5**  | **0** | **0** | **100%** |
 | **22 — Social Media Setup**  | **4**  | **0**  | **4** | **0** | **0%**   |
-| **23 — Blog SEO + Marca**    | **6**  | **1**  | **5** | **0** | **17%**  |
-| **TOTAL**                    | **99** | **86** | **9** | **4** | **87%**  |
+| **23 — Blog SEO + Marca**    | **6**  | **2**  | **4** | **0** | **33%**  |
+| **TOTAL**                    | **99** | **87** | **8** | **4** | **88%**  |
