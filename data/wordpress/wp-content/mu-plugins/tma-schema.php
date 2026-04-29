@@ -1,23 +1,25 @@
 <?php
+
 /**
  * Thor Metal Art — Schema Markup (JSON-LD)
  *
  * @package ThorMetalArt
  */
 
-defined( 'ABSPATH' ) || exit;
+defined('ABSPATH') || exit;
 
 /**
  * Output LocalBusiness schema globally.
  */
-function tma_schema_local_business() {
+function tma_schema_local_business()
+{
 	$schema = array(
 		'@context'                  => 'https://schema.org',
 		'@type'                     => 'LocalBusiness',
-		'@id'                       => home_url( '/#localbusiness' ),
+		'@id'                       => home_url('/#localbusiness'),
 		'name'                      => 'Thor Metal Art',
 		'description'               => 'Custom metal fabrication, artistic metalwork, gates, railings, fences, stairs, and furniture in Miami.',
-		'url'                       => home_url( '/' ),
+		'url'                       => home_url('/'),
 		'telephone'                 => '+1-305-000-0000',
 		'email'                     => 'info@thormetalart.com',
 		'priceRange'                => '$$-$$$$',
@@ -38,7 +40,7 @@ function tma_schema_local_business() {
 		'openingHoursSpecification' => array(
 			array(
 				'@type'     => 'OpeningHoursSpecification',
-				'dayOfWeek' => array( 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday' ),
+				'dayOfWeek' => array('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'),
 				'opens'     => '08:00',
 				'closes'    => '18:00',
 			),
@@ -56,51 +58,52 @@ function tma_schema_local_business() {
 		),
 	);
 
-	tma_output_jsonld( $schema );
+	tma_output_jsonld($schema);
 }
-add_action( 'wp_head', 'tma_schema_local_business', 1 );
+add_action('wp_head', 'tma_schema_local_business', 1);
 
 /**
  * Build service catalog list.
  *
  * @return array<int, array<string, mixed>>
  */
-function tma_schema_service_catalog() {
+function tma_schema_service_catalog()
+{
 	$services = array(
 		array(
 			'name' => 'Custom Metal Gates',
-			'url'  => home_url( '/custom-metal-gates-miami/' ),
+			'url'  => home_url('/custom-metal-gates-miami/'),
 		),
 		array(
 			'name' => 'Metal Railings',
-			'url'  => home_url( '/metal-railings-miami/' ),
+			'url'  => home_url('/metal-railings-miami/'),
 		),
 		array(
 			'name' => 'Metal Fences',
-			'url'  => home_url( '/metal-fences-miami/' ),
+			'url'  => home_url('/metal-fences-miami/'),
 		),
 		array(
 			'name' => 'Custom Metal Furniture',
-			'url'  => home_url( '/custom-metal-furniture-miami/' ),
+			'url'  => home_url('/custom-metal-furniture-miami/'),
 		),
 		array(
 			'name' => 'Metal Stairs',
-			'url'  => home_url( '/metal-stairs-miami/' ),
+			'url'  => home_url('/metal-stairs-miami/'),
 		),
 		array(
 			'name' => 'Art Commissions',
-			'url'  => home_url( '/art-commissions/' ),
+			'url'  => home_url('/art-commissions/'),
 		),
 	);
 
 	$offers = array();
-	foreach ( $services as $service ) {
+	foreach ($services as $service) {
 		$offers[] = array(
 			'@type'       => 'Offer',
 			'itemOffered' => array(
 				'@type'    => 'Service',
 				'name'     => $service['name'],
-				'provider' => array( '@id' => home_url( '/#localbusiness' ) ),
+				'provider' => array('@id' => home_url('/#localbusiness')),
 				'url'      => $service['url'],
 			),
 		);
@@ -112,8 +115,9 @@ function tma_schema_service_catalog() {
 /**
  * Output Service schema on service pages.
  */
-function tma_schema_service_page() {
-	if ( ! is_page() ) {
+function tma_schema_service_page()
+{
+	if (! is_page()) {
 		return;
 	}
 
@@ -126,8 +130,8 @@ function tma_schema_service_page() {
 		'art-commissions',
 	);
 
-	$slug = get_post_field( 'post_name', get_queried_object_id() );
-	if ( ! in_array( $slug, $slugs, true ) ) {
+	$slug = get_post_field('post_name', get_queried_object_id());
+	if (! in_array($slug, $slugs, true)) {
 		return;
 	}
 
@@ -135,9 +139,9 @@ function tma_schema_service_page() {
 		'@context'    => 'https://schema.org',
 		'@type'       => 'Service',
 		'name'        => get_the_title(),
-		'description' => wp_strip_all_tags( get_the_excerpt() ? get_the_excerpt() : get_the_title() ),
+		'description' => wp_strip_all_tags(get_the_excerpt() ? get_the_excerpt() : get_the_title()),
 		'url'         => get_permalink(),
-		'provider'    => array( '@id' => home_url( '/#localbusiness' ) ),
+		'provider'    => array('@id' => home_url('/#localbusiness')),
 		'areaServed'  => array(
 			'@type' => 'City',
 			'name'  => 'Miami',
@@ -145,15 +149,16 @@ function tma_schema_service_page() {
 		'serviceType' => 'Custom Metal Fabrication',
 	);
 
-	tma_output_jsonld( $schema );
+	tma_output_jsonld($schema);
 }
-add_action( 'wp_head', 'tma_schema_service_page', 2 );
+add_action('wp_head', 'tma_schema_service_page', 2);
 
 /**
  * Output FAQPage schema from predefined FAQs per service slug.
  */
-function tma_schema_faq_page() {
-	if ( ! is_page() ) {
+function tma_schema_faq_page()
+{
+	if (! is_page()) {
 		return;
 	}
 
@@ -210,13 +215,13 @@ function tma_schema_faq_page() {
 		),
 	);
 
-	$slug = get_post_field( 'post_name', get_queried_object_id() );
-	if ( ! isset( $faqs_by_slug[ $slug ] ) ) {
+	$slug = get_post_field('post_name', get_queried_object_id());
+	if (! isset($faqs_by_slug[$slug])) {
 		return;
 	}
 
 	$entities = array();
-	foreach ( $faqs_by_slug[ $slug ] as $faq ) {
+	foreach ($faqs_by_slug[$slug] as $faq) {
 		$entities[] = array(
 			'@type'          => 'Question',
 			'name'           => $faq['q'],
@@ -233,15 +238,16 @@ function tma_schema_faq_page() {
 		'mainEntity' => $entities,
 	);
 
-	tma_output_jsonld( $schema );
+	tma_output_jsonld($schema);
 }
-add_action( 'wp_head', 'tma_schema_faq_page', 3 );
+add_action('wp_head', 'tma_schema_faq_page', 3);
 
 /**
  * Output BreadcrumbList schema for non-home routes.
  */
-function tma_schema_breadcrumbs() {
-	if ( is_front_page() ) {
+function tma_schema_breadcrumbs()
+{
+	if (is_front_page()) {
 		return;
 	}
 
@@ -250,24 +256,24 @@ function tma_schema_breadcrumbs() {
 			'@type'    => 'ListItem',
 			'position' => 1,
 			'name'     => 'Home',
-			'item'     => home_url( '/' ),
+			'item'     => home_url('/'),
 		),
 	);
 
 	$position = 2;
-	if ( is_post_type_archive( 'tma_portfolio' ) ) {
+	if (is_post_type_archive('tma_portfolio')) {
 		$items[] = array(
 			'@type'    => 'ListItem',
 			'position' => $position,
 			'name'     => 'Portfolio',
-			'item'     => get_post_type_archive_link( 'tma_portfolio' ),
+			'item'     => get_post_type_archive_link('tma_portfolio'),
 		);
-	} elseif ( is_singular( 'tma_portfolio' ) ) {
+	} elseif (is_singular('tma_portfolio')) {
 		$items[] = array(
 			'@type'    => 'ListItem',
 			'position' => $position,
 			'name'     => 'Portfolio',
-			'item'     => get_post_type_archive_link( 'tma_portfolio' ),
+			'item'     => get_post_type_archive_link('tma_portfolio'),
 		);
 		++$position;
 		$items[] = array(
@@ -276,7 +282,7 @@ function tma_schema_breadcrumbs() {
 			'name'     => get_the_title(),
 			'item'     => get_permalink(),
 		);
-	} elseif ( is_page() ) {
+	} elseif (is_page()) {
 		$items[] = array(
 			'@type'    => 'ListItem',
 			'position' => $position,
@@ -285,7 +291,7 @@ function tma_schema_breadcrumbs() {
 		);
 	}
 
-	if ( count( $items ) < 2 ) {
+	if (count($items) < 2) {
 		return;
 	}
 
@@ -295,43 +301,44 @@ function tma_schema_breadcrumbs() {
 		'itemListElement' => $items,
 	);
 
-	tma_output_jsonld( $schema );
+	tma_output_jsonld($schema);
 }
-add_action( 'wp_head', 'tma_schema_breadcrumbs', 4 );
+add_action('wp_head', 'tma_schema_breadcrumbs', 4);
 
 /**
  * Output BlogPosting schema for single blog posts.
  */
-function tma_schema_blog_posting() {
-	if ( ! is_single() || ! is_singular( 'post' ) ) {
+function tma_schema_blog_posting()
+{
+	if (! is_single() || ! is_singular('post')) {
 		return;
 	}
 
 	$post = get_post();
-	if ( ! $post ) {
+	if (! $post) {
 		return;
 	}
 
-	$author_name   = get_the_author_meta( 'display_name', (int) $post->post_author );
-	$author_url    = get_author_posts_url( (int) $post->post_author );
-	$thumbnail_url = has_post_thumbnail( $post->ID )
-		? get_the_post_thumbnail_url( $post->ID, 'large' )
-		: home_url( '/wp-content/uploads/2026/04/tma-portfolio-waterjet-panel.jpg' );
+	$author_name   = get_the_author_meta('display_name', (int) $post->post_author);
+	$author_url    = get_author_posts_url((int) $post->post_author);
+	$thumbnail_url = has_post_thumbnail($post->ID)
+		? get_the_post_thumbnail_url($post->ID, 'large')
+		: home_url('/wp-content/uploads/2026/04/tma-portfolio-waterjet-panel.jpg');
 
-	$excerpt = wp_strip_all_tags( get_the_excerpt( $post->ID ) );
-	if ( ! $excerpt ) {
-		$excerpt = wp_strip_all_tags( wp_trim_words( $post->post_content, 30 ) );
+	$excerpt = wp_strip_all_tags(get_the_excerpt($post->ID));
+	if (! $excerpt) {
+		$excerpt = wp_strip_all_tags(wp_trim_words($post->post_content, 30));
 	}
 
 	$schema = array(
 		'@context'         => 'https://schema.org',
 		'@type'            => 'BlogPosting',
-		'@id'              => get_permalink( $post->ID ) . '#blogposting',
-		'headline'         => get_the_title( $post->ID ),
+		'@id'              => get_permalink($post->ID) . '#blogposting',
+		'headline'         => get_the_title($post->ID),
 		'description'      => $excerpt,
-		'url'              => get_permalink( $post->ID ),
-		'datePublished'    => get_the_date( 'c', $post->ID ),
-		'dateModified'     => get_the_modified_date( 'c', $post->ID ),
+		'url'              => get_permalink($post->ID),
+		'datePublished'    => get_the_date('c', $post->ID),
+		'dateModified'     => get_the_modified_date('c', $post->ID),
 		'image'            => array(
 			'@type' => 'ImageObject',
 			'url'   => $thumbnail_url,
@@ -342,26 +349,27 @@ function tma_schema_blog_posting() {
 			'url'   => $author_url,
 		),
 		'publisher'        => array(
-			'@id'  => home_url( '/#localbusiness' ),
+			'@id'  => home_url('/#localbusiness'),
 			'name' => 'Thor Metal Art',
 		),
 		'mainEntityOfPage' => array(
 			'@type' => 'WebPage',
-			'@id'   => get_permalink( $post->ID ),
+			'@id'   => get_permalink($post->ID),
 		),
 	);
 
-	tma_output_jsonld( $schema );
+	tma_output_jsonld($schema);
 }
-add_action( 'wp_head', 'tma_schema_blog_posting', 5 );
+add_action('wp_head', 'tma_schema_blog_posting', 5);
 
 /**
  * Print JSON-LD block.
  *
  * @param array<string, mixed> $data Schema data.
  */
-function tma_output_jsonld( $data ) {
+function tma_output_jsonld($data)
+{
 	echo '<script type="application/ld+json">';
-	echo wp_json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+	echo wp_json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 	echo '</script>' . "\n";
 }

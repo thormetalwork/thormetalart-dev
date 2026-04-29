@@ -175,7 +175,7 @@ class TMA_Panel_Google_Auth {
 			return $response;
 		}
 
-		$code = wp_remote_retrieve_response_code( $response );
+		$code      = wp_remote_retrieve_response_code( $response );
 		$resp_body = json_decode( wp_remote_retrieve_body( $response ), true );
 
 		if ( $code >= 400 ) {

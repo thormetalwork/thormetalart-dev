@@ -93,7 +93,7 @@ class TMA_Panel_API {
 				'callback'            => array( __CLASS__, 'update_lead' ),
 				'permission_callback' => array( __CLASS__, 'check_panel_access' ),
 				'args'                => array(
-					'status' => array(
+					'status'     => array(
 						'required'          => true,
 						'sanitize_callback' => 'sanitize_text_field',
 					),
@@ -130,11 +130,11 @@ class TMA_Panel_API {
 					'callback'            => array( __CLASS__, 'create_note' ),
 					'permission_callback' => array( __CLASS__, 'check_notes_access' ),
 					'args'                => array(
-						'title'   => array(
+						'title'      => array(
 							'required'          => true,
 							'sanitize_callback' => 'sanitize_text_field',
 						),
-						'content' => array(
+						'content'    => array(
 							'required'          => true,
 							'sanitize_callback' => 'wp_kses_post',
 						),
@@ -142,11 +142,11 @@ class TMA_Panel_API {
 							'default'           => 'internal',
 							'sanitize_callback' => 'sanitize_text_field',
 						),
-						'module' => array(
+						'module'     => array(
 							'default'           => 'general',
 							'sanitize_callback' => 'sanitize_text_field',
 						),
-						'item_id' => array(
+						'item_id'    => array(
 							'default'           => 0,
 							'sanitize_callback' => 'absint',
 						),
@@ -179,8 +179,8 @@ class TMA_Panel_API {
 	}
 
 	/* ═══════════════════════════════════════════════════════════════
-	   PERMISSION CALLBACKS
-	   ═══════════════════════════════════════════════════════════════ */
+		PERMISSION CALLBACKS
+		═══════════════════════════════════════════════════════════════ */
 
 	/**
 	 * Base panel access — requires authentication + tma_view_panel.
@@ -258,8 +258,8 @@ class TMA_Panel_API {
 	}
 
 	/* ═══════════════════════════════════════════════════════════════
-	   ENDPOINT CALLBACKS
-	   ═══════════════════════════════════════════════════════════════ */
+		ENDPOINT CALLBACKS
+		═══════════════════════════════════════════════════════════════ */
 
 	/**
 	 * GET /dashboard — aggregated KPIs, lead count, doc count.
@@ -281,13 +281,17 @@ class TMA_Panel_API {
 				'period' => $row->period,
 				'value'  => (float) $row->value,
 			);
-			$periods[ $row->period ] = true;
+			$periods[ $row->period ]            = true;
 		}
 
 		$get_latest_pair = static function ( array $series ): array {
 			$count = count( $series );
 			if ( 0 === $count ) {
-				return array( 'latest' => 0.0, 'previous' => 0.0, 'trend' => 'neutral' );
+				return array(
+					'latest'   => 0.0,
+					'previous' => 0.0,
+					'trend'    => 'neutral',
+				);
 			}
 			$latest   = (float) $series[ $count - 1 ]['value'];
 			$previous = $count > 1 ? (float) $series[ $count - 2 ]['value'] : $latest;
@@ -321,7 +325,7 @@ class TMA_Panel_API {
 			 GROUP BY source
 			 ORDER BY total DESC"
 		);
-		$lead_sources = array();
+		$lead_sources      = array();
 		foreach ( $lead_sources_rows as $src ) {
 			$lead_sources[] = array(
 				'label' => $src->source,
@@ -342,32 +346,56 @@ class TMA_Panel_API {
 			$demo_periods = array( '2025-09', '2025-10', '2025-11', '2025-12', '2026-01', '2026-02' );
 			$kpi_map      = array(
 				'reviews'     => array_map(
-					static fn( $p, $v ) => array( 'period' => $p, 'value' => $v ),
+					static fn( $p, $v ) => array(
+						'period' => $p,
+						'value'  => $v,
+					),
 					$demo_periods,
 					array( 18, 21, 24, 27, 30, 34 )
 				),
 				'impressions' => array_map(
-					static fn( $p, $v ) => array( 'period' => $p, 'value' => $v ),
+					static fn( $p, $v ) => array(
+						'period' => $p,
+						'value'  => $v,
+					),
 					$demo_periods,
 					array( 3200, 3800, 4200, 5100, 5900, 6400 )
 				),
 				'sessions'    => array_map(
-					static fn( $p, $v ) => array( 'period' => $p, 'value' => $v ),
+					static fn( $p, $v ) => array(
+						'period' => $p,
+						'value'  => $v,
+					),
 					$demo_periods,
 					array( 420, 470, 510, 620, 700, 760 )
 				),
 				'leads'       => array_map(
-					static fn( $p, $v ) => array( 'period' => $p, 'value' => $v ),
+					static fn( $p, $v ) => array(
+						'period' => $p,
+						'value'  => $v,
+					),
 					$demo_periods,
 					array( 8, 11, 13, 17, 19, 24 )
 				),
 			);
 			if ( empty( $lead_sources ) ) {
 				$lead_sources = array(
-					array( 'label' => 'google', 'value' => 9 ),
-					array( 'label' => 'instagram', 'value' => 6 ),
-					array( 'label' => 'referral', 'value' => 4 ),
-					array( 'label' => 'website', 'value' => 5 ),
+					array(
+						'label' => 'google',
+						'value' => 9,
+					),
+					array(
+						'label' => 'instagram',
+						'value' => 6,
+					),
+					array(
+						'label' => 'referral',
+						'value' => 4,
+					),
+					array(
+						'label' => 'website',
+						'value' => 5,
+					),
 				);
 			}
 		}
@@ -384,10 +412,10 @@ class TMA_Panel_API {
 			'leads'       => $kpi_map['leads'],
 		);
 
-		$actions_pair = $get_latest_pair( $series_by_metric['actions'] ?? array() );
+		$actions_pair      = $get_latest_pair( $series_by_metric['actions'] ?? array() );
 		$impressions_split = array();
 		foreach ( $kpi_map['impressions'] as $point ) {
-			$total = (float) $point['value'];
+			$total               = (float) $point['value'];
 			$impressions_split[] = array(
 				'period'             => $point['period'],
 				'impressions_search' => (int) round( $total * 0.7 ),
@@ -416,11 +444,26 @@ class TMA_Panel_API {
 			'avg_time'         => (int) $avg_pair['latest'],
 			'sessions_history' => $kpi_map['sessions'],
 			'top_pages'        => array(
-				array( 'path' => '/custom-metal-gates-miami', 'sessions' => 220 ),
-				array( 'path' => '/metal-railings-miami', 'sessions' => 180 ),
-				array( 'path' => '/contact', 'sessions' => 145 ),
-				array( 'path' => '/portfolio', 'sessions' => 120 ),
-				array( 'path' => '/art-commissions', 'sessions' => 95 ),
+				array(
+					'path'     => '/custom-metal-gates-miami',
+					'sessions' => 220,
+				),
+				array(
+					'path'     => '/metal-railings-miami',
+					'sessions' => 180,
+				),
+				array(
+					'path'     => '/contact',
+					'sessions' => 145,
+				),
+				array(
+					'path'     => '/portfolio',
+					'sessions' => 120,
+				),
+				array(
+					'path'     => '/art-commissions',
+					'sessions' => 95,
+				),
 			),
 		);
 
@@ -435,11 +478,11 @@ class TMA_Panel_API {
 			'reach_history' => $series_by_metric['reach'] ?? array(),
 		);
 
-		$docs_count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}panel_docs" );
+		$docs_count    = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}panel_docs" );
 		$docs_approved = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}panel_docs WHERE status = 'approved'" );
 		$docs_pending  = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}panel_docs WHERE status = 'pending'" );
 		$docs_changes  = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}panel_docs WHERE status = 'changes_requested'" );
-		$notes_count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}panel_notes" );
+		$notes_count   = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}panel_notes" );
 
 		$new_leads_count = (int) $wpdb->get_var(
 			"SELECT COUNT(*) FROM {$wpdb->prefix}panel_leads WHERE status = 'new'"
@@ -456,7 +499,7 @@ class TMA_Panel_API {
 				5
 			)
 		);
-		$activity_items = array();
+		$activity_items  = array();
 		foreach ( $recent_activity as $act ) {
 			$activity_items[] = array(
 				'action'      => $act->action,
@@ -469,7 +512,7 @@ class TMA_Panel_API {
 
 		return new WP_REST_Response(
 			array(
-				'counts'       => array(
+				'counts'          => array(
 					'reviews'     => (int) $cards['reviews']['latest'],
 					'impressions' => (int) $cards['impressions']['latest'],
 					'sessions'    => (int) $cards['sessions']['latest'],
@@ -478,26 +521,26 @@ class TMA_Panel_API {
 					'notes'       => $notes_count,
 					'kpis'        => count( $kpi_rows ),
 				),
-				'new_attention' => array(
-					'high_value_leads'  => $high_value_new_attention,
+				'new_attention'   => array(
+					'high_value_leads'   => $high_value_new_attention,
 					'requires_attention' => $high_value_new_attention > 0,
-					'new_leads'         => $new_leads_count,
+					'new_leads'          => $new_leads_count,
 				),
-				'doc_progress' => array(
+				'doc_progress'    => array(
 					'total'    => $docs_count,
 					'approved' => $docs_approved,
 					'pending'  => $docs_pending,
 					'changes'  => $docs_changes,
 				),
 				'recent_activity' => $activity_items,
-				'kpis'         => $cards,
-				'history'      => $history,
-				'lead_sources' => $lead_sources,
-				'gbp'          => $gbp,
-				'web'          => $web,
-				'instagram'    => $instagram,
-				'is_demo'      => ! $has_real_dashboard_kpis,
-				'periods'      => array_keys( $periods ),
+				'kpis'            => $cards,
+				'history'         => $history,
+				'lead_sources'    => $lead_sources,
+				'gbp'             => $gbp,
+				'web'             => $web,
+				'instagram'       => $instagram,
+				'is_demo'         => ! $has_real_dashboard_kpis,
+				'periods'         => array_keys( $periods ),
 			),
 			200
 		);
@@ -517,18 +560,18 @@ class TMA_Panel_API {
 		$docs = array();
 		foreach ( $rows as $row ) {
 			$docs[] = array(
-				'id'         => (int) $row->id,
-				'title'      => $row->title,
-				'slug'       => $row->slug,
-				'order'      => (int) $row->doc_order,
-				'status'     => $row->status,
-				'visibility' => $row->visibility,
-				'file_url'   => $row->file_url,
-				'approved_by'=> (int) $row->approved_by,
-				'approved_at'=> $row->approved_at,
-				'notes'      => $row->change_notes,
-				'created_at' => $row->created_at,
-				'updated_at' => $row->updated_at,
+				'id'          => (int) $row->id,
+				'title'       => $row->title,
+				'slug'        => $row->slug,
+				'order'       => (int) $row->doc_order,
+				'status'      => $row->status,
+				'visibility'  => $row->visibility,
+				'file_url'    => $row->file_url,
+				'approved_by' => (int) $row->approved_by,
+				'approved_at' => $row->approved_at,
+				'notes'       => $row->change_notes,
+				'created_at'  => $row->created_at,
+				'updated_at'  => $row->updated_at,
 			);
 		}
 
@@ -869,4 +912,3 @@ class TMA_Panel_API {
 		);
 	}
 }
-

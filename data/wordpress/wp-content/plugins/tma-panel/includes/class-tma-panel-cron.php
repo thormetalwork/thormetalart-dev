@@ -93,8 +93,8 @@ class TMA_Panel_Cron {
 	}
 
 	/* ═══════════════════════════════════════════════════════════════
-	   GA4 DATA API (Real)
-	   ═══════════════════════════════════════════════════════════════ */
+		GA4 DATA API (Real)
+		═══════════════════════════════════════════════════════════════ */
 
 	/**
 	 * Fetch real GA4 metrics via GA4 Data API (v1beta).
@@ -140,13 +140,13 @@ class TMA_Panel_Cron {
 
 		$data = array();
 		if ( ! empty( $result['rows'][0]['metricValues'] ) ) {
-			$values = $result['rows'][0]['metricValues'];
-			$data['sessions']          = (float) ( $values[0]['value'] ?? 0 );
-			$data['users']             = (float) ( $values[1]['value'] ?? 0 );
-			$data['pageviews']         = (float) ( $values[2]['value'] ?? 0 );
-			$data['avg_session_dur']   = round( (float) ( $values[3]['value'] ?? 0 ), 1 );
-			$data['conversions']       = (float) ( $values[4]['value'] ?? 0 );
-			$data['bounce_rate']       = round( (float) ( $values[5]['value'] ?? 0 ) * 100, 1 );
+			$values                  = $result['rows'][0]['metricValues'];
+			$data['sessions']        = (float) ( $values[0]['value'] ?? 0 );
+			$data['users']           = (float) ( $values[1]['value'] ?? 0 );
+			$data['pageviews']       = (float) ( $values[2]['value'] ?? 0 );
+			$data['avg_session_dur'] = round( (float) ( $values[3]['value'] ?? 0 ), 1 );
+			$data['conversions']     = (float) ( $values[4]['value'] ?? 0 );
+			$data['bounce_rate']     = round( (float) ( $values[5]['value'] ?? 0 ) * 100, 1 );
 		}
 
 		// Also fetch top pages.
@@ -210,8 +210,8 @@ class TMA_Panel_Cron {
 	}
 
 	/* ═══════════════════════════════════════════════════════════════
-	   SEARCH CONSOLE API (Real)
-	   ═══════════════════════════════════════════════════════════════ */
+		SEARCH CONSOLE API (Real)
+		═══════════════════════════════════════════════════════════════ */
 
 	/**
 	 * Fetch real Search Console metrics via Search Console API (v3).
@@ -231,7 +231,7 @@ class TMA_Panel_Cron {
 		}
 
 		$encoded_site = rawurlencode( $site_url );
-		$url = self::GSC_API_BASE . '/sites/' . $encoded_site . '/searchAnalytics/query';
+		$url          = self::GSC_API_BASE . '/sites/' . $encoded_site . '/searchAnalytics/query';
 
 		// Last 28 days aggregate.
 		$body = array(
@@ -249,7 +249,7 @@ class TMA_Panel_Cron {
 
 		$data = array();
 		if ( ! empty( $result['rows'][0] ) ) {
-			$row = $result['rows'][0];
+			$row                  = $result['rows'][0];
 			$data['clicks']       = (float) ( $row['clicks'] ?? 0 );
 			$data['impressions']  = (float) ( $row['impressions'] ?? 0 );
 			$data['ctr']          = round( (float) ( $row['ctr'] ?? 0 ) * 100, 2 );
@@ -344,8 +344,8 @@ class TMA_Panel_Cron {
 	}
 
 	/* ═══════════════════════════════════════════════════════════════
-	   GBP (Placeholder — waiting API quota approval)
-	   ═══════════════════════════════════════════════════════════════ */
+		GBP (Placeholder — waiting API quota approval)
+		═══════════════════════════════════════════════════════════════ */
 
 	/**
 	 * Fetch GBP data — currently returns empty (quota not approved yet).
@@ -364,8 +364,8 @@ class TMA_Panel_Cron {
 	}
 
 	/* ═══════════════════════════════════════════════════════════════
-	   INSTAGRAM (Placeholder — needs Facebook App)
-	   ═══════════════════════════════════════════════════════════════ */
+		INSTAGRAM (Placeholder — needs Facebook App)
+		═══════════════════════════════════════════════════════════════ */
 
 	/**
 	 * Fetch Instagram data — currently returns empty (needs Facebook App setup).
@@ -384,8 +384,8 @@ class TMA_Panel_Cron {
 	}
 
 	/* ═══════════════════════════════════════════════════════════════
-	   STORAGE
-	   ═══════════════════════════════════════════════════════════════ */
+		STORAGE
+		═══════════════════════════════════════════════════════════════ */
 
 	/**
 	 * Store KPI data in the database, using UPSERT (replace existing period data).
@@ -447,8 +447,8 @@ class TMA_Panel_Cron {
 	}
 
 	/* ═══════════════════════════════════════════════════════════════
-	   HELPERS
-	   ═══════════════════════════════════════════════════════════════ */
+		HELPERS
+		═══════════════════════════════════════════════════════════════ */
 
 	/**
 	 * Resolve env value: env var first, then defined constant.

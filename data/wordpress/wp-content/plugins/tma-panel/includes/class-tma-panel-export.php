@@ -63,16 +63,19 @@ class TMA_Panel_Export {
 		if ( $leads ) {
 			$statuses = array();
 			foreach ( $leads as $lead ) {
-				$lines[] = "  • {$lead->name} ({$lead->email}) [{$lead->status}]";
+				$lines[]                   = "  • {$lead->name} ({$lead->email}) [{$lead->status}]";
 				$statuses[ $lead->status ] = ( $statuses[ $lead->status ] ?? 0 ) + 1;
 			}
-			$lines[] = '  Resumen: ' . implode( ', ', array_map(
-				function ( $s, $c ) {
-					return "{$c} {$s}";
-				},
-				array_keys( $statuses ),
-				array_values( $statuses )
-			) );
+			$lines[] = '  Resumen: ' . implode(
+				', ',
+				array_map(
+					function ( $s, $c ) {
+						return "{$c} {$s}";
+					},
+					array_keys( $statuses ),
+					array_values( $statuses )
+				)
+			);
 		} else {
 			$lines[] = '  (sin leads)';
 		}
@@ -113,7 +116,7 @@ class TMA_Panel_Export {
 		);
 		if ( $notes ) {
 			foreach ( $notes as $note ) {
-				$excerpt  = wp_trim_words( wp_strip_all_tags( $note->content ), 20, '…' );
+				$excerpt = wp_trim_words( wp_strip_all_tags( $note->content ), 20, '…' );
 				$lines[] = "  • [{$note->created_at}] {$note->title}: {$excerpt}";
 			}
 		} else {
