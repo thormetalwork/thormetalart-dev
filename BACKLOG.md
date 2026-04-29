@@ -2617,13 +2617,15 @@
     - **Completado:** 2026-04-30
     - **Notas de cierre:** single.html creado (header/footer parts, post-title, post-featured-image, post-content, author byline, post-date, post-terms/category, CTA /contact/). BlogPosting schema añadido a tma-schema.php con datePublished, dateModified, author, publisher, image, mainEntityOfPage. 16/18 tests PASS (2 HTTP requieren posts publicados — se verifican en WP-039). Deploy DEV+PROD.
 
-- [ ] **TICKET-WP-038: Blog — Templates archive.html e índice de categorías**
-    - **Archivos a crear:**
+- [x] **TICKET-WP-038: Blog — Templates archive.html e índice de categorías**
+    - **Archivos creados:**
         - `data/wordpress/wp-content/themes/thormetalart/templates/archive.html`
     - **Estimación:** 3 horas
     - **Prioridad:** P1
     - **Dependencias:** TICKET-WP-036, TICKET-WP-037
-    - **Status:** ⏸️ PENDIENTE
+    - **Status:** ✅ COMPLETADO
+    - **Completado:** 2026-05-01
+    - **Notas de cierre:** archive.html creado con: header/footer template-parts, query-title (Cormorant Garamond), term-description (DM Sans), wp:query inherit:true con post-loop de 9 items/pág en grid 3 columnas (post-featured-image 16:9, post-terms gold, post-title linkeable, post-date, post-excerpt), query-no-results con empty state + CTA a /blog/, query-pagination centrada, CTA final dark (bg #1A1A1A, botón #B8860B → /contact/). 17/17 tests PASS. Deploy DEV+PROD.
 
 - [ ] **TICKET-WP-039: Blog — 12 posts semilla (Karel Frometa, SEO, bilingual)**
     - **Posts:**
