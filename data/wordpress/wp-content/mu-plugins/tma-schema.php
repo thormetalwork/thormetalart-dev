@@ -252,6 +252,62 @@ function tma_schema_breadcrumbs() {
 add_action( 'wp_head', 'tma_schema_breadcrumbs', 4 );
 
 /**
+ * Output BlogPosting schema for single blog posts.
+ */
+function tma_schema_blog_posting() {
+	if ( ! is_single() || ! is_singular( 'post' ) ) {
+		return;
+	}
+
+	$post = get_post();
+	if ( ! $post ) {
+		return;
+	}
+
+	$author_name  = get_the_author_meta( 'display_name', (int) $post->post_author );
+	$author_url   = get_author_posts_url( (int) $post->post_author );
+	$thumbnail_url = has_post_thumbnail( $post->ID )
+		? get_the_post_thumbnail_url( $post->ID, 'large' )
+		: home_url( '/wp-content/uploads/2026/04/tma-portfolio-waterjet-panel.jpg' );
+
+	$excerpt = wp_strip_all_tags( get_the_excerpt( $post->ID ) );
+	if ( ! $excerpt ) {
+		$excerpt = wp_strip_all_tags( wp_trim_words( $post->post_content, 30 ) );
+	}
+
+	$schema = array(
+		'@context'      => 'https://schema.org',
+		'@type'         => 'BlogPosting',
+		'@id'           => get_permalink( $post->ID ) . '#blogposting',
+		'headline'      => get_the_title( $post->ID ),
+		'description'   => $excerpt,
+		'url'           => get_permalink( $post->ID ),
+		'datePublished' => get_the_date( 'c', $post->ID ),
+		'dateModified'  => get_the_modified_date( 'c', $post->ID ),
+		'image'         => array(
+			'@type' => 'ImageObject',
+			'url'   => $thumbnail_url,
+		),
+		'author'        => array(
+			'@type' => 'Person',
+			'name'  => $author_name,
+			'url'   => $author_url,
+		),
+		'publisher'     => array(
+			'@id'  => home_url( '/#localbusiness' ),
+			'name' => 'Thor Metal Art',
+		),
+		'mainEntityOfPage' => array(
+			'@type' => 'WebPage',
+			'@id'   => get_permalink( $post->ID ),
+		),
+	);
+
+	tma_output_jsonld( $schema );
+}
+add_action( 'wp_head', 'tma_schema_blog_posting', 5 );
+
+/**
  * Print JSON-LD block.
  *
  * @param array<string, mixed> $data Schema data.

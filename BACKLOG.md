@@ -2606,14 +2606,16 @@
     - **Completado:** 2026-04-29
     - **Notas de cierre:** Blog page (ID=79, /blog/) creada. 5 categorías provisionadas. WordPress configurado: show_on_front=page, page_for_posts=79, permalink_structure=/%category%/%postname%/. .htaccess creado (faltaba, causaba 404 en todos los permalinks). Deploy DEV+PROD verificado. 19/19 tests PASS.
 
-- [ ] **TICKET-WP-037: Blog — Template single.html (FSE) + schema BlogPosting**
+- [x] **TICKET-WP-037: Blog — Template single.html (FSE) + schema BlogPosting**
     - **Archivos a crear/modificar:**
         - `data/wordpress/wp-content/themes/thormetalart/templates/single.html`
         - `data/wordpress/wp-content/mu-plugins/tma-schema.php`
     - **Estimación:** 3 horas
     - **Prioridad:** P1
     - **Dependencias:** TICKET-WP-036
-    - **Status:** ⏸️ PENDIENTE
+    - **Status:** ✅ COMPLETADO
+    - **Completado:** 2026-04-30
+    - **Notas de cierre:** single.html creado (header/footer parts, post-title, post-featured-image, post-content, author byline, post-date, post-terms/category, CTA /contact/). BlogPosting schema añadido a tma-schema.php con datePublished, dateModified, author, publisher, image, mainEntityOfPage. 16/18 tests PASS (2 HTTP requieren posts publicados — se verifican en WP-039). Deploy DEV+PROD.
 
 - [ ] **TICKET-WP-038: Blog — Templates archive.html e índice de categorías**
     - **Archivos a crear:**
