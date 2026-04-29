@@ -2780,11 +2780,17 @@
     - **Completado:** 2026-05-02
     - **Notas de cierre:** 12 posts semilla insertados directamente en DB vía MySQL. Autor Karel Frometa (ID=3) en todos. Categorías asignadas: fabrication(4), design-ideas(3), miami-projects(3), care-tips(1), metal-art(1). Contenido SEO >200 chars/post. Deploy DEV+PROD. 26/26 tests PASS.
 
-- [ ] **TICKET-WP-040: Blog — Sidebar: posts recientes, categorías y CTA**
+- [x] **TICKET-WP-040: Blog — Sidebar: posts recientes, categorías y CTA**
+    - **Archivos creados:**
+        - `data/wordpress/wp-content/themes/thormetalart/parts/sidebar-blog.html`
+    - **Archivos modificados:**
+        - `data/wordpress/wp-content/themes/thormetalart/templates/single.html`
     - **Estimación:** 2 horas
     - **Prioridad:** P2
     - **Dependencias:** TICKET-WP-037, TICKET-WP-039
-    - **Status:** ⏸️ PENDIENTE
+    - **Status:** ✅ COMPLETADO
+    - **Completado:** 2026-05-02
+    - **Notas de cierre:** sidebar-blog.html creado como template-part FSE con: wp:latest-posts (5 posts, con fecha), wp:categories (con conteo), CTA dark (#1A1A1A) con botón gold (#B8860B → /contact/). Headings Cormorant Garamond con border-bottom accent. single.html actualizado con wp:columns 68%/32% (main content + sidebar). 15/15 tests PASS. Deploy DEV+PROD.
 
 - [x] **TICKET-WP-041: Blog — Author identity fix: Karel Frometa como autor público**
     - **Cambios implementados (DEV + PROD):** Karel Frometa (ID=3) es el autor público. ppcapiro no accesible.
