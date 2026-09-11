@@ -4,12 +4,12 @@ Custom Metal Fabrication & Artistic Metalwork — Miami, FL
 
 ## Stack
 
-| Servicio | Container | Puerto | Límite RAM |
-|---|---|---|---|
-| MySQL 8.0 | tma_dev_mysql | 127.0.0.1:3311 | 512MB |
-| Redis 7 | tma_dev_redis | 127.0.0.1:6379 | 128MB |
-| WordPress 6.9 | tma_dev_wordpress | via Traefik | 512MB |
-| phpMyAdmin 5.2 | tma_dev_phpmyadmin | via Traefik (BasicAuth) | 256MB |
+| Servicio       | Container          | Puerto                  | Límite RAM |
+| -------------- | ------------------ | ----------------------- | ---------- |
+| MySQL 8.0      | tma_dev_mysql      | 127.0.0.1:3311          | 512MB      |
+| Redis 7        | tma_dev_redis      | 127.0.0.1:6379          | 128MB      |
+| WordPress 6.9  | tma_dev_wordpress  | via Traefik             | 512MB      |
+| phpMyAdmin 5.2 | tma_dev_phpmyadmin | via Traefik (BasicAuth) | 256MB      |
 
 ## Quick Start
 
@@ -44,6 +44,7 @@ make test        # Test conexiones
 
 ```bash
 make test-all      # Ejecutar los 23 test suites
+make test-e2e      # Playwright: EN/ES en desktop y movil
 make test-panel    # Solo tests del panel plugin
 make test-dash     # Solo tests del dashboard
 make test-lead     # Solo tests de leads
@@ -55,14 +56,15 @@ make fix           # Auto-fix todo (Prettier + ESLint + PHPCBF)
 
 ## QA Tools
 
-| Herramienta | Config |
-|---|---|
-| ESLint 9 | `eslint.config.mjs` |
-| Prettier | `.prettierrc` |
-| PHPCS + WPCS | `.phpcs.xml` |
-| PHPStan (level 5) | `phpstan.neon` |
-| Husky pre-commit | `.husky/pre-commit` |
+| Herramienta       | Config                     |
+| ----------------- | -------------------------- |
+| ESLint 9          | `eslint.config.mjs`        |
+| Prettier          | `.prettierrc`              |
+| PHPCS + WPCS      | `.phpcs.xml`               |
+| PHPStan (level 5) | `phpstan.neon`             |
+| Husky pre-commit  | `.husky/pre-commit`        |
 | GitHub Actions CI | `.github/workflows/ci.yml` |
+| Playwright        | `playwright.config.mjs`    |
 
 ## Security
 

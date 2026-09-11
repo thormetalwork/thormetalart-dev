@@ -6,6 +6,16 @@
             "name": "page-service",
             "title": "Service Page",
             "postTypes": ["page"]
+        },
+        {
+            "name": "page-sales",
+            "title": "Sales Page",
+            "postTypes": ["page"]
+        },
+        {
+            "name": "page-legal",
+            "title": "Legal Page",
+            "postTypes": ["page"]
         }
     ],
     "settings": {

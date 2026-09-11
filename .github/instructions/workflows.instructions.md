@@ -69,9 +69,15 @@ Ejemplo: feat(TICKET-WP-001): Add child theme with branding
 - [ ] Backup creado (si hay cambios en DB/Docker)
 - [ ] Code review completado
 - [ ] Criterios de aceptación verificados
+- [ ] Todo texto visible nuevo existe en EN y ES; las cadenas se validan en `tma_trp_dictionary_en_us_es_es`
+- [ ] Las traducciones masivas usan un upsert idempotente por texto original y una opción de versión, siguiendo `tma-brand-translations.php`
+- [ ] Frontend verificado en desktop y móvil, incluyendo overflow, navegación, imágenes y H1
 
 ## Quality Gates (antes de merge a main)
 - [ ] CI verde (PHP Lint, ESLint, PHPStan — blocking)
 - [ ] PHPCS sin errores críticos
 - [ ] Todos los tests en dev pasando
 - [ ] Sin regresiones verificadas
+- [ ] Backup de PROD creado y rollback definido
+- [ ] Smoke tests EN/ES y E2E ejecutados contra PROD
+- [ ] PRs integrados por squash y ramas local/remota sincronizadas

@@ -234,7 +234,7 @@ function tma_shortcode_service_catalog()
 add_shortcode('tma_service_catalog', 'tma_shortcode_service_catalog');
 
 /**
- * Build shared page shell markup for generated pages.
+ * Build content for a generated sales page.
  *
  * @param string $heading Hero heading.
  * @param string $subheading Hero subheading.
@@ -242,17 +242,16 @@ add_shortcode('tma_service_catalog', 'tma_shortcode_service_catalog');
  * @param string $body_content Body content.
  * @return string
  */
-function tma_page_shell_markup($heading, $subheading, $hero_image, $body_content)
+function tma_sales_page_content($heading, $subheading, $hero_image, $body_content)
 {
-	return '<!-- wp:group {"className":"tma-page-shell","layout":{"type":"constrained","wideSize":"1200px"}} --><div class="wp-block-group tma-page-shell">'
-		. '<!-- wp:group {"className":"tma-page-hero","style":{"spacing":{"padding":{"top":"48px","bottom":"48px","left":"32px","right":"32px"}},"border":{"radius":"24px"}},"layout":{"type":"constrained","contentSize":"1120px"}} --><div class="wp-block-group tma-page-hero" style="padding-top:48px;padding-right:32px;padding-bottom:48px;padding-left:32px;border-radius:24px">'
-		. '<!-- wp:shortcode -->[tma_breadcrumbs]<!-- /wp:shortcode -->'
-		. '<!-- wp:cover {"url":"' . esc_url_raw($hero_image) . '","dimRatio":60,"overlayColor":"obsidian","isDark":true,"minHeight":320,"minHeightUnit":"px","className":"tma-service-hero-cover","focalPoint":{"x":0.5,"y":0.45}} --><div class="wp-block-cover is-dark tma-service-hero-cover" style="min-height:320px"><span aria-hidden="true" class="wp-block-cover__background has-obsidian-background-color has-background-dim-60 has-background-dim"></span><img class="wp-block-cover__image-background" alt="Thor Metal Art custom project" src="' . esc_url_raw($hero_image) . '" style="object-position:50% 45%" data-object-fit="cover" data-object-position="50% 45%"/><div class="wp-block-cover__inner-container"><!-- wp:heading {"textAlign":"center","level":2,"style":{"typography":{"fontFamily":"var(--wp--preset--font-family--forjado-display)","fontWeight":"700","textTransform":"uppercase"}}} --><h2 class="wp-block-heading has-text-align-center" style="font-family:var(--wp--preset--font-family--forjado-display);font-weight:700;text-transform:uppercase">' . esc_html($heading) . '</h2><!-- /wp:heading --><!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"17px","lineHeight":"1.6"}}} --><p class="has-text-align-center" style="font-size:17px;line-height:1.6">' . esc_html($subheading) . '</p><!-- /wp:paragraph --></div></div><!-- /wp:cover -->'
-		. '</div><!-- /wp:group -->'
-		. '<!-- wp:group {"className":"tma-page-content","style":{"spacing":{"padding":{"top":"32px","bottom":"32px","left":"32px","right":"32px"}}},"layout":{"type":"constrained","contentSize":"1120px"}} --><div class="wp-block-group tma-page-content" style="padding-top:32px;padding-right:32px;padding-bottom:32px;padding-left:32px">'
-		. $body_content
-		. '</div><!-- /wp:group -->'
-		. '</div><!-- /wp:group -->';
+	unset($subheading, $hero_image);
+
+	if ('How We Work' === $heading) {
+		return '<!-- wp:pattern {"slug":"thormetalart/process-forjado"} /-->'
+			. '<!-- wp:pattern {"slug":"thormetalart/cta-forjado"} /-->';
+	}
+
+	return $body_content . '<!-- wp:pattern {"slug":"thormetalart/cta-forjado"} /-->';
 }
 
 /**
@@ -377,6 +376,49 @@ function tma_shortcode_service_hero()
 add_shortcode('tma_service_hero', 'tma_shortcode_service_hero');
 
 /**
+ * Render the hero for Art Commissions and How We Work.
+ *
+ * @return string
+ */
+function tma_shortcode_sales_hero()
+{
+	if (! is_page()) {
+		return '';
+	}
+
+	$pages = array(
+		'art-commissions' => array(
+			'eyebrow'   => 'Art and commissions',
+			'heading'   => 'Metal as Art',
+			'subheading' => 'Original sculptures and commissioned pieces by Karel Frometa in Miami.',
+			'image'      => '/wp-content/uploads/2026/04/tma-portfolio-fenix-sculpture.jpg',
+		),
+		'how-we-work'     => array(
+			'eyebrow'   => 'Our process',
+			'heading'   => 'How We Work',
+			'subheading' => 'From first call to finished installation, every stage is handled by our Miami team.',
+			'image'      => '/wp-content/uploads/2026/04/tma-karel-welding.jpg',
+		),
+	);
+	$slug  = (string) get_post_field('post_name', get_queried_object_id());
+	if (! isset($pages[$slug])) {
+		return '';
+	}
+
+	$page = $pages[$slug];
+	return sprintf(
+		'<section class="tma-page-hero tma-media-hero tma-sales-hero"><img class="tma-media-hero__image" src="%1$s" alt="%2$s"><div class="tma-media-hero__content">%3$s<p class="tma-page-kicker">%4$s</p><h1 class="tma-page-title">%5$s</h1><p>%6$s</p></div></section>',
+		esc_url($page['image']),
+		esc_attr($page['heading']),
+		do_shortcode('[tma_breadcrumbs]'),
+		esc_html($page['eyebrow']),
+		esc_html($page['heading']),
+		esc_html($page['subheading'])
+	);
+}
+add_shortcode('tma_sales_hero', 'tma_shortcode_sales_hero');
+
+/**
  * Return additional static pages.
  *
  * @return array<string, array<string, string>>
@@ -386,7 +428,7 @@ function tma_get_core_pages()
 	return array(
 		'art-commissions' => array(
 			'title'   => 'Metal as Art & Commissions',
-			'content' => tma_page_shell_markup(
+			'content' => tma_sales_page_content(
 				'Metal as Art',
 				'Original Sculptures and Commissioned Pieces by Karel Frometa - Miami',
 				'/wp-content/uploads/2026/04/tma-portfolio-fenix-sculpture.jpg',
@@ -395,7 +437,7 @@ function tma_get_core_pages()
 		),
 		'how-we-work'     => array(
 			'title'   => 'How We Work',
-			'content' => tma_page_shell_markup(
+			'content' => tma_sales_page_content(
 				'How We Work',
 				'From first call to finished installation - everything is handled in-house by our Miami team.',
 				'/wp-content/uploads/2026/04/tma-karel-welding.jpg',
@@ -420,14 +462,14 @@ function tma_get_core_pages()
 function tma_create_or_update_generated_page($slug, $title, $content, $type)
 {
 	$existing = get_page_by_path($slug);
-	$template = 'service' === $type ? 'page-service' : 'default';
+	$template = 'service' === $type ? 'page-service' : ('sales' === $type ? 'page-sales' : 'default');
 	$hash     = hash('sha256', $content);
 
 	if ($existing) {
 		if ('1' === get_post_meta($existing->ID, '_tma_generated_page', true)) {
-			$stored_hash = (string) get_post_meta($existing->ID, '_tma_generated_content_hash', true);
+			$stored_hash  = (string) get_post_meta($existing->ID, '_tma_generated_content_hash', true);
 			$current_hash = hash('sha256', (string) $existing->post_content);
-			if ('' === $stored_hash || hash_equals($stored_hash, $current_hash)) {
+			if ('' !== $stored_hash && hash_equals($stored_hash, $current_hash)) {
 				wp_update_post(
 					array(
 						'ID'           => $existing->ID,
@@ -477,7 +519,8 @@ function tma_provision_website_v1_pages()
 
 	$core_pages = tma_get_core_pages();
 	foreach ($core_pages as $slug => $page) {
-		tma_create_or_update_generated_page($slug, $page['title'], $page['content'], 'core');
+		$type = in_array($slug, array('art-commissions', 'how-we-work'), true) ? 'sales' : 'core';
+		tma_create_or_update_generated_page($slug, $page['title'], $page['content'], $type);
 	}
 }
 add_action('after_switch_theme', 'tma_provision_website_v1_pages');
@@ -488,14 +531,43 @@ add_action('after_switch_theme', 'tma_provision_website_v1_pages');
 function tma_maybe_provision_website_v1_pages_once()
 {
 	$version = get_option('tma_pages_version', '');
-	if ('v6' === $version) {
+	if ('v8' === $version) {
 		return;
 	}
 
 	tma_provision_website_v1_pages();
-	update_option('tma_pages_version', 'v6', false);
+	update_option('tma_pages_version', 'v8', false);
 }
 add_action('init', 'tma_maybe_provision_website_v1_pages_once', 50);
+
+/**
+ * Keep legal pages on their dedicated readable template.
+ */
+function tma_assign_legal_page_templates()
+{
+	if (get_option('tma_legal_page_templates_v1', false)) {
+		return;
+	}
+
+	$updated = true;
+	$found   = 0;
+	foreach (array('privacy-policy', 'terms-of-service') as $slug) {
+		$page = get_page_by_path($slug);
+		if (! $page) {
+			$updated = false;
+			continue;
+		}
+		++$found;
+		if ('page-legal' !== get_post_meta($page->ID, '_wp_page_template', true)) {
+			$updated = false !== update_post_meta($page->ID, '_wp_page_template', 'page-legal') && $updated;
+		}
+	}
+
+	if ($updated && 2 === $found) {
+		update_option('tma_legal_page_templates_v1', 1, false);
+	}
+}
+add_action('init', 'tma_assign_legal_page_templates', 60);
 
 /**
  * Find attachment id by _wp_attached_file value.

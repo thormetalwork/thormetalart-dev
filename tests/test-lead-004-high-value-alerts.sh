@@ -19,8 +19,10 @@ grep -q "status = 'new'.*lead_value > 0\|lead_value > 0.*status = 'new'" "$API_F
 
 grep -q "requieren atención\|dashboard-alert\|high-value-alert" "$JS_FILE" && pass "Dashboard UI renderiza alerta" || fail "UI alerta faltante"
 
-grep -q "Custom Gates\|Art & Commissions\|custom gates\|art & commissions" "$CONTACT_FILE" && pass "Formulario identifica servicios premium" || fail "Servicios premium faltantes"
-grep -q "high value\|alto valor\|priority lead\|tma_send_high_value" "$CONTACT_FILE" && pass "Email alerta de alto valor implementado" || fail "Email alto valor faltante"
+premium=$(docker exec "$WP_CONTAINER" php -r 'require "/var/www/html/wp-load.php"; echo json_encode(array_map("tma_is_high_value_service", ["custom-gates", "metal-art", "railings", "unknown"]));')
+[ "$premium" = '[true,true,false,false]' ] && pass "Solo los valores canónicos premium activan alerta" || fail "Clasificación premium incorrecta: $premium"
+
+grep -q "tma_is_high_value_service" "$CONTACT_FILE" && grep -q "tma_send_high_value" "$CONTACT_FILE" && pass "Alerta usa clasificación canónica" || fail "Alerta no usa clasificación canónica"
 
 docker exec "$WP_CONTAINER" php -l /var/www/html/wp-content/mu-plugins/tma-contact-form.php 2>&1 | grep -q "No syntax errors" && pass "Contact form sin errores" || fail "Error sintaxis contact form"
 

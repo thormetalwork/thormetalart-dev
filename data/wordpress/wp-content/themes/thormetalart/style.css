@@ -133,6 +133,16 @@ body {
     z-index: 60;
 }
 
+.tma-main-nav--desktop .tma-services-submenu {
+    display: none;
+}
+
+.tma-main-nav--desktop .tma-services-menu:hover > .tma-services-submenu,
+.tma-main-nav--desktop .tma-services-menu:focus-within > .tma-services-submenu,
+.tma-main-nav--desktop .tma-services-menu[open] > .tma-services-submenu {
+    display: block;
+}
+
 .tma-services-submenu a {
     display: block;
     padding: 10px 18px;
@@ -481,10 +491,12 @@ body {
 }
 
 .tma-page-hero {
-    background: linear-gradient(135deg, #111 0%, #232323 45%, #191919 100%);
-    color: var(--tma-offwhite);
+    background: var(--wp--preset--color--obsidian);
+    color: var(--wp--preset--color--titanium);
     box-shadow: 0 16px 42px rgba(26, 26, 26, 0.14);
     margin-bottom: 1.5rem;
+    padding: 48px 32px;
+    position: relative;
 }
 
 .tma-page-hero .wp-block-shortcode,
@@ -499,10 +511,60 @@ body {
 }
 
 .tma-page-content {
-    background: #fff;
+    background: var(--wp--preset--color--paper);
     border: 1px solid var(--tma-border);
-    border-radius: 24px;
+    border-radius: 4px;
     box-shadow: 0 10px 24px rgba(26, 26, 26, 0.06);
+    color: var(--wp--preset--color--ink);
+    padding: 32px;
+}
+
+.tma-page-banner-forjado .tma-page-kicker {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+}
+
+.tma-media-hero {
+    min-height: 420px;
+    overflow: hidden;
+}
+
+.tma-media-hero::after {
+    background: linear-gradient(90deg, rgba(12, 14, 18, 0.92), rgba(12, 14, 18, 0.48));
+    content: '';
+    inset: 0;
+    position: absolute;
+    z-index: 1;
+}
+
+.tma-media-hero__image,
+.tma-media-hero__image img {
+    height: 100%;
+    inset: 0;
+    margin: 0;
+    object-fit: cover;
+    position: absolute;
+    width: 100%;
+}
+
+.tma-media-hero__content {
+    margin: auto 0;
+    position: relative;
+    z-index: 2;
+}
+
+.tma-legal-page .tma-legal-content {
+    line-height: 1.75;
+    margin-inline: auto;
+    max-width: 760px;
+}
+
+.tma-legal-content h2,
+.tma-legal-content h3 {
+    color: var(--wp--preset--color--ink);
+    margin-top: 2em;
 }
 
 .tma-page-featured-image img {
@@ -661,12 +723,17 @@ body {
 }
 
 .tma-portfolio-card {
-    border: 1px solid var(--tma-border);
-    border-radius: 16px;
+    border: 1px solid var(--wp--preset--color--line);
+    border-radius: 2px;
     overflow: hidden;
-    background: #fff;
-    box-shadow: 0 10px 24px rgba(26, 26, 26, 0.05);
+    background: var(--wp--preset--color--obsidian);
     padding: 0;
+}
+
+.tma-forjado-card a,
+.tma-forjado-card .wp-block-post-title,
+.tma-forjado-card .wp-block-post-terms {
+    color: var(--wp--preset--color--titanium);
 }
 
 .tma-portfolio-card .wp-block-post-title {
