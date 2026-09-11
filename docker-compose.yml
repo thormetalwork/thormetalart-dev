@@ -1,141 +1,150 @@
 services:
-  mysql:
-    image: mysql:8.0
-    container_name: tma_dev_mysql
-    restart: always
-    mem_limit: 512m
-    cpus: 1.0
-    ports:
-      - "127.0.0.1:3311:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-    volumes:
-      - ./data/mysql:/var/lib/mysql
-    networks:
-      - tma-dev-network
-    healthcheck:
-      test: ["CMD-SHELL", "MYSQL_PWD=$$MYSQL_ROOT_PASSWORD mysqladmin ping -h localhost -u root --silent"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+    mysql:
+        image: mysql:8.0
+        container_name: tma_dev_mysql
+        restart: always
+        mem_limit: 512m
+        cpus: 1.0
+        ports:
+            - '127.0.0.1:3311:3306'
+        environment:
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+            MYSQL_DATABASE: ${MYSQL_DATABASE}
+            MYSQL_USER: ${MYSQL_USER}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+        volumes:
+            - ./data/mysql:/var/lib/mysql
+        networks:
+            - tma-dev-network
+        healthcheck:
+            test: ['CMD-SHELL', 'MYSQL_PWD=$$MYSQL_ROOT_PASSWORD mysqladmin ping -h localhost -u root --silent']
+            interval: 10s
+            timeout: 5s
+            retries: 5
 
-  redis:
-    image: redis:7-alpine
-    container_name: tma_dev_redis
-    restart: unless-stopped
-    mem_limit: 128m
-    cpus: 0.5
-    ports:
-      - "127.0.0.1:6379:6379"
-    environment:
-      REDIS_PASSWORD: ${REDIS_PASSWORD}
-    volumes:
-      - redis_data:/data
-    command: redis-server --maxmemory 64mb --maxmemory-policy allkeys-lru --requirepass ${REDIS_PASSWORD}
-    healthcheck:
-      test: ["CMD-SHELL", "redis-cli -a $$REDIS_PASSWORD ping | grep PONG"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-    networks:
-      - tma-dev-network
+    redis:
+        image: redis:7-alpine
+        container_name: tma_dev_redis
+        restart: unless-stopped
+        mem_limit: 128m
+        cpus: 0.5
+        ports:
+            - '127.0.0.1:6379:6379'
+        environment:
+            REDIS_PASSWORD: ${REDIS_PASSWORD}
+        volumes:
+            - redis_data:/data
+        command: redis-server --maxmemory 64mb --maxmemory-policy allkeys-lru --requirepass ${REDIS_PASSWORD}
+        healthcheck:
+            test: ['CMD-SHELL', 'redis-cli -a $$REDIS_PASSWORD ping | grep PONG']
+            interval: 10s
+            timeout: 5s
+            retries: 3
+        networks:
+            - tma-dev-network
 
-  wordpress:
-    build:
-      context: ./docker/wordpress
-      dockerfile: Dockerfile
-    image: tma_dev_wordpress:6.9-php8.1-redis
-    container_name: tma_dev_wordpress
-    restart: always
-    mem_limit: 512m
-    cpus: 1.0
-    depends_on:
-      mysql:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    environment:
-      WORDPRESS_DB_HOST: ${WORDPRESS_DB_HOST}
-      WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}
-      WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
-      WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
-      WORDPRESS_TABLE_PREFIX: ${WORDPRESS_TABLE_PREFIX}
-      WORDPRESS_DEBUG: "${WORDPRESS_DEBUG:-0}"
-      REDIS_PASSWORD: ${REDIS_PASSWORD}
-      GA4_MEASUREMENT_ID: "${GA4_MEASUREMENT_ID:-}"
-      GA4_PROPERTY_ID: "${GA4_PROPERTY_ID:-}"
-      GOOGLE_OAUTH_CLIENT_ID: "${GOOGLE_OAUTH_CLIENT_ID:-}"
-      GOOGLE_OAUTH_CLIENT_SECRET: "${GOOGLE_OAUTH_CLIENT_SECRET:-}"
-      GOOGLE_OAUTH_REFRESH_TOKEN: "${GOOGLE_OAUTH_REFRESH_TOKEN:-}"
-      GSC_SITE_URL: "${GSC_SITE_URL:-}"
-      GCP_API_KEY: "${GCP_API_KEY:-}"
-      GCP_SERVER_API_KEY: "${GCP_SERVER_API_KEY:-}"
-      RECAPTCHA_SITE_KEY: "${RECAPTCHA_SITE_KEY:-}"
-      GBP_API_KEY: "${GBP_API_KEY:-}"
-      IG_ACCESS_TOKEN: "${IG_ACCESS_TOKEN:-}"
-      IG_BUSINESS_ACCOUNT_ID: "${IG_BUSINESS_ACCOUNT_ID:-}"
-    volumes:
-      - ./data/wordpress:/var/www/html
-    networks:
-      - tma-dev-network
-      - traefik-public
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/wp-login.php"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=traefik-public"
-      - "traefik.http.routers.tma-dev.rule=Host(`dev.thormetalart.com`) || Host(`panel-dev.thormetalart.com`)"
-      - "traefik.http.routers.tma-dev.entrypoints=websecure"
-      - "traefik.http.routers.tma-dev.tls=true"
-      - "traefik.http.routers.tma-dev.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.tma-dev.middlewares=security-headers@file,rate-limit@file,dev-noindex@file"
-      - "traefik.http.services.tma-dev.loadbalancer.server.port=80"
+    wordpress:
+        build:
+            context: ./docker/wordpress
+            dockerfile: Dockerfile
+        image: tma_dev_wordpress:6.9-php8.1-redis
+        container_name: tma_dev_wordpress
+        restart: always
+        mem_limit: 512m
+        cpus: 1.0
+        depends_on:
+            mysql:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+        environment:
+            WORDPRESS_DB_HOST: ${WORDPRESS_DB_HOST}
+            WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}
+            WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
+            WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
+            WORDPRESS_TABLE_PREFIX: ${WORDPRESS_TABLE_PREFIX}
+            WORDPRESS_DEBUG: '${WORDPRESS_DEBUG:-0}'
+            REDIS_PASSWORD: ${REDIS_PASSWORD}
+            GA4_MEASUREMENT_ID: '${GA4_MEASUREMENT_ID:-}'
+            GA4_PROPERTY_ID: '${GA4_PROPERTY_ID:-}'
+            GOOGLE_OAUTH_CLIENT_ID: '${GOOGLE_OAUTH_CLIENT_ID:-}'
+            GOOGLE_OAUTH_CLIENT_SECRET: '${GOOGLE_OAUTH_CLIENT_SECRET:-}'
+            GOOGLE_OAUTH_REFRESH_TOKEN: '${GOOGLE_OAUTH_REFRESH_TOKEN:-}'
+            GSC_SITE_URL: '${GSC_SITE_URL:-}'
+            GCP_API_KEY: '${GCP_API_KEY:-}'
+            GCP_SERVER_API_KEY: '${GCP_SERVER_API_KEY:-}'
+            RECAPTCHA_SITE_KEY: '${RECAPTCHA_SITE_KEY:-}'
+            GBP_API_KEY: '${GBP_API_KEY:-}'
+            GBP_ACCOUNT_ID: '${GBP_ACCOUNT_ID:-}'
+            GBP_LOCATION_ID: '${GBP_LOCATION_ID:-}'
+            IG_ACCESS_TOKEN: '${IG_ACCESS_TOKEN:-}'
+            IG_BUSINESS_ACCOUNT_ID: '${IG_BUSINESS_ACCOUNT_ID:-}'
+            SMTP_HOST: '${SMTP_HOST:-smtp.hostinger.com}'
+            SMTP_PORT: '${SMTP_PORT:-587}'
+            SMTP_USER: '${SMTP_USER:-}'
+            SMTP_PASS: '${SMTP_PASS:-}'
+            SMTP_FROM: '${SMTP_FROM:-}'
+            SMTP_FROM_NAME: '${SMTP_FROM_NAME:-Thor Metal Art}'
+            WP_ENVIRONMENT_TYPE: 'development'
+        volumes:
+            - ./data/wordpress:/var/www/html
+        networks:
+            - tma-dev-network
+            - traefik-public
+        healthcheck:
+            test: ['CMD', 'curl', '-f', 'http://localhost/wp-login.php']
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 60s
+        labels:
+            - 'traefik.enable=true'
+            - 'traefik.docker.network=traefik-public'
+            - 'traefik.http.routers.tma-dev.rule=Host(`dev.thormetalart.com`) || Host(`panel-dev.thormetalart.com`)'
+            - 'traefik.http.routers.tma-dev.entrypoints=websecure'
+            - 'traefik.http.routers.tma-dev.tls=true'
+            - 'traefik.http.routers.tma-dev.tls.certresolver=letsencrypt'
+            - 'traefik.http.routers.tma-dev.middlewares=security-headers@file,rate-limit@file,dev-noindex@file'
+            - 'traefik.http.services.tma-dev.loadbalancer.server.port=80'
 
-  phpmyadmin:
-    image: phpmyadmin:5.2-apache
-    container_name: tma_dev_phpmyadmin
-    restart: always
-    mem_limit: 256m
-    cpus: 0.5
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost/ || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 15s
-    depends_on:
-      mysql:
-        condition: service_healthy
-    environment:
-      PMA_HOST: mysql
-      PMA_PORT: 3306
-      UPLOAD_LIMIT: 64M
-    networks:
-      - tma-dev-network
-      - traefik-public
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=traefik-public"
-      - "traefik.http.routers.tma-dev-pma.rule=Host(`pma-dev.thormetalart.com`)"
-      - "traefik.http.routers.tma-dev-pma.entrypoints=websecure"
-      - "traefik.http.routers.tma-dev-pma.tls=true"
-      - "traefik.http.routers.tma-dev-pma.tls.certresolver=letsencrypt"
-      - "traefik.http.middlewares.tma-dev-pma-auth.basicauth.users=${PMA_BASICAUTH_USERS}"
-      - "traefik.http.routers.tma-dev-pma.middlewares=tma-dev-pma-auth,security-headers@file,rate-limit@file"
-      - "traefik.http.services.tma-dev-pma.loadbalancer.server.port=80"
+    phpmyadmin:
+        image: phpmyadmin:5.2-apache
+        container_name: tma_dev_phpmyadmin
+        restart: always
+        mem_limit: 256m
+        cpus: 0.5
+        healthcheck:
+            test: ['CMD-SHELL', 'curl -f http://localhost/ || exit 1']
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 15s
+        depends_on:
+            mysql:
+                condition: service_healthy
+        environment:
+            PMA_HOST: mysql
+            PMA_PORT: 3306
+            UPLOAD_LIMIT: 64M
+        networks:
+            - tma-dev-network
+            - traefik-public
+        labels:
+            - 'traefik.enable=true'
+            - 'traefik.docker.network=traefik-public'
+            - 'traefik.http.routers.tma-dev-pma.rule=Host(`pma-dev.thormetalart.com`)'
+            - 'traefik.http.routers.tma-dev-pma.entrypoints=websecure'
+            - 'traefik.http.routers.tma-dev-pma.tls=true'
+            - 'traefik.http.routers.tma-dev-pma.tls.certresolver=letsencrypt'
+            - 'traefik.http.middlewares.tma-dev-pma-auth.basicauth.users=${PMA_BASICAUTH_USERS}'
+            - 'traefik.http.routers.tma-dev-pma.middlewares=tma-dev-pma-auth,security-headers@file,rate-limit@file'
+            - 'traefik.http.services.tma-dev-pma.loadbalancer.server.port=80'
 
 volumes:
-  redis_data:
+    redis_data:
 
 networks:
-  tma-dev-network:
-    driver: bridge
-  traefik-public:
-    external: true
+    tma-dev-network:
+        driver: bridge
+    traefik-public:
+        external: true

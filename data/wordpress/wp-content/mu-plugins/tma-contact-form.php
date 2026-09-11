@@ -1,8 +1,9 @@
 <?php
+
 /**
  * Plugin Name: TMA Contact Form & Lead Tracking
  * Description: Formulario de contacto con tracking de leads para Thor Metal Art.
- * Version: 1.0.0
+ * Version: 1.1.0
  * Author: Thor Metal Art Dev
  *
  * Shortcode: [tma_contact_form]
@@ -11,13 +12,14 @@
  *           bilingual EN/ES.
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
+if (! defined('ABSPATH')) {
     exit;
 }
 
 /* ─── 1. Custom Table Creation ─────────────────────────────────── */
 
-function tma_leads_create_table() {
+function tma_leads_create_table()
+{
     global $wpdb;
     $table   = $wpdb->prefix . 'tma_leads';
     $charset = $wpdb->get_charset_collate();
@@ -44,48 +46,49 @@ function tma_leads_create_table() {
     ) {$charset};";
 
     require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-    dbDelta( $sql );
-    update_option( 'tma_leads_db_version', '1.0' );
+    dbDelta($sql);
+    update_option('tma_leads_db_version', '1.0');
 }
 
 // Run on first load if table doesn't exist.
-add_action( 'init', function () {
-    if ( get_option( 'tma_leads_db_version' ) !== '1.0' ) {
+add_action('init', function () {
+    if (get_option('tma_leads_db_version') !== '1.0') {
         tma_leads_create_table();
     }
-} );
+});
 
 /* ─── 2. Shortcode ─────────────────────────────────────────────── */
 
-add_shortcode( 'tma_contact_form', 'tma_render_contact_form' );
+add_shortcode('tma_contact_form', 'tma_render_contact_form');
 
-function tma_render_contact_form( $atts ) {
-    $atts = shortcode_atts( [ 'lang' => 'es' ], $atts, 'tma_contact_form' );
-    $lang = in_array( $atts['lang'], [ 'en', 'es' ], true ) ? $atts['lang'] : 'es';
+function tma_render_contact_form($atts)
+{
+    $atts = shortcode_atts(['lang' => 'es'], $atts, 'tma_contact_form');
+    $lang = in_array($atts['lang'], ['en', 'es'], true) ? $atts['lang'] : 'es';
 
-    $labels = tma_form_labels( $lang );
+    $labels = tma_form_labels($lang);
 
     // Enqueue inline styles & JS.
     tma_enqueue_form_assets();
 
-    $nonce = wp_nonce_field( 'tma_contact_submit', '_tma_nonce', true, false );
+    $nonce = wp_nonce_field('tma_contact_submit', '_tma_nonce', true, false);
 
     $services = [
-        'custom-gates'    => [ 'es' => 'Puertas personalizadas', 'en' => 'Custom Gates' ],
-        'railings'        => [ 'es' => 'Barandas y pasamanos',   'en' => 'Railings & Handrails' ],
-        'fences'          => [ 'es' => 'Cercas ornamentales',    'en' => 'Ornamental Fences' ],
-        'furniture'       => [ 'es' => 'Mobiliario metálico',    'en' => 'Metal Furniture' ],
-        'metal-art'       => [ 'es' => 'Arte en metal',          'en' => 'Metal Art & Sculptures' ],
-        'other'           => [ 'es' => 'Otro',                   'en' => 'Other' ],
+        'custom-gates'    => ['es' => 'Puertas personalizadas', 'en' => 'Custom Gates'],
+        'railings'        => ['es' => 'Barandas y pasamanos',   'en' => 'Railings & Handrails'],
+        'fences'          => ['es' => 'Cercas ornamentales',    'en' => 'Ornamental Fences'],
+        'furniture'       => ['es' => 'Mobiliario metálico',    'en' => 'Metal Furniture'],
+        'metal-art'       => ['es' => 'Arte en metal',          'en' => 'Metal Art & Sculptures'],
+        'other'           => ['es' => 'Otro',                   'en' => 'Other'],
     ];
 
-    $options_html = '<option value="">' . esc_html( $labels['select_service'] ) . '</option>';
-    foreach ( $services as $value => $names ) {
-        $options_html .= '<option value="' . esc_attr( $value ) . '">' . esc_html( $names[ $lang ] ) . '</option>';
+    $options_html = '<option value="">' . esc_html($labels['select_service']) . '</option>';
+    foreach ($services as $value => $names) {
+        $options_html .= '<option value="' . esc_attr($value) . '">' . esc_html($names[$lang]) . '</option>';
     }
 
     ob_start();
-    ?>
+?>
     <div id="tma-contact-form-wrap" class="tma-cf-wrap">
         <form id="tma-contact-form" method="post" novalidate>
             <?php echo $nonce; ?>
@@ -95,7 +98,7 @@ function tma_render_contact_form( $atts ) {
             <input type="hidden" name="tma_utm_source" value="" />
             <input type="hidden" name="tma_utm_medium" value="" />
             <input type="hidden" name="tma_utm_campaign" value="" />
-            <input type="hidden" name="tma_locale" value="<?php echo esc_attr( $lang ); ?>" />
+            <input type="hidden" name="tma_locale" value="<?php echo esc_attr($lang); ?>" />
 
             <!-- Honeypot — hidden from humans -->
             <div style="position:absolute;left:-9999px;" aria-hidden="true">
@@ -103,54 +106,58 @@ function tma_render_contact_form( $atts ) {
                 <input type="text" name="tma_website" id="tma_website" tabindex="-1" autocomplete="off" />
             </div>
 
+            <!-- Timing check — JS sets this on page load; < 3s elapsed = bot -->
+            <input type="hidden" name="tma_form_loaded" id="tma_form_loaded" value="" />
+
             <div class="tma-cf-field">
-                <label for="tma_name"><?php echo esc_html( $labels['name'] ); ?> *</label>
+                <label for="tma_name"><?php echo esc_html($labels['name']); ?> *</label>
                 <input type="text" id="tma_name" name="tma_name" required maxlength="200"
-                       placeholder="<?php echo esc_attr( $labels['name_ph'] ); ?>" />
+                    placeholder="<?php echo esc_attr($labels['name_ph']); ?>" />
             </div>
 
             <div class="tma-cf-row">
                 <div class="tma-cf-field">
-                    <label for="tma_email"><?php echo esc_html( $labels['email'] ); ?> *</label>
+                    <label for="tma_email"><?php echo esc_html($labels['email']); ?> *</label>
                     <input type="email" id="tma_email" name="tma_email" required maxlength="200"
-                           placeholder="<?php echo esc_attr( $labels['email_ph'] ); ?>" />
+                        placeholder="<?php echo esc_attr($labels['email_ph']); ?>" />
                 </div>
                 <div class="tma-cf-field">
-                    <label for="tma_phone"><?php echo esc_html( $labels['phone'] ); ?></label>
+                    <label for="tma_phone"><?php echo esc_html($labels['phone']); ?></label>
                     <input type="tel" id="tma_phone" name="tma_phone" maxlength="50"
-                           placeholder="<?php echo esc_attr( $labels['phone_ph'] ); ?>" />
+                        placeholder="<?php echo esc_attr($labels['phone_ph']); ?>" />
                 </div>
             </div>
 
             <div class="tma-cf-field">
-                <label for="tma_service"><?php echo esc_html( $labels['service'] ); ?></label>
+                <label for="tma_service"><?php echo esc_html($labels['service']); ?></label>
                 <select id="tma_service" name="tma_service">
                     <?php echo $options_html; ?>
                 </select>
             </div>
 
             <div class="tma-cf-field">
-                <label for="tma_message"><?php echo esc_html( $labels['message'] ); ?> *</label>
+                <label for="tma_message"><?php echo esc_html($labels['message']); ?> *</label>
                 <textarea id="tma_message" name="tma_message" rows="5" required maxlength="2000"
-                          placeholder="<?php echo esc_attr( $labels['message_ph'] ); ?>"></textarea>
+                    placeholder="<?php echo esc_attr($labels['message_ph']); ?>"></textarea>
             </div>
 
             <div class="tma-cf-submit">
                 <button type="submit" id="tma-cf-btn">
-                    <?php echo esc_html( $labels['submit'] ); ?>
+                    <?php echo esc_html($labels['submit']); ?>
                 </button>
             </div>
 
             <div id="tma-cf-feedback" class="tma-cf-feedback" role="alert" aria-live="polite"></div>
         </form>
     </div>
-    <?php
+<?php
     return ob_get_clean();
 }
 
 /* ─── 3. Bilingual Labels ──────────────────────────────────────── */
 
-function tma_form_labels( $lang = 'es' ) {
+function tma_form_labels($lang = 'es')
+{
     $labels = [
         'es' => [
             'name'           => 'Nombre completo',
@@ -158,7 +165,7 @@ function tma_form_labels( $lang = 'es' ) {
             'email'          => 'Correo electrónico',
             'email_ph'       => 'tu@email.com',
             'phone'          => 'Teléfono',
-            'phone_ph'       => '(305) 555-0000',
+            'phone_ph'       => '(786) 854-7309',
             'service'        => 'Servicio de interés',
             'select_service' => '— Selecciona un servicio —',
             'message'        => 'Mensaje',
@@ -176,7 +183,7 @@ function tma_form_labels( $lang = 'es' ) {
             'email'          => 'Email address',
             'email_ph'       => 'you@email.com',
             'phone'          => 'Phone',
-            'phone_ph'       => '(305) 555-0000',
+            'phone_ph'       => '(786) 854-7309',
             'service'        => 'Service of interest',
             'select_service' => '— Select a service —',
             'message'        => 'Message',
@@ -189,7 +196,7 @@ function tma_form_labels( $lang = 'es' ) {
             'recaptcha_fail' => 'Security verification failed. Please reload the page and try again.',
         ],
     ];
-    return $labels[ $lang ] ?? $labels['es'];
+    return $labels[$lang] ?? $labels['es'];
 }
 
 /* ─── 4. reCAPTCHA Enterprise Verification ─────────────────────── */
@@ -200,7 +207,8 @@ function tma_form_labels( $lang = 'es' ) {
  * @param string $token The reCAPTCHA token from the client.
  * @return bool|WP_Error True if score >= 0.5, false/WP_Error otherwise.
  */
-function tma_verify_recaptcha( $token ) {
+function tma_verify_recaptcha($token)
+{
     $api_key  = GCP_SERVER_API_KEY;
     $site_key = RECAPTCHA_SITE_KEY;
     $project  = 'thor-metal-art';
@@ -211,39 +219,39 @@ function tma_verify_recaptcha( $token ) {
         $api_key
     );
 
-    $body = wp_json_encode( [
+    $body = wp_json_encode([
         'event' => [
             'token'          => $token,
             'siteKey'        => $site_key,
             'expectedAction' => 'CONTACT_FORM',
         ],
-    ] );
+    ]);
 
-    $response = wp_remote_post( $url, [
-        'headers' => [ 'Content-Type' => 'application/json' ],
+    $response = wp_remote_post($url, [
+        'headers' => ['Content-Type' => 'application/json'],
         'body'    => $body,
         'timeout' => 10,
-    ] );
+    ]);
 
-    if ( is_wp_error( $response ) ) {
+    if (is_wp_error($response)) {
         // Log but don't block — fail open on network errors to avoid losing leads.
-        error_log( '[TMA reCAPTCHA] API error: ' . $response->get_error_message() );
+        error_log('[TMA reCAPTCHA] API error: ' . $response->get_error_message());
         return true;
     }
 
-    $status = wp_remote_retrieve_response_code( $response );
-    $data   = json_decode( wp_remote_retrieve_body( $response ), true );
+    $status = wp_remote_retrieve_response_code($response);
+    $data   = json_decode(wp_remote_retrieve_body($response), true);
 
-    if ( 200 !== $status || empty( $data['tokenProperties']['valid'] ) ) {
-        error_log( '[TMA reCAPTCHA] Invalid token or API error. Status: ' . $status );
+    if (200 !== $status || empty($data['tokenProperties']['valid'])) {
+        error_log('[TMA reCAPTCHA] Invalid token or API error. Status: ' . $status);
         return false;
     }
 
     $score = $data['riskAnalysis']['score'] ?? 0;
 
     // Score threshold: 0.0 = bot, 1.0 = human. 0.5 is Google's recommendation.
-    if ( $score < 0.5 ) {
-        error_log( sprintf( '[TMA reCAPTCHA] Low score: %.1f — likely bot.', $score ) );
+    if ($score < 0.5) {
+        error_log(sprintf('[TMA reCAPTCHA] Low score: %.1f — likely bot.', $score));
         return false;
     }
 
@@ -252,66 +260,91 @@ function tma_verify_recaptcha( $token ) {
 
 /* ─── 5. AJAX Handler ──────────────────────────────────────────── */
 
-add_action( 'wp_ajax_tma_submit_lead',        'tma_handle_lead_submission' );
-add_action( 'wp_ajax_nopriv_tma_submit_lead',  'tma_handle_lead_submission' );
+add_action('wp_ajax_tma_submit_lead',        'tma_handle_lead_submission');
+add_action('wp_ajax_nopriv_tma_submit_lead',  'tma_handle_lead_submission');
 
-function tma_handle_lead_submission() {
+function tma_handle_lead_submission()
+{
     // Nonce check.
-    if ( ! isset( $_POST['_tma_nonce'] ) || ! wp_verify_nonce( $_POST['_tma_nonce'], 'tma_contact_submit' ) ) {
-        wp_send_json_error( [ 'message' => 'Security check failed.' ], 403 );
+    if (! isset($_POST['_tma_nonce']) || ! wp_verify_nonce($_POST['_tma_nonce'], 'tma_contact_submit')) {
+        wp_send_json_error(['message' => 'Security check failed.'], 403);
     }
 
-    $locale = isset( $_POST['tma_locale'] ) && $_POST['tma_locale'] === 'en' ? 'en' : 'es';
-    $labels = tma_form_labels( $locale );
+    $locale = isset($_POST['tma_locale']) && $_POST['tma_locale'] === 'en' ? 'en' : 'es';
+    $labels = tma_form_labels($locale);
 
     // reCAPTCHA Enterprise v3 verification.
-    if ( defined( 'RECAPTCHA_SITE_KEY' ) && RECAPTCHA_SITE_KEY && defined( 'GCP_SERVER_API_KEY' ) && GCP_SERVER_API_KEY ) {
-        $recaptcha_token = sanitize_text_field( wp_unslash( $_POST['g-recaptcha-response'] ?? '' ) );
-        if ( empty( $recaptcha_token ) ) {
-            wp_send_json_error( [ 'message' => $labels['spam'] ], 403 );
+    if (defined('RECAPTCHA_SITE_KEY') && RECAPTCHA_SITE_KEY && defined('GCP_SERVER_API_KEY') && GCP_SERVER_API_KEY) {
+        $recaptcha_token = sanitize_text_field(wp_unslash($_POST['g-recaptcha-response'] ?? ''));
+        if (empty($recaptcha_token)) {
+            wp_send_json_error(['message' => $labels['spam']], 403);
         }
 
-        $recaptcha_result = tma_verify_recaptcha( $recaptcha_token );
-        if ( is_wp_error( $recaptcha_result ) || ! $recaptcha_result ) {
-            wp_send_json_error( [ 'message' => $labels['recaptcha_fail'] ], 403 );
+        $recaptcha_result = tma_verify_recaptcha($recaptcha_token);
+        if (is_wp_error($recaptcha_result) || ! $recaptcha_result) {
+            wp_send_json_error(['message' => $labels['recaptcha_fail']], 403);
         }
     }
 
     // Honeypot check.
-    if ( ! empty( $_POST['tma_website'] ) ) {
-        wp_send_json_error( [ 'message' => $labels['spam'] ], 403 );
+    if (! empty($_POST['tma_website'])) {
+        wp_send_json_error(['message' => $labels['spam']], 403);
+    }
+
+    // Timing check — bots submit in < 3 seconds; humans take longer.
+    $form_loaded = (int) (isset($_POST['tma_form_loaded']) ? $_POST['tma_form_loaded'] : 0);
+    if ($form_loaded > 0) {
+        $elapsed_ms = (time() * 1000) - $form_loaded;
+        if ($elapsed_ms < 3000) {
+            wp_send_json_error(['message' => $labels['spam']], 403);
+        }
     }
 
     // Rate limiting — 1 submission per IP per 3 minutes.
     $ip_raw     = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
-    $ip_hash    = hash( 'sha256', $ip_raw . wp_salt( 'nonce' ) );
-    $rate_key   = 'tma_lead_rate_' . substr( $ip_hash, 0, 16 );
+    $ip_hash    = hash('sha256', $ip_raw . wp_salt('nonce'));
+    $rate_key   = 'tma_lead_rate_' . substr($ip_hash, 0, 16);
 
-    if ( get_transient( $rate_key ) ) {
-        wp_send_json_error( [ 'message' => $labels['rate_limit'] ], 429 );
+    if (get_transient($rate_key)) {
+        wp_send_json_error(['message' => $labels['rate_limit']], 429);
     }
 
     // Sanitize inputs.
-    $name    = sanitize_text_field( wp_unslash( $_POST['tma_name'] ?? '' ) );
-    $email   = sanitize_email( wp_unslash( $_POST['tma_email'] ?? '' ) );
-    $phone   = sanitize_text_field( wp_unslash( $_POST['tma_phone'] ?? '' ) );
-    $service = sanitize_text_field( wp_unslash( $_POST['tma_service'] ?? '' ) );
-    $message = sanitize_textarea_field( wp_unslash( $_POST['tma_message'] ?? '' ) );
+    $name    = sanitize_text_field(wp_unslash($_POST['tma_name'] ?? ''));
+    $email   = sanitize_email(wp_unslash($_POST['tma_email'] ?? ''));
+    $phone   = sanitize_text_field(wp_unslash($_POST['tma_phone'] ?? ''));
+    $service = sanitize_text_field(wp_unslash($_POST['tma_service'] ?? ''));
+    $message = sanitize_textarea_field(wp_unslash($_POST['tma_message'] ?? ''));
+
+    // Anti-spam: reject messages with > 2 URLs (link spam) or fields exceeding max length.
+    if (preg_match_all('/https?:\/\//i', $message) > 2) {
+        wp_send_json_error(['message' => $labels['spam']], 403);
+    }
+    if (mb_strlen($name) > 100 || mb_strlen($message) > 2000) {
+        wp_send_json_error(['message' => $labels['spam']], 403);
+    }
 
     // Validate required fields.
-    if ( empty( $name ) || empty( $email ) || empty( $message ) ) {
-        wp_send_json_error( [ 'message' => $labels['error'] ], 400 );
+    if (empty($name) || empty($email) || empty($message)) {
+        wp_send_json_error(['message' => $labels['error']], 400);
     }
-    if ( ! is_email( $email ) ) {
-        wp_send_json_error( [ 'message' => $labels['error'] ], 400 );
+    if (! is_email($email)) {
+        wp_send_json_error(['message' => $labels['error']], 400);
+    }
+
+    // Rate limit by email — covers bots that rotate IPs.
+    $email_hash     = hash('sha256', strtolower($email) . wp_salt('nonce'));
+    $email_rate_key = 'tma_lead_eml_' . substr($email_hash, 0, 16);
+    if (get_transient($email_rate_key)) {
+        wp_send_json_error(['message' => $labels['rate_limit']], 429);
     }
 
     // Tracking data.
-    $page_url     = esc_url_raw( wp_unslash( $_POST['tma_page_url'] ?? '' ) );
-    $referrer     = esc_url_raw( wp_unslash( $_POST['tma_referrer'] ?? '' ) );
-    $utm_source   = sanitize_text_field( wp_unslash( $_POST['tma_utm_source'] ?? '' ) );
-    $utm_medium   = sanitize_text_field( wp_unslash( $_POST['tma_utm_medium'] ?? '' ) );
-    $utm_campaign = sanitize_text_field( wp_unslash( $_POST['tma_utm_campaign'] ?? '' ) );
+    $page_url     = esc_url_raw(wp_unslash($_POST['tma_page_url'] ?? ''));
+    $referrer     = esc_url_raw(wp_unslash($_POST['tma_referrer'] ?? ''));
+    $utm_source   = sanitize_text_field(wp_unslash($_POST['tma_utm_source'] ?? ''));
+    $utm_medium   = sanitize_text_field(wp_unslash($_POST['tma_utm_medium'] ?? ''));
+    $utm_campaign = sanitize_text_field(wp_unslash($_POST['tma_utm_campaign'] ?? ''));
 
     // Insert into DB.
     global $wpdb;
@@ -333,11 +366,11 @@ function tma_handle_lead_submission() {
             'locale'       => $locale,
             'status'       => 'new',
         ],
-        [ '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ]
+        ['%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s']
     );
 
-    if ( false === $result ) {
-        wp_send_json_error( [ 'message' => $labels['error'] ], 500 );
+    if (false === $result) {
+        wp_send_json_error(['message' => $labels['error']], 500);
     }
 
     do_action(
@@ -351,22 +384,24 @@ function tma_handle_lead_submission() {
         ]
     );
 
-    // Set rate limit transient (3 minutes).
-    set_transient( $rate_key, 1, 3 * MINUTE_IN_SECONDS );
+    // Set rate limit transients (IP + email, 3 minutes each).
+    set_transient($rate_key, 1, 3 * MINUTE_IN_SECONDS);
+    set_transient($email_rate_key, 1, 3 * MINUTE_IN_SECONDS);
 
     // Send admin notification.
-    tma_send_lead_notification( $name, $email, $phone, $service, $message, $page_url );
-    tma_send_high_value_lead_alert( $name, $email, $phone, $service, $message, $page_url );
+    tma_send_lead_notification($name, $email, $phone, $service, $message, $page_url);
+    tma_send_high_value_lead_alert($name, $email, $phone, $service, $message, $page_url);
 
-    wp_send_json_success( [ 'message' => $labels['success'] ] );
+    wp_send_json_success(['message' => $labels['success']]);
 }
 
 /* ─── 5. Email Notification ────────────────────────────────────── */
 
-function tma_send_lead_notification( $name, $email, $phone, $service, $message, $page_url ) {
-    $to      = get_option( 'admin_email' );
-    $subject = sprintf( '[Thor Metal Art] Nuevo lead: %s', $name );
-    $body    = implode( "\n", [
+function tma_send_lead_notification($name, $email, $phone, $service, $message, $page_url)
+{
+    $to      = get_option('admin_email');
+    $subject = sprintf('[Thor Metal Art] Nuevo lead: %s', $name);
+    $body    = implode("\n", [
         "Nuevo contacto recibido:",
         "",
         "Nombre:   {$name}",
@@ -379,22 +414,23 @@ function tma_send_lead_notification( $name, $email, $phone, $service, $message, 
         $message,
         "",
         "---",
-        "Gestiona los leads en: " . admin_url( 'admin.php?page=tma-leads' ),
-    ] );
+        "Gestiona los leads en: " . admin_url('admin.php?page=tma-leads'),
+    ]);
 
     $headers = [
         'Content-Type: text/plain; charset=UTF-8',
         "Reply-To: {$name} <{$email}>",
     ];
 
-    wp_mail( $to, $subject, $body, $headers );
+    wp_mail($to, $subject, $body, $headers);
 }
 
 /**
  * Optional alert email for high-value services.
  */
-function tma_send_high_value_lead_alert( $name, $email, $phone, $service, $message, $page_url ) {
-    $service_norm = strtolower( trim( (string) $service ) );
+function tma_send_high_value_lead_alert($name, $email, $phone, $service, $message, $page_url)
+{
+    $service_norm = strtolower(trim((string) $service));
     $high_value_services = [
         'custom gates',
         'art & commissions',
@@ -402,13 +438,13 @@ function tma_send_high_value_lead_alert( $name, $email, $phone, $service, $messa
         'arte y comisiones',
     ];
 
-    if ( ! in_array( $service_norm, $high_value_services, true ) ) {
+    if (! in_array($service_norm, $high_value_services, true)) {
         return;
     }
 
-    $to = get_option( 'admin_email' );
-    $subject = sprintf( '[Thor Metal Art] Alerta lead alto valor: %s', $name );
-    $body = implode( "\n", [
+    $to = get_option('admin_email');
+    $subject = sprintf('[Thor Metal Art] Alerta lead alto valor: %s', $name);
+    $body = implode("\n", [
         'High value lead / Lead de alto valor',
         '',
         "Nombre:   {$name}",
@@ -419,19 +455,19 @@ function tma_send_high_value_lead_alert( $name, $email, $phone, $service, $messa
         '',
         'Mensaje:',
         $message,
-    ] );
+    ]);
 
     $headers = [
         'Content-Type: text/plain; charset=UTF-8',
         "Reply-To: {$name} <{$email}>",
     ];
 
-    wp_mail( $to, $subject, $body, $headers );
+    wp_mail($to, $subject, $body, $headers);
 }
 
 /* ─── 6. Admin Page — Leads List ───────────────────────────────── */
 
-add_action( 'admin_menu', function () {
+add_action('admin_menu', function () {
     add_menu_page(
         'TMA Leads',
         'Leads',
@@ -441,29 +477,32 @@ add_action( 'admin_menu', function () {
         'dashicons-megaphone',
         30
     );
-} );
+});
 
-function tma_render_leads_page() {
-    if ( ! current_user_can( 'manage_options' ) ) {
-        wp_die( 'Unauthorized' );
+function tma_render_leads_page()
+{
+    if (! current_user_can('manage_options')) {
+        wp_die('Unauthorized');
     }
 
     global $wpdb;
     $table = $wpdb->prefix . 'tma_leads';
 
     // Handle status updates.
-    if ( isset( $_POST['tma_update_status'], $_POST['_wpnonce'] ) &&
-         wp_verify_nonce( $_POST['_wpnonce'], 'tma_lead_status' ) ) {
-        $lead_id    = absint( $_POST['lead_id'] );
-        $new_status = sanitize_text_field( $_POST['new_status'] );
-        $allowed    = [ 'new', 'contacted', 'quoted', 'won', 'lost' ];
-        if ( in_array( $new_status, $allowed, true ) && $lead_id > 0 ) {
-            $wpdb->update( $table, [ 'status' => $new_status ], [ 'id' => $lead_id ], [ '%s' ], [ '%d' ] );
+    if (
+        isset($_POST['tma_update_status'], $_POST['_wpnonce']) &&
+        wp_verify_nonce($_POST['_wpnonce'], 'tma_lead_status')
+    ) {
+        $lead_id    = absint($_POST['lead_id']);
+        $new_status = sanitize_text_field($_POST['new_status']);
+        $allowed    = ['new', 'contacted', 'quoted', 'won', 'lost'];
+        if (in_array($new_status, $allowed, true) && $lead_id > 0) {
+            $wpdb->update($table, ['status' => $new_status], ['id' => $lead_id], ['%s'], ['%d']);
         }
     }
 
     // Fetch leads.
-    $leads = $wpdb->get_results( "SELECT * FROM {$table} ORDER BY created_at DESC LIMIT 200" );
+    $leads = $wpdb->get_results("SELECT * FROM {$table} ORDER BY created_at DESC LIMIT 200");
 
     $status_colors = [
         'new'       => '#2196F3',
@@ -473,10 +512,10 @@ function tma_render_leads_page() {
         'lost'      => '#F44336',
     ];
 
-    ?>
+?>
     <div class="wrap">
         <h1>🔥 Thor Metal Art — Leads</h1>
-        <p>Total: <strong><?php echo count( $leads ); ?></strong> leads</p>
+        <p>Total: <strong><?php echo count($leads); ?></strong> leads</p>
 
         <table class="widefat striped">
             <thead>
@@ -493,62 +532,65 @@ function tma_render_leads_page() {
                 </tr>
             </thead>
             <tbody>
-            <?php if ( empty( $leads ) ) : ?>
-                <tr><td colspan="9" style="text-align:center;">Sin leads todavía.</td></tr>
-            <?php else : ?>
-                <?php foreach ( $leads as $lead ) : ?>
-                <tr>
-                    <td><?php echo (int) $lead->id; ?></td>
-                    <td><?php echo esc_html( date_i18n( 'M j, Y g:ia', strtotime( $lead->created_at ) ) ); ?></td>
-                    <td><strong><?php echo esc_html( $lead->full_name ); ?></strong></td>
-                    <td><a href="mailto:<?php echo esc_attr( $lead->email ); ?>"><?php echo esc_html( $lead->email ); ?></a></td>
-                    <td><?php echo esc_html( $lead->phone ); ?></td>
-                    <td><?php echo esc_html( $lead->service ); ?></td>
-                    <td title="<?php echo esc_attr( $lead->message ); ?>"><?php echo esc_html( wp_trim_words( $lead->message, 10 ) ); ?></td>
-                    <td>
-                        <?php
-                        $source_parts = array_filter( [ $lead->utm_source, $lead->utm_medium, $lead->utm_campaign ] );
-                        echo $source_parts ? esc_html( implode( ' / ', $source_parts ) ) : '<em>directo</em>';
-                        if ( $lead->referrer ) {
-                            echo '<br><small>' . esc_html( wp_parse_url( $lead->referrer, PHP_URL_HOST ) ) . '</small>';
-                        }
-                        ?>
-                    </td>
-                    <td>
-                        <form method="post" style="display:inline;">
-                            <?php wp_nonce_field( 'tma_lead_status' ); ?>
-                            <input type="hidden" name="lead_id" value="<?php echo (int) $lead->id; ?>" />
-                            <input type="hidden" name="tma_update_status" value="1" />
-                            <select name="new_status" onchange="this.form.submit()" style="border-left:4px solid <?php echo esc_attr( $status_colors[ $lead->status ] ?? '#999' ); ?>;">
-                                <?php foreach ( $status_colors as $key => $color ) : ?>
-                                    <option value="<?php echo esc_attr( $key ); ?>" <?php selected( $lead->status, $key ); ?>><?php echo esc_html( ucfirst( $key ) ); ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </form>
-                    </td>
-                </tr>
-                <?php endforeach; ?>
-            <?php endif; ?>
+                <?php if (empty($leads)) : ?>
+                    <tr>
+                        <td colspan="9" style="text-align:center;">Sin leads todavía.</td>
+                    </tr>
+                <?php else : ?>
+                    <?php foreach ($leads as $lead) : ?>
+                        <tr>
+                            <td><?php echo (int) $lead->id; ?></td>
+                            <td><?php echo esc_html(date_i18n('M j, Y g:ia', strtotime($lead->created_at))); ?></td>
+                            <td><strong><?php echo esc_html($lead->full_name); ?></strong></td>
+                            <td><a href="mailto:<?php echo esc_attr($lead->email); ?>"><?php echo esc_html($lead->email); ?></a></td>
+                            <td><?php echo esc_html($lead->phone); ?></td>
+                            <td><?php echo esc_html($lead->service); ?></td>
+                            <td title="<?php echo esc_attr($lead->message); ?>"><?php echo esc_html(wp_trim_words($lead->message, 10)); ?></td>
+                            <td>
+                                <?php
+                                $source_parts = array_filter([$lead->utm_source, $lead->utm_medium, $lead->utm_campaign]);
+                                echo $source_parts ? esc_html(implode(' / ', $source_parts)) : '<em>directo</em>';
+                                if ($lead->referrer) {
+                                    echo '<br><small>' . esc_html(wp_parse_url($lead->referrer, PHP_URL_HOST)) . '</small>';
+                                }
+                                ?>
+                            </td>
+                            <td>
+                                <form method="post" style="display:inline;">
+                                    <?php wp_nonce_field('tma_lead_status'); ?>
+                                    <input type="hidden" name="lead_id" value="<?php echo (int) $lead->id; ?>" />
+                                    <input type="hidden" name="tma_update_status" value="1" />
+                                    <select name="new_status" onchange="this.form.submit()" style="border-left:4px solid <?php echo esc_attr($status_colors[$lead->status] ?? '#999'); ?>;">
+                                        <?php foreach ($status_colors as $key => $color) : ?>
+                                            <option value="<?php echo esc_attr($key); ?>" <?php selected($lead->status, $key); ?>><?php echo esc_html(ucfirst($key)); ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </form>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </tbody>
         </table>
     </div>
-    <?php
+<?php
 }
 
 /* ─── 7. Frontend Assets (Inline) ──────────────────────────────── */
 
-function tma_enqueue_form_assets() {
+function tma_enqueue_form_assets()
+{
     static $enqueued = false;
-    if ( $enqueued ) return;
+    if ($enqueued) return;
     $enqueued = true;
 
     // Register AJAX URL + reCAPTCHA key for frontend.
-    $recaptcha_key = defined( 'RECAPTCHA_SITE_KEY' ) ? RECAPTCHA_SITE_KEY : '';
-    wp_enqueue_script( 'jquery' );
-    wp_add_inline_script( 'jquery', 'var tmaAjax = ' . wp_json_encode( [
-        'url'          => admin_url( 'admin-ajax.php' ),
+    $recaptcha_key = defined('RECAPTCHA_SITE_KEY') ? RECAPTCHA_SITE_KEY : '';
+    wp_enqueue_script('jquery');
+    wp_add_inline_script('jquery', 'var tmaAjax = ' . wp_json_encode([
+        'url'          => admin_url('admin-ajax.php'),
         'recaptchaKey' => $recaptcha_key,
-    ] ) . ';' );
+    ]) . ';');
 
     // Inline CSS.
     $css = '
@@ -571,15 +613,19 @@ function tma_enqueue_form_assets() {
     .tma-cf-feedback.success { padding:1rem; background:#e8f5e9; color:#2e7d32; border:1px solid #a5d6a7; }
     .tma-cf-feedback.error { padding:1rem; background:#ffebee; color:#c62828; border:1px solid #ef9a9a; }
     ';
-    wp_register_style( 'tma-contact-form', false );
-    wp_enqueue_style( 'tma-contact-form' );
-    wp_add_inline_style( 'tma-contact-form', $css );
+    wp_register_style('tma-contact-form', false);
+    wp_enqueue_style('tma-contact-form');
+    wp_add_inline_style('tma-contact-form', $css);
 
     // Inline JS.
     $js = '
     document.addEventListener("DOMContentLoaded", function() {
         var form = document.getElementById("tma-contact-form");
         if (!form) return;
+
+        /* Timing check — fill with current timestamp on load */
+        var tfl = form.querySelector("[name=tma_form_loaded]");
+        if (tfl) tfl.value = Date.now();
 
         /* Populate tracking fields */
         var params = new URLSearchParams(window.location.search);
@@ -642,16 +688,16 @@ function tma_enqueue_form_assets() {
         });
     });
     ';
-    wp_register_script( 'tma-contact-form-js', false, [ 'jquery' ], '1.0', true );
-    wp_enqueue_script( 'tma-contact-form-js' );
-    wp_add_inline_script( 'tma-contact-form-js', $js );
+    wp_register_script('tma-contact-form-js', false, ['jquery'], '1.0', true);
+    wp_enqueue_script('tma-contact-form-js');
+    wp_add_inline_script('tma-contact-form-js', $js);
 
     // reCAPTCHA Enterprise v3 script.
-    $recaptcha_key = defined( 'RECAPTCHA_SITE_KEY' ) ? RECAPTCHA_SITE_KEY : '';
-    if ( $recaptcha_key ) {
+    $recaptcha_key = defined('RECAPTCHA_SITE_KEY') ? RECAPTCHA_SITE_KEY : '';
+    if ($recaptcha_key) {
         wp_enqueue_script(
             'google-recaptcha-enterprise',
-            'https://www.google.com/recaptcha/enterprise.js?render=' . esc_attr( $recaptcha_key ),
+            'https://www.google.com/recaptcha/enterprise.js?render=' . esc_attr($recaptcha_key),
             [],
             null,
             true
@@ -661,25 +707,26 @@ function tma_enqueue_form_assets() {
 
 /* ─── 8. REST Endpoint for Dashboard API ───────────────────────── */
 
-add_action( 'rest_api_init', function () {
-    register_rest_route( 'tma/v1', '/leads/stats', [
+add_action('rest_api_init', function () {
+    register_rest_route('tma/v1', '/leads/stats', [
         'methods'             => 'GET',
         'callback'            => 'tma_leads_stats_endpoint',
         'permission_callback' => function () {
-            return current_user_can( 'manage_options' );
+            return current_user_can('manage_options');
         },
-    ] );
-} );
+    ]);
+});
 
-function tma_leads_stats_endpoint() {
+function tma_leads_stats_endpoint()
+{
     global $wpdb;
     $table = $wpdb->prefix . 'tma_leads';
 
-    $total     = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" );
-    $this_month = (int) $wpdb->get_var( $wpdb->prepare(
+    $total     = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$table}");
+    $this_month = (int) $wpdb->get_var($wpdb->prepare(
         "SELECT COUNT(*) FROM {$table} WHERE created_at >= %s",
-        gmdate( 'Y-m-01 00:00:00' )
-    ) );
+        gmdate('Y-m-01 00:00:00')
+    ));
     $by_status = $wpdb->get_results(
         "SELECT status, COUNT(*) AS cnt FROM {$table} GROUP BY status",
         OBJECT_K
@@ -691,7 +738,9 @@ function tma_leads_stats_endpoint() {
     return [
         'total'      => $total,
         'this_month' => $this_month,
-        'by_status'  => array_map( function ( $r ) { return (int) $r->cnt; }, (array) $by_status ),
+        'by_status'  => array_map(function ($r) {
+            return (int) $r->cnt;
+        }, (array) $by_status),
         'by_source'  => $by_source,
     ];
 }

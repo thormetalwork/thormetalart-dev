@@ -9,24 +9,38 @@
 defined('ABSPATH') || exit;
 
 /**
+ * Build a stable LocalBusiness @id independent of language path.
+ *
+ * @return string
+ */
+function tma_schema_localbusiness_id()
+{
+	$base = untrailingslashit((string) get_option('home'));
+	return $base . '/#localbusiness';
+}
+
+/**
  * Output LocalBusiness schema globally.
  */
 function tma_schema_local_business()
 {
 	$schema = array(
 		'@context'                  => 'https://schema.org',
-		'@type'                     => 'LocalBusiness',
-		'@id'                       => home_url('/#localbusiness'),
+		'@type'                     => array('LocalBusiness', 'HomeAndConstructionBusiness'),
+		'@id'                       => tma_schema_localbusiness_id(),
 		'name'                      => 'Thor Metal Art',
 		'description'               => 'Custom metal fabrication, artistic metalwork, gates, railings, fences, stairs, and furniture in Miami.',
 		'url'                       => home_url('/'),
-		'telephone'                 => '+1-305-000-0000',
-		'email'                     => 'info@thormetalart.com',
+		'telephone'                 => '+1-786-854-7309',
+		'email'                     => 'contact@thormetalart.com',
 		'priceRange'                => '$$-$$$$',
+		'currenciesAccepted'        => 'USD',
+		'paymentAccepted'           => 'Cash, Credit Card, Check',
 		'address'                   => array(
 			'@type'           => 'PostalAddress',
 			'addressLocality' => 'Miami',
 			'addressRegion'   => 'FL',
+			'postalCode'      => '33135',
 			'addressCountry'  => 'US',
 		),
 		'geo'                       => array(
@@ -34,8 +48,27 @@ function tma_schema_local_business()
 			'latitude'  => 25.7617,
 			'longitude' => -80.1918,
 		),
+		'hasMap'                    => 'https://maps.google.com/?q=Thor+Metal+Art+Miami+FL',
+		'areaServed'                => array(
+			array('@type' => 'City', 'name' => 'Miami', 'sameAs' => 'https://en.wikipedia.org/wiki/Miami'),
+			array('@type' => 'City', 'name' => 'Coral Gables'),
+			array('@type' => 'City', 'name' => 'Aventura'),
+			array('@type' => 'City', 'name' => 'Brickell'),
+			array('@type' => 'City', 'name' => 'Wynwood'),
+			array('@type' => 'City', 'name' => 'Pinecrest'),
+			array('@type' => 'AdministrativeArea', 'name' => 'Miami-Dade County'),
+			array('@type' => 'AdministrativeArea', 'name' => 'Broward County'),
+		),
+		'logo'                      => array(
+			'@type'  => 'ImageObject',
+			'url'    => get_stylesheet_directory_uri() . '/Logo.png',
+			'width'  => 1000,
+			'height' => 1000,
+		),
+		'image'                     => get_stylesheet_directory_uri() . '/Logo.png',
 		'sameAs'                    => array(
 			'https://www.instagram.com/thormetalart/',
+			'https://www.facebook.com/thormetalart',
 		),
 		'openingHoursSpecification' => array(
 			array(
@@ -103,7 +136,7 @@ function tma_schema_service_catalog()
 			'itemOffered' => array(
 				'@type'    => 'Service',
 				'name'     => $service['name'],
-				'provider' => array('@id' => home_url('/#localbusiness')),
+				'provider' => array('@id' => tma_schema_localbusiness_id()),
 				'url'      => $service['url'],
 			),
 		);
@@ -141,7 +174,7 @@ function tma_schema_service_page()
 		'name'        => get_the_title(),
 		'description' => wp_strip_all_tags(get_the_excerpt() ? get_the_excerpt() : get_the_title()),
 		'url'         => get_permalink(),
-		'provider'    => array('@id' => home_url('/#localbusiness')),
+		'provider'    => array('@id' => tma_schema_localbusiness_id()),
 		'areaServed'  => array(
 			'@type' => 'City',
 			'name'  => 'Miami',
@@ -166,51 +199,71 @@ function tma_schema_faq_page()
 		'custom-metal-gates-miami'     => array(
 			array(
 				'q' => 'How long does a custom gate take?',
-				'a' => 'Most custom gates are completed in 3 to 5 weeks after design approval.',
+				'a' => 'Most projects take between 3 and 5 weeks after design approval, depending on complexity and permit requirements.',
 			),
 			array(
-				'q' => 'Do you handle permits?',
-				'a' => 'Yes, we can manage permits in Miami-Dade and Broward when required.',
+				'q' => 'Do you handle permits in Miami-Dade and Broward?',
+				'a' => 'Yes. We can manage permits directly or guide your team through the process when required by code.',
+			),
+			array(
+				'q' => 'What is the typical price range?',
+				'a' => 'Pricing depends on size, material, automation, and design detail. We provide a clear quote after a free consultation.',
 			),
 		),
 		'metal-railings-miami'         => array(
 			array(
-				'q' => 'Are railings code compliant?',
-				'a' => 'Yes, we fabricate and install based on local code requirements.',
+				'q' => 'Can you match an existing railing style?',
+				'a' => 'Yes. We can replicate or reinterpret existing styles while improving structural performance and finish quality.',
 			),
 			array(
-				'q' => 'Can you match existing design styles?',
-				'a' => 'Yes, we can replicate or modernize existing railing styles.',
+				'q' => 'Are your railings code compliant?',
+				'a' => 'Yes. We fabricate based on local safety requirements and project conditions.',
+			),
+			array(
+				'q' => 'Do you install for both homes and businesses?',
+				'a' => 'Absolutely. We handle residential and commercial installations across Miami-Dade and Broward.',
 			),
 		),
 		'metal-fences-miami'           => array(
 			array(
-				'q' => 'Do you offer security and decorative fences?',
-				'a' => 'Yes, we build both functional security and decorative perimeter systems.',
+				'q' => 'What material works best for Miami weather?',
+				'a' => 'We select material and finish based on exposure and maintenance preferences, with strong anti-corrosion options.',
 			),
 			array(
-				'q' => 'What finish options are available?',
-				'a' => 'We provide finish options selected for durability in Miami weather.',
+				'q' => 'Can you do privacy-focused fence designs?',
+				'a' => 'Yes. We can fabricate patterns and panel combinations that increase privacy while maintaining airflow and style.',
+			),
+			array(
+				'q' => 'Do you offer commercial perimeter fences?',
+				'a' => 'Yes. We build custom fence systems for commercial properties including controlled access points.',
 			),
 		),
 		'custom-metal-furniture-miami' => array(
 			array(
-				'q' => 'Can I commission a custom design?',
-				'a' => 'Yes, each furniture piece is built to order from your concept and dimensions.',
+				'q' => 'Can you build from inspiration photos?',
+				'a' => 'Yes. We can work from references, refine proportions, and deliver a custom piece tailored to your space.',
 			),
 			array(
-				'q' => 'Do you work with mixed materials?',
-				'a' => 'Yes, we can combine metal with wood, glass, or stone elements.',
+				'q' => 'Do you offer matching furniture sets?',
+				'a' => 'Yes. We can fabricate cohesive sets for dining, living, office, or hospitality environments.',
+			),
+			array(
+				'q' => 'What is the average lead time?',
+				'a' => 'Lead time depends on complexity and quantity. We provide a schedule in the quote phase.',
 			),
 		),
 		'metal-stairs-miami'           => array(
 			array(
-				'q' => 'Do you build floating and spiral stairs?',
-				'a' => 'Yes, we fabricate custom floating, spiral, and industrial stair systems.',
+				'q' => 'Do you build stairs for renovations and new construction?',
+				'a' => 'Yes. We work with homeowners, contractors, and designers for both renovation and ground-up projects.',
 			),
 			array(
-				'q' => 'Do you install as well?',
-				'a' => 'Yes, our team handles fabrication and installation end to end.',
+				'q' => 'Can stairs be fabricated with mixed materials?',
+				'a' => 'Yes. We can combine metal structures with wood, stone, or glass depending on your concept.',
+			),
+			array(
+				'q' => 'Do you offer modern minimalist designs?',
+				'a' => 'Yes. Minimal line designs are one of our most requested solutions for contemporary spaces.',
 			),
 		),
 	);
@@ -349,7 +402,7 @@ function tma_schema_blog_posting()
 			'url'   => $author_url,
 		),
 		'publisher'        => array(
-			'@id'  => home_url('/#localbusiness'),
+			'@id'  => tma_schema_localbusiness_id(),
 			'name' => 'Thor Metal Art',
 		),
 		'mainEntityOfPage' => array(

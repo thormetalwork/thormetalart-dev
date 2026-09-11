@@ -40,14 +40,14 @@ echo "================================================"
 echo ""
 
 # -------------------------------------------------------
-# TEST 1: Exactly 12 published posts exist
+# TEST 1: At least the 12 seed posts exist; editorial posts may be added later.
 # -------------------------------------------------------
-info "TEST 1: 12 published posts exist in DB"
+info "TEST 1: At least 12 published posts exist in DB"
 COUNT=$(mysql_q "SELECT COUNT(*) FROM tma_posts WHERE post_type='post' AND post_status='publish';")
-if [ "$COUNT" -eq 12 ]; then
-  pass "12 published posts found"
+if [ "$COUNT" -ge 12 ]; then
+  pass "At least 12 published posts found (got $COUNT)"
 else
-  fail "Expected 12 published posts, got $COUNT"
+  fail "Expected at least 12 published posts, got $COUNT"
 fi
 
 # -------------------------------------------------------
@@ -89,26 +89,26 @@ fi
 # -------------------------------------------------------
 info "TEST 5: fabrication category has 4 posts"
 FAB_COUNT=$(mysql_q "SELECT COUNT(*) FROM tma_posts p JOIN tma_term_relationships tr ON p.ID=tr.object_id WHERE p.post_type='post' AND p.post_status='publish' AND tr.term_taxonomy_id=10;")
-if [ "$FAB_COUNT" -eq 4 ]; then
-  pass "fabrication: 4 posts"
+if [ "$FAB_COUNT" -ge 4 ]; then
+  pass "fabrication: at least 4 posts (got $FAB_COUNT)"
 else
-  fail "fabrication: expected 4, got $FAB_COUNT"
+  fail "fabrication: expected at least 4, got $FAB_COUNT"
 fi
 
 info "TEST 6: design-ideas category has 3 posts"
 DI_COUNT=$(mysql_q "SELECT COUNT(*) FROM tma_posts p JOIN tma_term_relationships tr ON p.ID=tr.object_id WHERE p.post_type='post' AND p.post_status='publish' AND tr.term_taxonomy_id=11;")
-if [ "$DI_COUNT" -eq 3 ]; then
-  pass "design-ideas: 3 posts"
+if [ "$DI_COUNT" -ge 3 ]; then
+  pass "design-ideas: at least 3 posts (got $DI_COUNT)"
 else
-  fail "design-ideas: expected 3, got $DI_COUNT"
+  fail "design-ideas: expected at least 3, got $DI_COUNT"
 fi
 
 info "TEST 7: miami-projects category has 3 posts"
 MP_COUNT=$(mysql_q "SELECT COUNT(*) FROM tma_posts p JOIN tma_term_relationships tr ON p.ID=tr.object_id WHERE p.post_type='post' AND p.post_status='publish' AND tr.term_taxonomy_id=12;")
-if [ "$MP_COUNT" -eq 3 ]; then
-  pass "miami-projects: 3 posts"
+if [ "$MP_COUNT" -ge 3 ]; then
+  pass "miami-projects: at least 3 posts (got $MP_COUNT)"
 else
-  fail "miami-projects: expected 3, got $MP_COUNT"
+  fail "miami-projects: expected at least 3, got $MP_COUNT"
 fi
 
 info "TEST 8: care-tips category has 1 post"
