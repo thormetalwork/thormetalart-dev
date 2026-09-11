@@ -59,11 +59,12 @@ test_archive_single_use_forjado_palette() {
 }
 
 test_service_pages_use_obsidian_overlay() {
-    if grep -q '"overlayColor":"obsidian"' "${MU_PLUGINS_DIR}/tma-service-pages.php" && \
-       ! grep -q '"overlayColor":"primary"' "${MU_PLUGINS_DIR}/tma-service-pages.php"; then
-        pass "tma-service-pages.php usa overlayColor obsidian en los hero covers (sin 'primary' legado)"
+    if grep -q 'tma-service-hero__overlay' "${MU_PLUGINS_DIR}/tma-service-pages.php" && \
+       grep -q '^\.tma-page-hero {' "${THEME_DIR}/style.css" && \
+       grep -A8 '^\.tma-page-hero {' "${THEME_DIR}/style.css" | grep -q -- '--wp--preset--color--obsidian'; then
+        pass "el hero dedicado usa el overlay Lujo Forjado"
     else
-        fail "tma-service-pages.php todavía usa el overlay 'primary' legado"
+        fail "el hero dedicado no define su overlay Lujo Forjado"
     fi
 }
 
@@ -102,12 +103,12 @@ test_service_page_uses_obsidian_in_db() {
         define("WP_USE_THEMES", false);
         require "/var/www/html/wp-load.php";
         $p = get_page_by_path("custom-metal-gates-miami");
-        echo $p && strpos($p->post_content, "obsidian") !== false ? "OK" : "MISSING";
+        echo $p && "page-service" === get_post_meta($p->ID, "_wp_page_template", true) && strpos($p->post_content, "tma-page-shell") === false ? "OK" : "MISSING";
     ' 2>/dev/null)
     if [[ "$status" == "OK" ]]; then
-        pass "La página generada 'custom-metal-gates-miami' fue re-provisionada con el overlay obsidian"
+        pass "la página persiste cuerpo y delega el hero al template dedicado"
     else
-        fail "La página generada no refleja el overlay obsidian (status=${status})"
+        fail "la página todavía persiste estructura visual duplicada (status=${status})"
     fi
 }
 

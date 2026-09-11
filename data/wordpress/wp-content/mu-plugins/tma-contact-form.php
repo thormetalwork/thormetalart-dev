@@ -24,7 +24,7 @@ function tma_leads_create_table()
     $table   = $wpdb->prefix . 'tma_leads';
     $charset = $wpdb->get_charset_collate();
 
-    $sql = "CREATE TABLE IF NOT EXISTS {$table} (
+    $sql = "CREATE TABLE {$table} (
         id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
         full_name VARCHAR(200) NOT NULL,
         email VARCHAR(200) NOT NULL,
@@ -39,6 +39,9 @@ function tma_leads_create_table()
         ip_hash VARCHAR(64) DEFAULT '',
         locale VARCHAR(10) DEFAULT 'es',
         status VARCHAR(20) DEFAULT 'new',
+        notification_status VARCHAR(20) DEFAULT 'pending',
+        notification_error VARCHAR(100) DEFAULT '',
+        notified_at DATETIME NULL DEFAULT NULL,
         created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (id),
         KEY idx_status (status),
@@ -47,12 +50,17 @@ function tma_leads_create_table()
 
     require_once ABSPATH . 'wp-admin/includes/upgrade.php';
     dbDelta($sql);
-    update_option('tma_leads_db_version', '1.0');
+
+    $required_columns = ['notification_status', 'notification_error', 'notified_at'];
+    $columns          = $wpdb->get_col("SHOW COLUMNS FROM {$table}", 0);
+    if (! array_diff($required_columns, $columns)) {
+        update_option('tma_leads_db_version', '1.2');
+    }
 }
 
 // Run on first load if table doesn't exist.
 add_action('init', function () {
-    if (get_option('tma_leads_db_version') !== '1.0') {
+    if (get_option('tma_leads_db_version') !== '1.2') {
         tma_leads_create_table();
     }
 });
@@ -60,6 +68,50 @@ add_action('init', function () {
 /* ─── 2. Shortcode ─────────────────────────────────────────────── */
 
 add_shortcode('tma_contact_form', 'tma_render_contact_form');
+
+/**
+ * Return the canonical contact-form service options.
+ *
+ * @return array<string, array<string, string>>
+ */
+function tma_get_contact_service_options()
+{
+    $services = [];
+    foreach (tma_get_service_catalog() as $service) {
+        $services[$service['form_value']] = $service['label'];
+    }
+    $services['metal-art'] = ['es' => 'Arte y encargos', 'en' => 'Art & Commissions'];
+    $services['other']     = ['es' => 'Otro', 'en' => 'Other'];
+
+    return $services;
+}
+
+/**
+ * Validate a submitted service against the canonical allowlist.
+ *
+ * @param string $service Submitted service value.
+ * @return string|WP_Error
+ */
+function tma_validate_lead_service($service)
+{
+    $service = sanitize_key($service);
+    if ('' === $service || array_key_exists($service, tma_get_contact_service_options())) {
+        return $service;
+    }
+
+    return new WP_Error('tma_invalid_service', 'Invalid service.');
+}
+
+/**
+ * Determine whether a canonical service requires a priority alert.
+ *
+ * @param string $service Canonical service value.
+ * @return bool
+ */
+function tma_is_high_value_service($service)
+{
+    return in_array($service, ['custom-gates', 'metal-art'], true);
+}
 
 function tma_render_contact_form($atts)
 {
@@ -73,14 +125,7 @@ function tma_render_contact_form($atts)
 
     $nonce = wp_nonce_field('tma_contact_submit', '_tma_nonce', true, false);
 
-    $services = [
-        'custom-gates'    => ['es' => 'Puertas personalizadas', 'en' => 'Custom Gates'],
-        'railings'        => ['es' => 'Barandas y pasamanos',   'en' => 'Railings & Handrails'],
-        'fences'          => ['es' => 'Cercas ornamentales',    'en' => 'Ornamental Fences'],
-        'furniture'       => ['es' => 'Mobiliario metálico',    'en' => 'Metal Furniture'],
-        'metal-art'       => ['es' => 'Arte en metal',          'en' => 'Metal Art & Sculptures'],
-        'other'           => ['es' => 'Otro',                   'en' => 'Other'],
-    ];
+    $services = tma_get_contact_service_options();
 
     $options_html = '<option value="">' . esc_html($labels['select_service']) . '</option>';
     foreach ($services as $value => $names) {
@@ -313,8 +358,12 @@ function tma_handle_lead_submission()
     $name    = sanitize_text_field(wp_unslash($_POST['tma_name'] ?? ''));
     $email   = sanitize_email(wp_unslash($_POST['tma_email'] ?? ''));
     $phone   = sanitize_text_field(wp_unslash($_POST['tma_phone'] ?? ''));
-    $service = sanitize_text_field(wp_unslash($_POST['tma_service'] ?? ''));
+    $service = tma_validate_lead_service(wp_unslash($_POST['tma_service'] ?? ''));
     $message = sanitize_textarea_field(wp_unslash($_POST['tma_message'] ?? ''));
+
+    if (is_wp_error($service)) {
+        wp_send_json_error(['message' => $labels['error']], 400);
+    }
 
     // Anti-spam: reject messages with > 2 URLs (link spam) or fields exceeding max length.
     if (preg_match_all('/https?:\/\//i', $message) > 2) {
@@ -373,6 +422,8 @@ function tma_handle_lead_submission()
         wp_send_json_error(['message' => $labels['error']], 500);
     }
 
+    $lead_id = (int) $wpdb->insert_id;
+
     do_action(
         'tma_panel_create_lead',
         [
@@ -388,9 +439,9 @@ function tma_handle_lead_submission()
     set_transient($rate_key, 1, 3 * MINUTE_IN_SECONDS);
     set_transient($email_rate_key, 1, 3 * MINUTE_IN_SECONDS);
 
-    // Send admin notification.
-    tma_send_lead_notification($name, $email, $phone, $service, $message, $page_url);
-    tma_send_high_value_lead_alert($name, $email, $phone, $service, $message, $page_url);
+    // Send exactly one admin notification and record its outcome.
+    $notification_sent = tma_notify_lead($name, $email, $phone, $service, $message, $page_url);
+    tma_record_lead_notification_status($lead_id, $notification_sent);
 
     wp_send_json_success(['message' => $labels['success']]);
 }
@@ -422,7 +473,7 @@ function tma_send_lead_notification($name, $email, $phone, $service, $message, $
         "Reply-To: {$name} <{$email}>",
     ];
 
-    wp_mail($to, $subject, $body, $headers);
+    return wp_mail($to, $subject, $body, $headers);
 }
 
 /**
@@ -430,18 +481,6 @@ function tma_send_lead_notification($name, $email, $phone, $service, $message, $
  */
 function tma_send_high_value_lead_alert($name, $email, $phone, $service, $message, $page_url)
 {
-    $service_norm = strtolower(trim((string) $service));
-    $high_value_services = [
-        'custom gates',
-        'art & commissions',
-        'portones personalizados',
-        'arte y comisiones',
-    ];
-
-    if (! in_array($service_norm, $high_value_services, true)) {
-        return;
-    }
-
     $to = get_option('admin_email');
     $subject = sprintf('[Thor Metal Art] Alerta lead alto valor: %s', $name);
     $body = implode("\n", [
@@ -462,7 +501,42 @@ function tma_send_high_value_lead_alert($name, $email, $phone, $service, $messag
         "Reply-To: {$name} <{$email}>",
     ];
 
-    wp_mail($to, $subject, $body, $headers);
+    return wp_mail($to, $subject, $body, $headers);
+}
+
+/**
+ * Send one notification, using a priority subject for premium services.
+ *
+ * @return bool
+ */
+function tma_notify_lead($name, $email, $phone, $service, $message, $page_url)
+{
+    if (tma_is_high_value_service($service)) {
+        return tma_send_high_value_lead_alert($name, $email, $phone, $service, $message, $page_url);
+    }
+
+    return tma_send_lead_notification($name, $email, $phone, $service, $message, $page_url);
+}
+
+/**
+ * Persist a notification outcome without storing message content.
+ */
+function tma_record_lead_notification_status($lead_id, $sent)
+{
+    global $wpdb;
+    $table = $wpdb->prefix . 'tma_leads';
+
+    return false !== $wpdb->update(
+        $table,
+        [
+            'notification_status' => $sent ? 'sent' : 'failed',
+            'notification_error'  => $sent ? '' : 'wp_mail_failed',
+            'notified_at'         => current_time('mysql', true),
+        ],
+        ['id' => absint($lead_id)],
+        ['%s', '%s', '%s'],
+        ['%d']
+    );
 }
 
 /* ─── 6. Admin Page — Leads List ───────────────────────────────── */
@@ -487,6 +561,16 @@ function tma_render_leads_page()
 
     global $wpdb;
     $table = $wpdb->prefix . 'tma_leads';
+
+    if (isset($_POST['tma_retry_notification'], $_POST['lead_id'])) {
+        $lead_id = absint($_POST['lead_id']);
+        check_admin_referer('tma_retry_lead_' . $lead_id);
+        $lead = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$table} WHERE id = %d", $lead_id));
+        if ($lead) {
+            $sent = tma_notify_lead($lead->full_name, $lead->email, $lead->phone, $lead->service, $lead->message, $lead->page_url);
+            tma_record_lead_notification_status($lead_id, $sent);
+        }
+    }
 
     // Handle status updates.
     if (
@@ -529,12 +613,13 @@ function tma_render_leads_page()
                     <th>Mensaje</th>
                     <th>Fuente</th>
                     <th>Estado</th>
+                    <th>Notificación</th>
                 </tr>
             </thead>
             <tbody>
                 <?php if (empty($leads)) : ?>
                     <tr>
-                        <td colspan="9" style="text-align:center;">Sin leads todavía.</td>
+                        <td colspan="10" style="text-align:center;">Sin leads todavía.</td>
                     </tr>
                 <?php else : ?>
                     <?php foreach ($leads as $lead) : ?>
@@ -566,6 +651,16 @@ function tma_render_leads_page()
                                         <?php endforeach; ?>
                                     </select>
                                 </form>
+                            </td>
+                            <td>
+                                <?php echo esc_html($lead->notification_status ?? 'pending'); ?>
+                                <?php if ('failed' === ($lead->notification_status ?? '')) : ?>
+                                    <form method="post" style="display:inline;">
+                                        <?php wp_nonce_field('tma_retry_lead_' . (int) $lead->id); ?>
+                                        <input type="hidden" name="lead_id" value="<?php echo (int) $lead->id; ?>" />
+                                        <button type="submit" name="tma_retry_notification" class="button button-small">Reintentar</button>
+                                    </form>
+                                <?php endif; ?>
                             </td>
                         </tr>
                     <?php endforeach; ?>

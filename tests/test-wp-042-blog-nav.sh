@@ -9,6 +9,7 @@ set -e
 THEME_DIR="/srv/stacks/thormetalart-dev/data/wordpress/wp-content/themes/thormetalart"
 HEADER="${THEME_DIR}/parts/header.html"
 FOOTER="${THEME_DIR}/parts/footer.html"
+NAVIGATION="/srv/stacks/thormetalart-dev/data/wordpress/wp-content/mu-plugins/tma-navigation.php"
 BASE_URL="https://dev.thormetalart.com"
 PASS=0
 FAIL=0
@@ -21,37 +22,35 @@ echo " TICKET-WP-042 — Blog Nav Tests"
 echo "══════════════════════════════════════════════════"
 echo ""
 
-# ─── Test 1: header.html contiene wp:navigation-link a /blog/ ───
+# ─── Test 1: el header consume la navegación canónica ───
 test_header_has_blog_link() {
-    if grep -q '"/blog/"' "${HEADER}"; then
-        pass "header.html contiene link a /blog/"
+    if grep -q 'tma_primary_navigation' "${HEADER}" && grep -q "home_url('/blog/')" "${NAVIGATION}"; then
+        pass "header.html consume navegación canónica con /blog/"
     else
-        fail "header.html NO contiene link a /blog/"
+        fail "header o fuente canónica no incluyen /blog/"
     fi
 }
 
 # ─── Test 2: header.html contiene label Blog ───
 test_header_has_blog_label() {
-    if grep -q '"Blog"' "${HEADER}"; then
-        pass "header.html contiene label \"Blog\""
+    if grep -q "'blog' => 'Blog'" "${NAVIGATION}"; then
+        pass "navegación canónica contiene label Blog"
     else
-        fail "header.html NO contiene label \"Blog\""
+        fail "navegación canónica no contiene label Blog"
     fi
 }
 
 # ─── Test 3: El link de Blog está entre Portfolio y Contact ───
 test_header_blog_position() {
-    local content
-    content=$(cat "${HEADER}")
     local pos_portfolio pos_blog pos_contact
-    pos_portfolio=$(echo "${content}" | grep -n "Portfolio" | grep navigation-link | head -1 | cut -d: -f1)
-    pos_blog=$(echo "${content}" | grep -n '"/blog/"' | head -1 | cut -d: -f1)
-    pos_contact=$(echo "${content}" | grep -n '"Contact"' | grep navigation-link | head -1 | cut -d: -f1)
-
-    if [[ -n "${pos_blog}" && "${pos_blog}" -gt "${pos_portfolio}" && "${pos_blog}" -lt "${pos_contact}" ]]; then
-        pass "Blog está entre Portfolio y Contact en el menú"
+    pos_portfolio=$(grep -n "home_url('/portfolio/')" "${NAVIGATION}" | tail -1 | cut -d: -f1)
+    pos_blog=$(grep -n "home_url('/blog/')" "${NAVIGATION}" | tail -1 | cut -d: -f1)
+    pos_contact=$(grep -n "home_url('/contact/')" "${NAVIGATION}" | tail -1 | cut -d: -f1)
+    if [[ -n "${pos_portfolio}" && -n "${pos_blog}" && -n "${pos_contact}" && \
+          "${pos_portfolio}" -lt "${pos_blog}" && "${pos_blog}" -lt "${pos_contact}" ]]; then
+        pass "Blog está entre Portfolio y Contact en la navegación canónica"
     else
-        fail "Blog NO está en la posición correcta (Portfolio=${pos_portfolio}, Blog=${pos_blog}, Contact=${pos_contact})"
+        fail "Blog no está entre Portfolio y Contact en la navegación canónica"
     fi
 }
 

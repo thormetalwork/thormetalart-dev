@@ -25,6 +25,12 @@ else
     fail "single.html is missing the shared page shell"
 fi
 
+if grep -q 'tma-post-hero' "$SINGLE_TEMPLATE" && grep -q 'tma-post-hero__image' "$SINGLE_TEMPLATE"; then
+    pass "single post places its featured image inside the hero"
+else
+    fail "single post hero does not own the featured image"
+fi
+
 if grep -q 'tma-page-shell' "$PORTFOLIO_TAX_TEMPLATE" && grep -q 'tma-page-hero' "$PORTFOLIO_TAX_TEMPLATE"; then
     pass "portfolio taxonomy template uses the shared page shell"
 else
