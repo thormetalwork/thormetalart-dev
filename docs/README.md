@@ -27,3 +27,8 @@
 - **Display font:** Cormorant Garamond
 - **Body font:** DM Sans / Inter
 - **Tono:** Directo, tecnico-accesible, bilingue EN/ES
+
+## Operacion
+
+- [SMTP y release](smtp-release-runbook.md)
+- [Matriz de claims publicos](cliente/14_matriz_claims_publicos.md)

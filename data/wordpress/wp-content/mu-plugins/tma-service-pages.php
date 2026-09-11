@@ -15,11 +15,15 @@ defined('ABSPATH') || exit;
  *
  * @return array<string, array<string, mixed>>
  */
-function tma_get_services()
+function tma_get_service_catalog()
 {
 	return array(
 		'custom-metal-gates-miami'     => array(
 			'title'           => 'Custom Metal Gates Miami',
+			'label'           => array('en' => 'Custom Gates', 'es' => 'Portones personalizados'),
+			'form_value'      => 'custom-gates',
+			'portfolio_term'  => 'gates',
+			'premium'         => true,
 			'hero_heading'    => 'Custom Metal Gates Miami',
 			'subheading'      => 'Hand-Crafted. Built to Last. Designed for You.',
 			'hero_image'      => '/wp-content/uploads/2026/04/tma-portfolio-waterjet-panel.jpg',
@@ -52,6 +56,10 @@ function tma_get_services()
 		),
 		'metal-railings-miami'         => array(
 			'title'           => 'Metal Railings Miami',
+			'label'           => array('en' => 'Metal Railings', 'es' => 'Barandas y pasamanos'),
+			'form_value'      => 'railings',
+			'portfolio_term'  => 'railings',
+			'premium'         => false,
 			'hero_heading'    => 'Metal Railings Miami',
 			'subheading'      => 'Custom Design for Stairs, Balconies and Decks.',
 			'hero_image'      => '/wp-content/uploads/2026/04/tma-portfolio-tig-welding.jpg',
@@ -84,6 +92,10 @@ function tma_get_services()
 		),
 		'metal-fences-miami'           => array(
 			'title'           => 'Custom Metal Fences Miami',
+			'label'           => array('en' => 'Metal Fences', 'es' => 'Cercas ornamentales'),
+			'form_value'      => 'fences',
+			'portfolio_term'  => 'fences',
+			'premium'         => false,
 			'hero_heading'    => 'Custom Metal Fences Miami',
 			'subheading'      => 'Decorative and Security Solutions Built to Last.',
 			'hero_image'      => '/wp-content/uploads/2026/04/tma-workshop-facade.jpg',
@@ -116,6 +128,10 @@ function tma_get_services()
 		),
 		'custom-metal-furniture-miami' => array(
 			'title'           => 'Custom Metal Furniture Miami',
+			'label'           => array('en' => 'Custom Furniture', 'es' => 'Mobiliario metalico'),
+			'form_value'      => 'furniture',
+			'portfolio_term'  => 'furniture',
+			'premium'         => false,
 			'hero_heading'    => 'Custom Metal Furniture Miami',
 			'subheading'      => 'One-of-a-Kind Pieces Built to Order.',
 			'hero_image'      => '/wp-content/uploads/2026/04/tma-portfolio-stainless-steel.jpg',
@@ -148,6 +164,10 @@ function tma_get_services()
 		),
 		'metal-stairs-miami'           => array(
 			'title'           => 'Metal Stairs Miami',
+			'label'           => array('en' => 'Metal Stairs', 'es' => 'Escaleras de metal'),
+			'form_value'      => 'stairs',
+			'portfolio_term'  => 'stairs',
+			'premium'         => false,
 			'hero_heading'    => 'Metal Stairs and Handrails Miami',
 			'subheading'      => 'Structural Precision with Visual Impact.',
 			'hero_image'      => '/wp-content/uploads/2026/04/tma-process-bending.jpg',
@@ -182,7 +202,39 @@ function tma_get_services()
 }
 
 /**
- * Build shared page shell markup for generated pages.
+ * Backward-compatible service dataset alias.
+ *
+ * @return array<string, array<string, mixed>>
+ */
+function tma_get_services()
+{
+	return tma_get_service_catalog();
+}
+
+/**
+ * Render the five canonical services for homepage discovery.
+ *
+ * @return string
+ */
+function tma_shortcode_service_catalog()
+{
+	$lang  = function_exists('tma_get_current_language_code') ? tma_get_current_language_code() : 'en';
+	$items = '';
+	foreach (tma_get_service_catalog() as $slug => $service) {
+		$items .= sprintf(
+			'<li><a href="%1$s">%2$s</a><span>%3$s</span></li>',
+			esc_url(home_url('/' . $slug . '/')),
+			esc_html($service['label'][$lang]),
+			esc_html($service['subheading'])
+		);
+	}
+
+	return '<ul class="tma-service-catalog">' . $items . '</ul>';
+}
+add_shortcode('tma_service_catalog', 'tma_shortcode_service_catalog');
+
+/**
+ * Build content for a generated sales page.
  *
  * @param string $heading Hero heading.
  * @param string $subheading Hero subheading.
@@ -190,17 +242,16 @@ function tma_get_services()
  * @param string $body_content Body content.
  * @return string
  */
-function tma_page_shell_markup($heading, $subheading, $hero_image, $body_content)
+function tma_sales_page_content($heading, $subheading, $hero_image, $body_content)
 {
-	return '<!-- wp:group {"className":"tma-page-shell","layout":{"type":"constrained","wideSize":"1200px"}} --><div class="wp-block-group tma-page-shell">'
-		. '<!-- wp:group {"className":"tma-page-hero","style":{"spacing":{"padding":{"top":"48px","bottom":"48px","left":"32px","right":"32px"}},"border":{"radius":"24px"}},"layout":{"type":"constrained","contentSize":"1120px"}} --><div class="wp-block-group tma-page-hero" style="padding-top:48px;padding-right:32px;padding-bottom:48px;padding-left:32px;border-radius:24px">'
-		. '<!-- wp:shortcode -->[tma_breadcrumbs]<!-- /wp:shortcode -->'
-		. '<!-- wp:cover {"url":"' . esc_url_raw($hero_image) . '","dimRatio":60,"overlayColor":"obsidian","isDark":true,"minHeight":320,"minHeightUnit":"px","className":"tma-service-hero-cover","focalPoint":{"x":0.5,"y":0.45}} --><div class="wp-block-cover is-dark tma-service-hero-cover" style="min-height:320px"><span aria-hidden="true" class="wp-block-cover__background has-obsidian-background-color has-background-dim-60 has-background-dim"></span><img class="wp-block-cover__image-background" alt="Thor Metal Art custom project" src="' . esc_url_raw($hero_image) . '" style="object-position:50% 45%" data-object-fit="cover" data-object-position="50% 45%"/><div class="wp-block-cover__inner-container"><!-- wp:heading {"textAlign":"center","level":2,"style":{"typography":{"fontFamily":"var(--wp--preset--font-family--forjado-display)","fontWeight":"700","textTransform":"uppercase"}}} --><h2 class="wp-block-heading has-text-align-center" style="font-family:var(--wp--preset--font-family--forjado-display);font-weight:700;text-transform:uppercase">' . esc_html($heading) . '</h2><!-- /wp:heading --><!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"17px","lineHeight":"1.6"}}} --><p class="has-text-align-center" style="font-size:17px;line-height:1.6">' . esc_html($subheading) . '</p><!-- /wp:paragraph --></div></div><!-- /wp:cover -->'
-		. '</div><!-- /wp:group -->'
-		. '<!-- wp:group {"className":"tma-page-content","style":{"spacing":{"padding":{"top":"32px","bottom":"32px","left":"32px","right":"32px"}}},"layout":{"type":"constrained","contentSize":"1120px"}} --><div class="wp-block-group tma-page-content" style="padding-top:32px;padding-right:32px;padding-bottom:32px;padding-left:32px">'
-		. $body_content
-		. '</div><!-- /wp:group -->'
-		. '</div><!-- /wp:group -->';
+	unset($subheading, $hero_image);
+
+	if ('How We Work' === $heading) {
+		return '<!-- wp:pattern {"slug":"thormetalart/process-forjado"} /-->'
+			. '<!-- wp:pattern {"slug":"thormetalart/cta-forjado"} /-->';
+	}
+
+	return $body_content . '<!-- wp:pattern {"slug":"thormetalart/cta-forjado"} /-->';
 }
 
 /**
@@ -221,7 +272,6 @@ function tma_service_page_content($service)
 		$faq_html .= '<!-- wp:html --><details class="tma-faq-item"><summary>' . esc_html($faq['q']) . '</summary><p>' . esc_html($faq['a']) . '</p></details><!-- /wp:html -->';
 	}
 
-	$hero_image = ! empty($service['hero_image']) ? esc_url_raw($service['hero_image']) : '';
 	$body_content = '<!-- wp:paragraph {"fontSize":"large"} --><p class="has-large-font-size">' . esc_html($service['intro']) . '</p><!-- /wp:paragraph -->'
 		. '<!-- wp:heading {"level":2} --><h2 class="wp-block-heading">What\'s Included</h2><!-- /wp:heading -->'
 		. '<!-- wp:list --><ul>' . $includes_items . '</ul><!-- /wp:list -->'
@@ -231,10 +281,142 @@ function tma_service_page_content($service)
 		. '<!-- wp:heading {"level":2} --><h2 class="wp-block-heading">' . esc_html($service['spanish_title']) . '</h2><!-- /wp:heading -->'
 		. '<!-- wp:heading {"level":3} --><h3 class="wp-block-heading">' . esc_html($service['spanish_heading']) . '</h3><!-- /wp:heading -->'
 		. '<!-- wp:paragraph --><p>' . esc_html($service['spanish_body']) . '</p><!-- /wp:paragraph -->'
-		. '<!-- wp:group {"className":"tma-final-cta"} --><div class="wp-block-group tma-final-cta"><!-- wp:heading {"level":3} --><h3 class="wp-block-heading">Ready to start your project?</h3><!-- /wp:heading --><!-- wp:paragraph --><p>Request a free estimate with no commitment. We respond within 24 hours.</p><!-- /wp:paragraph --><!-- wp:buttons --><div class="wp-block-buttons"><!-- wp:button --><div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="/contact/">Get a Free Estimate</a></div><!-- /wp:button --></div><!-- /wp:buttons --></div><!-- /wp:group -->';
+		. '<!-- wp:shortcode -->[tma_related_work]<!-- /wp:shortcode -->'
+		. '<!-- wp:group {"className":"tma-forjado-cta"} --><div class="wp-block-group tma-forjado-cta"><!-- wp:heading {"level":3} --><h3 class="wp-block-heading">Ready to start your project?</h3><!-- /wp:heading --><!-- wp:paragraph --><p>Request a free estimate with no commitment. We respond within 24 hours.</p><!-- /wp:paragraph --><!-- wp:buttons --><div class="wp-block-buttons"><!-- wp:button --><div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="/contact/">Get a Free Estimate</a></div><!-- /wp:button --></div><!-- /wp:buttons --></div><!-- /wp:group -->';
 
-	return tma_page_shell_markup($service['hero_heading'], $service['subheading'], $hero_image, $body_content);
+	return $body_content;
 }
+
+/**
+ * Render up to three portfolio projects related to the current service.
+ *
+ * @return string
+ */
+function tma_shortcode_related_work()
+{
+	if (! is_page()) {
+		return '';
+	}
+
+	$slug     = (string) get_post_field('post_name', get_queried_object_id());
+	$services = tma_get_service_catalog();
+	if (! isset($services[$slug])) {
+		return '';
+	}
+
+	$query = new WP_Query(
+		array(
+			'post_type'      => 'tma_portfolio',
+			'post_status'    => 'publish',
+			'posts_per_page' => 3,
+			'no_found_rows'  => true,
+			'tax_query'      => array(
+				array(
+					'taxonomy' => 'tma_project_type',
+					'field'    => 'slug',
+					'terms'    => $services[$slug]['portfolio_term'],
+				),
+			),
+		)
+	);
+
+	$lang    = function_exists('tma_get_current_language_code') ? tma_get_current_language_code() : 'en';
+	$title   = 'es' === $lang ? 'Trabajos relacionados' : 'Related work';
+	$empty   = 'es' === $lang ? 'Estamos documentando proyectos de este servicio. Contactanos para ver ejemplos recientes.' : 'We are documenting projects for this service. Contact us to see recent examples.';
+	$content = '<section class="tma-related-work"><h2>' . esc_html($title) . '</h2>';
+
+	if (! $query->have_posts()) {
+		return $content . '<p class="tma-related-work__empty">' . esc_html($empty) . '</p></section>';
+	}
+
+	$content .= '<div class="tma-related-work__grid">';
+	while ($query->have_posts()) {
+		$query->the_post();
+		$image = get_the_post_thumbnail(get_the_ID(), 'large', array('class' => 'tma-related-work__image'));
+		$content .= sprintf(
+			'<article class="tma-related-work__card"><a href="%1$s">%2$s<h3>%3$s</h3></a></article>',
+			esc_url(get_permalink()),
+			$image,
+			esc_html(get_the_title())
+		);
+	}
+	wp_reset_postdata();
+
+	return $content . '</div></section>';
+}
+add_shortcode('tma_related_work', 'tma_shortcode_related_work');
+
+/**
+ * Render the hero owned by the dedicated service template.
+ *
+ * @return string
+ */
+function tma_shortcode_service_hero()
+{
+	if (! is_page()) {
+		return '';
+	}
+
+	$slug     = (string) get_post_field('post_name', get_queried_object_id());
+	$services = tma_get_service_catalog();
+	if (! isset($services[$slug])) {
+		return '';
+	}
+
+	$service = $services[$slug];
+	return sprintf(
+		'<section class="tma-page-hero tma-service-hero"><div class="tma-service-hero__media"><img src="%1$s" alt="%2$s"></div><div class="tma-service-hero__overlay" aria-hidden="true"></div><div class="tma-service-hero__content">%3$s<p class="tma-page-kicker">Crafted in Miami</p><h1 class="tma-page-title">%4$s</h1><p class="tma-service-hero__subheading">%5$s</p></div></section>',
+		esc_url($service['hero_image']),
+		esc_attr($service['title']),
+		do_shortcode('[tma_breadcrumbs]'),
+		esc_html($service['hero_heading']),
+		esc_html($service['subheading'])
+	);
+}
+add_shortcode('tma_service_hero', 'tma_shortcode_service_hero');
+
+/**
+ * Render the hero for Art Commissions and How We Work.
+ *
+ * @return string
+ */
+function tma_shortcode_sales_hero()
+{
+	if (! is_page()) {
+		return '';
+	}
+
+	$pages = array(
+		'art-commissions' => array(
+			'eyebrow'   => 'Art and commissions',
+			'heading'   => 'Metal as Art',
+			'subheading' => 'Original sculptures and commissioned pieces by Karel Frometa in Miami.',
+			'image'      => '/wp-content/uploads/2026/04/tma-portfolio-fenix-sculpture.jpg',
+		),
+		'how-we-work'     => array(
+			'eyebrow'   => 'Our process',
+			'heading'   => 'How We Work',
+			'subheading' => 'From first call to finished installation, every stage is handled by our Miami team.',
+			'image'      => '/wp-content/uploads/2026/04/tma-karel-welding.jpg',
+		),
+	);
+	$slug  = (string) get_post_field('post_name', get_queried_object_id());
+	if (! isset($pages[$slug])) {
+		return '';
+	}
+
+	$page = $pages[$slug];
+	return sprintf(
+		'<section class="tma-page-hero tma-media-hero tma-sales-hero"><img class="tma-media-hero__image" src="%1$s" alt="%2$s"><div class="tma-media-hero__content">%3$s<p class="tma-page-kicker">%4$s</p><h1 class="tma-page-title">%5$s</h1><p>%6$s</p></div></section>',
+		esc_url($page['image']),
+		esc_attr($page['heading']),
+		do_shortcode('[tma_breadcrumbs]'),
+		esc_html($page['eyebrow']),
+		esc_html($page['heading']),
+		esc_html($page['subheading'])
+	);
+}
+add_shortcode('tma_sales_hero', 'tma_shortcode_sales_hero');
 
 /**
  * Return additional static pages.
@@ -246,7 +428,7 @@ function tma_get_core_pages()
 	return array(
 		'art-commissions' => array(
 			'title'   => 'Metal as Art & Commissions',
-			'content' => tma_page_shell_markup(
+			'content' => tma_sales_page_content(
 				'Metal as Art',
 				'Original Sculptures and Commissioned Pieces by Karel Frometa - Miami',
 				'/wp-content/uploads/2026/04/tma-portfolio-fenix-sculpture.jpg',
@@ -255,7 +437,7 @@ function tma_get_core_pages()
 		),
 		'how-we-work'     => array(
 			'title'   => 'How We Work',
-			'content' => tma_page_shell_markup(
+			'content' => tma_sales_page_content(
 				'How We Work',
 				'From first call to finished installation - everything is handled in-house by our Miami team.',
 				'/wp-content/uploads/2026/04/tma-karel-welding.jpg',
@@ -280,16 +462,25 @@ function tma_get_core_pages()
 function tma_create_or_update_generated_page($slug, $title, $content, $type)
 {
 	$existing = get_page_by_path($slug);
+	$template = 'service' === $type ? 'page-service' : ('sales' === $type ? 'page-sales' : 'default');
+	$hash     = hash('sha256', $content);
 
 	if ($existing) {
 		if ('1' === get_post_meta($existing->ID, '_tma_generated_page', true)) {
-			wp_update_post(
-				array(
-					'ID'           => $existing->ID,
-					'post_title'   => $title,
-					'post_content' => $content,
-				)
-			);
+			$stored_hash  = (string) get_post_meta($existing->ID, '_tma_generated_content_hash', true);
+			$current_hash = hash('sha256', (string) $existing->post_content);
+			if ('' !== $stored_hash && hash_equals($stored_hash, $current_hash)) {
+				wp_update_post(
+					array(
+						'ID'           => $existing->ID,
+						'post_title'   => $title,
+						'post_content' => $content,
+					)
+				);
+				update_post_meta($existing->ID, '_tma_generated_content_hash', $hash);
+			}
+
+			update_post_meta($existing->ID, '_wp_page_template', $template);
 		}
 		return;
 	}
@@ -303,8 +494,10 @@ function tma_create_or_update_generated_page($slug, $title, $content, $type)
 			'post_type'    => 'page',
 			'post_author'  => 1,
 			'meta_input'   => array(
-				'_tma_generated_page' => '1',
-				'_tma_generated_type' => $type,
+				'_tma_generated_page'        => '1',
+				'_tma_generated_type'        => $type,
+				'_tma_generated_content_hash' => $hash,
+				'_wp_page_template'           => $template,
 			),
 		)
 	);
@@ -319,14 +512,15 @@ function tma_create_or_update_generated_page($slug, $title, $content, $type)
  */
 function tma_provision_website_v1_pages()
 {
-	$services = tma_get_services();
+	$services = tma_get_service_catalog();
 	foreach ($services as $slug => $service) {
 		tma_create_or_update_generated_page($slug, $service['title'], tma_service_page_content($service), 'service');
 	}
 
 	$core_pages = tma_get_core_pages();
 	foreach ($core_pages as $slug => $page) {
-		tma_create_or_update_generated_page($slug, $page['title'], $page['content'], 'core');
+		$type = in_array($slug, array('art-commissions', 'how-we-work'), true) ? 'sales' : 'core';
+		tma_create_or_update_generated_page($slug, $page['title'], $page['content'], $type);
 	}
 }
 add_action('after_switch_theme', 'tma_provision_website_v1_pages');
@@ -337,14 +531,43 @@ add_action('after_switch_theme', 'tma_provision_website_v1_pages');
 function tma_maybe_provision_website_v1_pages_once()
 {
 	$version = get_option('tma_pages_version', '');
-	if ('v4' === $version) {
+	if ('v8' === $version) {
 		return;
 	}
 
 	tma_provision_website_v1_pages();
-	update_option('tma_pages_version', 'v4', false);
+	update_option('tma_pages_version', 'v8', false);
 }
 add_action('init', 'tma_maybe_provision_website_v1_pages_once', 50);
+
+/**
+ * Keep legal pages on their dedicated readable template.
+ */
+function tma_assign_legal_page_templates()
+{
+	if (get_option('tma_legal_page_templates_v1', false)) {
+		return;
+	}
+
+	$updated = true;
+	$found   = 0;
+	foreach (array('privacy-policy', 'terms-of-service') as $slug) {
+		$page = get_page_by_path($slug);
+		if (! $page) {
+			$updated = false;
+			continue;
+		}
+		++$found;
+		if ('page-legal' !== get_post_meta($page->ID, '_wp_page_template', true)) {
+			$updated = false !== update_post_meta($page->ID, '_wp_page_template', 'page-legal') && $updated;
+		}
+	}
+
+	if ($updated && 2 === $found) {
+		update_option('tma_legal_page_templates_v1', 1, false);
+	}
+}
+add_action('init', 'tma_assign_legal_page_templates', 60);
 
 /**
  * Find attachment id by _wp_attached_file value.

@@ -36,6 +36,8 @@ __pycache__/
 .idea/
 .playwright-mcp/
 .tmp/
+playwright-report/
+test-results/
 
 # Local visual test artifacts
 brand*-desktop.png

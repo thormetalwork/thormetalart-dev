@@ -1,5 +1,5 @@
 .PHONY: up down restart logs logs-wp logs-mysql build status backup restore clean \
-       test test-all test-panel test-dash test-lead test-portal test-docker \
+	test test-all test-e2e test-panel test-dash test-lead test-portal test-docker \
        lint lint-php lint-js lint-format lint-phpcs lint-phpstan \
        format fix shell-wp shell-mysql
 
@@ -49,6 +49,9 @@ test:
 
 test-all:
 	bash scripts/run-all-tests.sh all
+
+test-e2e:
+	npm run test:e2e
 
 test-panel:
 	bash scripts/run-all-tests.sh panel

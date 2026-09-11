@@ -39,14 +39,9 @@
             <p class="has-ink-mute-color has-text-color">Gates, railings, floating stairs and structural steel — engineered to code and finished to be looked at.</p>
             <!-- /wp:paragraph -->
 
-            <!-- wp:list {"textColor":"ink-mute"} -->
-            <ul class="has-ink-mute-color has-text-color">
-                <li><a href="/custom-metal-gates-miami/">Custom gates &amp; entries</a> — <strong>Residential / Commercial</strong></li>
-                <li><a href="/metal-railings-miami/">Railings &amp; balustrades</a> — <strong>Code-compliant</strong></li>
-                <li><a href="/metal-stairs-miami/">Floating &amp; spiral stairs</a> — <strong>Structural</strong></li>
-                <li><a href="/metal-fences-miami/">Fences &amp; perimeter systems</a> — <strong>South Florida rated</strong></li>
-            </ul>
-            <!-- /wp:list -->
+            <!-- wp:shortcode -->
+            [tma_service_catalog]
+            <!-- /wp:shortcode -->
 
             <!-- wp:paragraph {"style":{"typography":{"fontSize":"12.5px","letterSpacing":"0.12em","textTransform":"uppercase","fontWeight":"600"}},"textColor":"ink"} -->
             <p class="has-ink-color has-text-color" style="font-size:12.5px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase"><a href="#work">Explore fabrication →</a></p>
@@ -72,7 +67,6 @@
             <ul class="has-ink-mute-color has-text-color">
                 <li>Commissioned sculpture — <strong>By brief</strong></li>
                 <li>Damascus-forged blades — <strong>Hand-forged</strong></li>
-                <li><a href="/custom-metal-furniture-miami/">Design furniture</a> — <strong>One-off</strong></li>
                 <li>Lobby &amp; interior pieces — <strong>Site-specific</strong></li>
             </ul>
             <!-- /wp:list -->
