@@ -7,20 +7,21 @@ PASS=0
 FAIL=0
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PLUGIN_FILE="${ROOT_DIR}/data/wordpress/wp-content/mu-plugins/tma-service-pages.php"
+TEMPLATE_FILE="${ROOT_DIR}/data/wordpress/wp-content/themes/thormetalart/templates/page-service.html"
 
 pass() { echo "[PASS] $1"; PASS=$((PASS+1)); }
 fail() { echo "[FAIL] $1"; FAIL=$((FAIL+1)); }
 
-if grep -q 'tma-page-shell' "$PLUGIN_FILE" && grep -q 'tma-page-hero' "$PLUGIN_FILE"; then
-    pass "mu-plugin service page content includes the page shell structure"
+if grep -q 'tma-page-shell' "$TEMPLATE_FILE" && grep -q 'tma_service_hero' "$TEMPLATE_FILE"; then
+    pass "dedicated service template owns the page shell structure"
 else
-    fail "mu-plugin service page content is missing the page shell structure"
+    fail "dedicated service template is missing the page shell structure"
 fi
 
-if grep -q 'tma-final-cta' "$PLUGIN_FILE"; then
-    pass "service page content keeps the final CTA block"
+if grep -q 'tma-forjado-cta' "$PLUGIN_FILE" && ! grep -q 'tma-final-cta' "$PLUGIN_FILE"; then
+    pass "service page content uses the Lujo Forjado CTA"
 else
-    fail "service page content is missing the final CTA block"
+    fail "service page content still uses the legacy CTA"
 fi
 
 if python3 - "$PLUGIN_FILE" <<'PY'

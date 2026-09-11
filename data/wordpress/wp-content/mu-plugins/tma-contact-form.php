@@ -73,14 +73,12 @@ function tma_render_contact_form($atts)
 
     $nonce = wp_nonce_field('tma_contact_submit', '_tma_nonce', true, false);
 
-    $services = [
-        'custom-gates'    => ['es' => 'Puertas personalizadas', 'en' => 'Custom Gates'],
-        'railings'        => ['es' => 'Barandas y pasamanos',   'en' => 'Railings & Handrails'],
-        'fences'          => ['es' => 'Cercas ornamentales',    'en' => 'Ornamental Fences'],
-        'furniture'       => ['es' => 'Mobiliario metálico',    'en' => 'Metal Furniture'],
-        'metal-art'       => ['es' => 'Arte en metal',          'en' => 'Metal Art & Sculptures'],
-        'other'           => ['es' => 'Otro',                   'en' => 'Other'],
-    ];
+    $services = [];
+    foreach (tma_get_service_catalog() as $service) {
+        $services[$service['form_value']] = $service['label'];
+    }
+    $services['metal-art'] = ['es' => 'Arte en metal', 'en' => 'Metal Art & Sculptures'];
+    $services['other']     = ['es' => 'Otro', 'en' => 'Other'];
 
     $options_html = '<option value="">' . esc_html($labels['select_service']) . '</option>';
     foreach ($services as $value => $names) {

@@ -133,13 +133,13 @@ function tma_seed_navigation_menus()
 		$menu_ids[$location] = $menu_id;
 	}
 
-	$service_links = array(
-		array('label' => 'Custom Gates', 'url' => home_url('/custom-metal-gates-miami/')),
-		array('label' => 'Metal Railings', 'url' => home_url('/metal-railings-miami/')),
-		array('label' => 'Metal Fences', 'url' => home_url('/metal-fences-miami/')),
-		array('label' => 'Custom Furniture', 'url' => home_url('/custom-metal-furniture-miami/')),
-		array('label' => 'Metal Stairs', 'url' => home_url('/metal-stairs-miami/')),
-	);
+	$service_links = array();
+	foreach (tma_get_service_catalog() as $slug => $service) {
+		$service_links[] = array(
+			'label' => $service['label']['en'],
+			'url'   => home_url('/' . $slug . '/'),
+		);
+	}
 
 	$services_menu_id = $menu_ids['tma-services'];
 	foreach ($service_links as $item) {
@@ -234,7 +234,75 @@ function tma_seed_navigation_menus()
 
 	update_option('tma_nav_seeded', 1, false);
 }
-add_action('init', 'tma_seed_navigation_menus', 30);
+
+/**
+ * Render canonical service links.
+ *
+ * @return string
+ */
+function tma_render_service_navigation_items()
+{
+	$lang  = tma_get_current_language_code();
+	$items = '';
+	foreach (tma_get_service_catalog() as $slug => $service) {
+		$items .= sprintf(
+			'<li><a href="%1$s">%2$s</a></li>',
+			esc_url(home_url('/' . $slug . '/')),
+			esc_html($service['label'][$lang])
+		);
+	}
+
+	return $items;
+}
+
+/**
+ * Render the primary navigation from canonical data.
+ *
+ * @return string
+ */
+function tma_shortcode_primary_navigation()
+{
+	$lang = tma_get_current_language_code();
+	$ui   = array(
+		'en' => array('menu' => 'Menu', 'services' => 'Services', 'art' => 'Art', 'process' => 'How We Work', 'portfolio' => 'Portfolio', 'blog' => 'Blog', 'contact' => 'Contact'),
+		'es' => array('menu' => 'Menu', 'services' => 'Servicios', 'art' => 'Arte', 'process' => 'Como Trabajamos', 'portfolio' => 'Portafolio', 'blog' => 'Blog', 'contact' => 'Contacto'),
+	);
+	$labels = $ui[$lang];
+	$items  = sprintf(
+		'<li class="tma-nav-services"><details class="tma-services-menu"><summary>%1$s</summary><ul class="tma-services-submenu">%2$s</ul></details></li><li><a href="%3$s">%4$s</a></li><li><a href="%5$s">%6$s</a></li><li><a href="%7$s">%8$s</a></li><li><a href="%9$s">%10$s</a></li><li><a href="%11$s">%12$s</a></li>',
+		esc_html($labels['services']),
+		tma_render_service_navigation_items(),
+		esc_url(home_url('/art-commissions/')),
+		esc_html($labels['art']),
+		esc_url(home_url('/how-we-work/')),
+		esc_html($labels['process']),
+		esc_url(home_url('/portfolio/')),
+		esc_html($labels['portfolio']),
+		esc_url(home_url('/blog/')),
+		esc_html($labels['blog']),
+		esc_url(home_url('/contact/')),
+		esc_html($labels['contact'])
+	);
+
+	return sprintf(
+		'<nav class="tma-main-nav tma-main-nav--desktop" aria-label="%1$s"><ul class="tma-nav-list">%2$s</ul></nav><details class="tma-main-nav tma-main-nav--mobile"><summary class="tma-nav-toggle">%3$s</summary><nav aria-label="%1$s"><ul class="tma-nav-list">%2$s</ul></nav></details>',
+		esc_attr__('Primary navigation', 'thormetalart'),
+		$items,
+		esc_html($labels['menu'])
+	);
+}
+add_shortcode('tma_primary_navigation', 'tma_shortcode_primary_navigation');
+
+/**
+ * Render service links for the footer.
+ *
+ * @return string
+ */
+function tma_shortcode_service_navigation()
+{
+	return '<ul class="tma-footer-links">' . tma_render_service_navigation_items() . '</ul>';
+}
+add_shortcode('tma_service_navigation', 'tma_shortcode_service_navigation');
 
 /**
  * Return current year string for footer.
