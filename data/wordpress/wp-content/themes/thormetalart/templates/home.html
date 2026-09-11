@@ -1,0 +1,179 @@
+<!-- wp:template-part {"slug":"header","theme":"thormetalart","tagName":"header"} /-->
+
+<!-- wp:group {"className":"tma-page-shell","style":{"spacing":{"padding":{"top":"0","bottom":"0","left":"24px","right":"24px"}}},"layout":{"type":"constrained","wideSize":"1200px"}} -->
+<div
+    class="wp-block-group tma-page-shell"
+    style="padding-top: 0; padding-right: 24px; padding-bottom: 0; padding-left: 24px"
+>
+    <!-- wp:group {"className":"tma-page-hero","style":{"spacing":{"padding":{"top":"48px","bottom":"48px","left":"32px","right":"32px"}},"border":{"radius":"24px"}},"layout":{"type":"constrained","contentSize":"1120px"}} -->
+    <div
+        class="wp-block-group tma-page-hero"
+        style="padding-top: 48px; padding-right: 32px; padding-bottom: 48px; padding-left: 32px; border-radius: 24px"
+    >
+        <!-- wp:shortcode -->
+        [tma_breadcrumbs]
+        <!-- /wp:shortcode -->
+
+        <!-- wp:group {"className":"tma-archive-header","style":{"spacing":{"margin":{"bottom":"0"}}}} -->
+        <div class="wp-block-group tma-archive-header">
+            <!-- wp:heading {"level":1,"textColor":"titanium","style":{"typography":{"fontFamily":"var(--wp--preset--font-family--forjado-display)","fontWeight":"700","textTransform":"uppercase","fontSize":"clamp(2rem,5vw,3.5rem)","lineHeight":"1.15"},"spacing":{"margin":{"bottom":"12px"}}}} -->
+            <h1 class="wp-block-heading has-titanium-color has-text-color" style="font-family:var(--wp--preset--font-family--forjado-display);font-size:clamp(2rem,5vw,3.5rem);font-weight:700;line-height:1.15;margin-bottom:12px;text-transform:uppercase">Blog</h1>
+            <!-- /wp:heading -->
+
+            <!-- wp:paragraph {"textColor":"ash","style":{"typography":{"fontFamily":"var(--wp--preset--font-family--body)","fontSize":"1rem"},"spacing":{"margin":{"bottom":"0"}}}} -->
+            <p class="has-ash-color has-text-color" style="font-family:var(--wp--preset--font-family--body);font-size:1rem;margin-bottom:0">Metal fabrication insights, project showcases, and care tips from Miami's custom metalwork studio.</p>
+            <!-- /wp:paragraph -->
+
+            <!-- wp:separator {"style":{"spacing":{"margin":{"top":"24px","bottom":"0"}},"color":{"background":"var(--wp--preset--color--forge)"}}} -->
+            <hr
+                class="wp-block-separator has-alpha-channel-opacity"
+                style="background-color: var(--wp--preset--color--forge); margin-top: 24px; margin-bottom: 0"
+            />
+            <!-- /wp:separator -->
+        </div>
+        <!-- /wp:group -->
+    </div>
+    <!-- /wp:group -->
+
+    <!-- wp:group {"className":"tma-page-content","style":{"spacing":{"padding":{"top":"32px","bottom":"32px","left":"32px","right":"32px"}}},"layout":{"type":"constrained","contentSize":"1120px"}} -->
+    <div
+        class="wp-block-group tma-page-content"
+        style="padding-top: 32px; padding-right: 32px; padding-bottom: 32px; padding-left: 32px"
+    >
+        <!-- wp:query {"query":{"perPage":9,"pages":0,"offset":0,"postType":"post","order":"desc","orderBy":"date","inherit":true},"displayLayout":{"type":"flex","columns":3}} -->
+        <div class="wp-block-query">
+            <!-- wp:post-template -->
+            <!-- wp:group {"className":"tma-blog-card","style":{"spacing":{"padding":{"top":"0","bottom":"0","left":"0","right":"0"}},"border":{"radius":"4px"}}} -->
+            <div class="wp-block-group tma-blog-card" style="border-radius: 4px">
+                <!-- wp:post-featured-image {"isLink":true,"aspectRatio":"16/9","style":{"spacing":{"margin":{"bottom":"0"}},"border":{"radius":"4px 4px 0 0"}}} /-->
+
+                <!-- wp:group {"style":{"spacing":{"padding":{"top":"20px","bottom":"20px","left":"20px","right":"20px"}}}} -->
+                <div
+                    class="wp-block-group"
+                    style="padding-top: 20px; padding-right: 20px; padding-bottom: 20px; padding-left: 20px"
+                >
+                    <!-- wp:group {"style":{"spacing":{"margin":{"bottom":"10px"}}}} -->
+                    <div class="wp-block-group" style="margin-bottom: 10px">
+                        <!-- wp:post-terms {"term":"category","separator":" · ","style":{"typography":{"fontSize":"12px","fontFamily":"var(--wp--preset--font-family--body)","textTransform":"uppercase","letterSpacing":"0.08em"},"color":{"text":"var(--wp--preset--color--forge)"}}} /-->
+
+                        <!-- wp:post-date {"format":"M j, Y","style":{"typography":{"fontSize":"12px","fontFamily":"var(--wp--preset--font-family--body)"},"color":{"text":"var(--wp--preset--color--ink-mute)"}}} /-->
+                    </div>
+                    <!-- /wp:group -->
+
+                    <!-- wp:post-title {"isLink":true,"level":3,"style":{"typography":{"fontFamily":"var(--wp--preset--font-family--heading)","fontSize":"1.4rem","lineHeight":"1.2"},"color":{"text":"var(--wp--preset--color--obsidian)"},"spacing":{"margin":{"bottom":"10px"}}}} /-->
+
+                    <!-- wp:post-excerpt {"moreText":"Read more →","excerptLength":20,"style":{"typography":{"fontFamily":"var(--wp--preset--font-family--body)","fontSize":"0.9rem"},"color":{"text":"var(--wp--preset--color--ink-mute)"}}} /-->
+                </div>
+                <!-- /wp:group -->
+            </div>
+            <!-- /wp:group -->
+            <!-- /wp:post-template -->
+
+            <!-- wp:query-no-results -->
+            <!-- wp:group {"className":"tma-empty-state","style":{"spacing":{"padding":{"top":"64px","bottom":"64px"}}}} -->
+            <div class="wp-block-group tma-empty-state" style="padding-top: 64px; padding-bottom: 64px">
+                <!-- wp:paragraph {"align":"center","style":{"typography":{"fontFamily":"var(--wp--preset--font-family--body)","fontSize":"1.1rem"},"color":{"text":"var(--wp--preset--color--ink-mute)"}}} -->
+                <p
+                    class="has-text-align-center"
+                    style="
+                        color: var(--wp--preset--color--ink-mute);
+                        font-family: var(--wp--preset--font-family--body);
+                        font-size: 1.1rem;
+                    "
+                >
+                    No posts found yet. Check back soon!
+                </p>
+                <!-- /wp:paragraph -->
+            </div>
+            <!-- /wp:group -->
+            <!-- /wp:query-no-results -->
+
+            <!-- wp:query-pagination {"layout":{"type":"flex","justifyContent":"center"},"style":{"spacing":{"margin":{"top":"48px"}}}} -->
+            <!-- wp:query-pagination-previous /-->
+            <!-- wp:query-pagination-numbers /-->
+            <!-- wp:query-pagination-next /-->
+            <!-- /wp:query-pagination -->
+        </div>
+        <!-- /wp:query -->
+
+        <!-- wp:separator {"style":{"spacing":{"margin":{"top":"64px","bottom":"64px"}},"color":{"background":"var(--wp--preset--color--line-lt)"}}} -->
+        <hr
+            class="wp-block-separator has-alpha-channel-opacity"
+            style="background-color: var(--wp--preset--color--line-lt); margin-top: 64px; margin-bottom: 64px"
+        />
+        <!-- /wp:separator -->
+
+        <!-- wp:group {"className":"tma-archive-cta","style":{"color":{"background":"var(--wp--preset--color--obsidian)"},"spacing":{"padding":{"top":"48px","bottom":"48px","left":"40px","right":"40px"}},"border":{"radius":"4px"}},"layout":{"type":"flex","orientation":"vertical","justifyContent":"center"}} -->
+        <div
+            class="wp-block-group tma-archive-cta has-background"
+            style="
+                background-color: var(--wp--preset--color--obsidian);
+                padding-top: 48px;
+                padding-right: 40px;
+                padding-bottom: 48px;
+                padding-left: 40px;
+                border-radius: 4px;
+            "
+        >
+            <!-- wp:heading {"textAlign":"center","level":3,"style":{"typography":{"fontFamily":"var(--wp--preset--font-family--heading)","fontSize":"2rem","lineHeight":"1.2"},"color":{"text":"var(--wp--preset--color--titanium)"}}} -->
+            <h3
+                class="wp-block-heading has-text-align-center"
+                style="
+                    color: var(--wp--preset--color--titanium);
+                    font-family: var(--wp--preset--font-family--heading);
+                    font-size: 2rem;
+                    line-height: 1.2;
+                "
+            >
+                Ready for Your Project?
+            </h3>
+            <!-- /wp:heading -->
+
+            <!-- wp:paragraph {"align":"center","style":{"typography":{"fontFamily":"var(--wp--preset--font-family--body)","fontSize":"1rem"},"color":{"text":"var(--wp--preset--color--ash)"},"spacing":{"margin":{"bottom":"24px"}}}} -->
+            <p
+                class="has-text-align-center"
+                style="
+                    color: var(--wp--preset--color--ash);
+                    font-family: var(--wp--preset--font-family--body);
+                    font-size: 1rem;
+                    margin-bottom: 24px;
+                "
+            >
+                Custom metal fabrication in Miami-Dade. Free estimates. No commitment.
+            </p>
+            <!-- /wp:paragraph -->
+
+            <!-- wp:buttons {"layout":{"type":"flex","justifyContent":"center"}} -->
+            <div class="wp-block-buttons">
+                <!-- wp:button {"style":{"color":{"background":"var(--wp--preset--color--forge)","text":"var(--wp--preset--color--titanium)"},"typography":{"fontFamily":"var(--wp--preset--font-family--body)","fontSize":"1rem","fontWeight":"600","letterSpacing":"0.05em"},"spacing":{"padding":{"top":"14px","bottom":"14px","left":"32px","right":"32px"}},"border":{"radius":"2px"}}} -->
+                <div class="wp-block-button">
+                    <a
+                        class="wp-block-button__link wp-element-button"
+                        href="/contact/"
+                        style="
+                            background-color: var(--wp--preset--color--forge);
+                            color: var(--wp--preset--color--titanium);
+                            font-family: var(--wp--preset--font-family--body);
+                            font-size: 1rem;
+                            font-weight: 600;
+                            letter-spacing: 0.05em;
+                            padding-top: 14px;
+                            padding-right: 32px;
+                            padding-bottom: 14px;
+                            padding-left: 32px;
+                            border-radius: 2px;
+                        "
+                        >Get a Free Quote</a
+                    >
+                </div>
+                <!-- /wp:button -->
+            </div>
+            <!-- /wp:buttons -->
+        </div>
+        <!-- /wp:group -->
+    </div>
+    <!-- /wp:group -->
+</div>
+<!-- /wp:group -->
+
+<!-- wp:template-part {"slug":"footer","theme":"thormetalart","tagName":"footer"} /-->

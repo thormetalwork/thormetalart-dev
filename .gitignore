@@ -7,8 +7,12 @@ data/wordpress/*
 data/wordpress/wp-content/*
 !data/wordpress/wp-content/plugins/
 !data/wordpress/wp-content/mu-plugins/
+!data/wordpress/wp-content/themes/
 data/wordpress/wp-content/plugins/*
 !data/wordpress/wp-content/plugins/tma-panel/
+data/wordpress/wp-content/themes/*
+!data/wordpress/wp-content/themes/thormetalart/
+!data/wordpress/wp-content/themes/thormetalart/**
 
 # Environment
 .env
@@ -22,12 +26,20 @@ Thumbs.db
 # Dependencies
 node_modules/
 vendor/
+__pycache__/
+*.py[cod]
 
 # IDE
 .vscode/*
 !.vscode/settings.json
 !.vscode/extensions.json
 .idea/
+.playwright-mcp/
+.tmp/
+
+# Local visual test artifacts
+brand*-desktop.png
+brand*-mobile.png
 
 # Logs
 *.log
