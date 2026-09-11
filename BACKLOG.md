@@ -2,7 +2,7 @@
 
 > **Source of Truth:** Este archivo es el índice maestro de tickets.
 > Cada ticket tiene su historia completa aquí.
-> **Última actualización:** 2025-07-15
+> **Última actualización:** 2026-07-07
 
 ---
 
@@ -2259,7 +2259,7 @@
     - **Status:** ✅ COMPLETADO
     - **Completado:** 2026-04-09
 
-- [ ] **TICKET-SEO-007: Google Business Profile API — integración real**
+- [x] **TICKET-SEO-007: Google Business Profile API — integración real**
     - **Fuente:** GBP API quota = 0, formulario de solicitud enviado
     - **Historia de Usuario:** Como administrador, quiero datos reales de GBP (reseñas, impressions, actions) en el dashboard para monitorear la presencia local.
     - **Criterios de Aceptación:**
@@ -2275,8 +2275,8 @@
     - **Dependencias:** Aprobación de quota de Google (formulario enviado)
     - **Estimación:** 3 horas
     - **Prioridad:** P1
-    - **Status:** 🚫 BLOQUEADO
-    - **Bloqueador:** Esperando aprobación de quota de Google Business Profile API
+    - **Status:** ✅ COMPLETADO
+    - **Completado:** 2026-05-26 — GBP API integrada via MCP. 7 posts EN + cron sincronizando reseñas. Dashboard mostrando `is_demo: false`.
 
 - [ ] **TICKET-DASH-011: Instagram Graph API — integración real**
     - **Fuente:** Dashboard muestra placeholder para Instagram
@@ -2824,33 +2824,997 @@
     - **Dependencias:** TICKET-WP-039 ✅, TICKET-WP-042
     - **Status:** ✅ COMPLETADO
 
+## 🌎 FASE 24 — Presencia en Español: Mercado Hispano de Miami
+
+> **Fuente:** Diagnóstico bilingüe 2026-05-26 — Miami-Dade es ~72% Hispanic/Latino. Se detectaron 4 brechas críticas: GBP posts 100% inglés, 86 strings sin traducir en TranslatePress, blog posts 81-91 sin traducción completa, y mojibake en acentos de BD.
+
+- [ ] **TICKET-SEO-008: GBP Posts en Español — 7 posts paralelos para mercado hispano**
+    - **Fuente:** Diagnóstico español 2026-05-26 — 7 GBP posts LIVE solo en inglés. Miami-Dade ~72% hispano. Búsquedas en español en Google Maps son un segmento diferente.
+    - **Historia de Usuario:** Como dueño del negocio, quiero publicaciones en Google Business Profile en español para capturar búsquedas de clientes hispanohablantes en Miami-Dade que buscan `portones de metal Miami`, `barandas personalizadas` etc.
+    - **Criterios de Aceptación:**
+
+        ```gherkin
+        Scenario: Posts en español publicados en GBP
+          Given 7 GBP posts en inglés ya están LIVE
+          When se crean los 7 equivalentes en español con fotos reales
+          Then GBP tiene 14 posts totales: 7 EN + 7 ES, todos estado LIVE
+          And cada post ES tiene foto real del sitio web asignada
+          And ningún post viola políticas de Google (sin teléfono, sin precios)
+
+        Scenario: Contenido de calidad nativa
+          Given el post en inglés "The Fénix — Built from Fire"
+          When se crea el equivalente en español
+          Then el texto es narrativo y natural, no traducción automática
+          And usa terminología técnica correcta en español de Miami
+          And el CTA button apunta a la versión /es/ de la página correspondiente
+        ```
+
+    - **Archivos a Modificar:**
+        - N/A — operación vía GBP API (MCP `mcp_google-busine_gbp_create_post`)
+    - **Dependencias:** TICKET-SEO-007 ✅
+    - **Estimación:** 2 horas
+    - **Prioridad:** P1
+    - **Status:** ⏸️ PENDIENTE
+
+- [ ] **TICKET-WP-044: TranslatePress — Completar 86 strings pendientes (secciones sin traducir)**
+    - **Fuente:** Diagnóstico español 2026-05-26 — BD muestra 86 strings con status=0 (capturados sin traducir). Afecta sección "What's Included" en páginas de servicios y otros elementos de UI.
+    - **Historia de Usuario:** Como visitante hispanohablante, quiero que todas las secciones de las páginas de servicios estén en español, incluyendo los encabezados de sección, para tener una experiencia completamente en mi idioma.
+    - **Criterios de Aceptación:**
+
+        ```gherkin
+        Scenario: Sección "What's Included" traducida
+          Given visito /es/custom-metal-gates-miami/
+          When cargo la página completa
+          Then el encabezado de sección aparece como "Qué Incluye" o equivalente en ES
+          And no hay ningún string en inglés visible en la página
+
+        Scenario: Cero strings pendientes en diccionario
+          Given hay 86 strings con status=0 en tma_trp_dictionary_en_us_es_es
+          When se aplican todas las traducciones
+          Then SELECT COUNT(*) WHERE status=0 devuelve 0
+          And status=2 (revisado) cubre el 95%+ de strings
+        ```
+
+    - **Archivos a Modificar:**
+        - `data/wordpress/wp-content/mu-plugins/tma-blog-translations.php` (MODIFIED — agregar strings faltantes)
+        - BD: `tma_trp_dictionary_en_us_es_es` (UPDATE directo con script SQL)
+    - **Dependencias:** TICKET-WP-026 ✅, TICKET-WP-028 ✅
+    - **Estimación:** 3 horas
+    - **Prioridad:** P2
+    - **Status:** ⏸️ PENDIENTE
+
+- [ ] **TICKET-WP-045: Blog — Completar traducciones ES de los 11 posts restantes (IDs 81-91)**
+    - **Fuente:** Diagnóstico español 2026-05-26 — Post ID=80 completamente traducido. Posts 81-91 tienen título en ES pero cuerpo del artículo sin traducción o con traducción parcial. El blog /es/blog/ muestra títulos en ES pero al abrir el post el usuario lee en inglés.
+    - **Historia de Usuario:** Como lector hispanohablante de Miami, quiero leer los artículos del blog completamente en español para aprender sobre fabricación de metal en mi idioma y confiar más en Thor Metal Art como expertos locales.
+    - **Criterios de Aceptación:**
+
+        ```gherkin
+        Scenario: Post del blog completamente en español
+          Given visito /es/fabrication/steel-vs-aluminum-gates-miami/
+          When cargo el artículo completo
+          Then el título, subtítulos, párrafos, listas y CTA final están en español
+          And la traducción es natural (no automática), usando vocabulario técnico correcto
+
+        Scenario: Cobertura completa de posts
+          Given hay 12 posts semilla en el blog
+          When verifico cada post en su versión /es/
+          Then los 12 posts tienen traducción completa (no solo título)
+          And la calidad es consistente con el estilo de post ID=80
+        ```
+
+    - **Archivos a Modificar:**
+        - `data/wordpress/wp-content/mu-plugins/tma-blog-translations.php` (MODIFIED — completar body para posts 81-91)
+    - **Tests:** `tests/test-wp-043-blog-translations.sh` (MODIFIED — agregar scenarios para IDs 81-91)
+    - **Dependencias:** TICKET-WP-039 ✅, TICKET-WP-043 ✅
+    - **Estimación:** 6 horas
+    - **Prioridad:** P2
+    - **Status:** ⏸️ PENDIENTE
+
+- [ ] **TICKET-WP-046: Fix mojibake — Caracteres acentuados rotos en diccionario TranslatePress**
+    - **Fuente:** Diagnóstico español 2026-05-26 — Query a BD muestra strings con encoding roto: "Ingl?s y Espa?ol" (debe ser "Inglés y Español"), "Tel?fono" (debe ser "Teléfono"), "Correo electr?nico" (debe ser "Correo electrónico"). Afecta ~5-10 strings visibles en la UI.
+    - **Historia de Usuario:** Como visitante hispanohablante, quiero ver los textos de interfaz con acentos correctos (Teléfono, Inglés, Español) para que el sitio se vea profesional y no como una traducción defectuosa.
+    - **Criterios de Aceptación:**
+
+        ```gherkin
+        Scenario: Strings con acentos correctos en BD
+          Given strings con mojibake en tma_trp_dictionary_en_us_es_es
+          When se ejecuta el script de corrección
+          Then SELECT translated LIKE '%?%' FROM tma_trp_dictionary_en_us_es_es devuelve 0 resultados
+          And los strings muestran acentos correctos en la interfaz del sitio
+
+        Scenario: No hay regresión en otras traducciones
+          Given se aplican UPDATE puntuales por original_id
+          When se verifica el total de strings traducidos
+          Then el count total no cambia y status=2 se mantiene en todos los strings corregidos
+        ```
+
+    - **Archivos a Modificar:**
+        - `scripts/fix-trp-mojibake.sql` (NEW — script SQL de corrección puntual)
+        - `data/wordpress/wp-content/mu-plugins/tma-blog-translations.php` (MODIFIED — corregir los mismos strings en el PHP si aplica)
+    - **Dependencias:** TICKET-WP-026 ✅
+    - **Estimación:** 1 hora
+    - **Prioridad:** P3
+    - **Status:** ⏸️ PENDIENTE
+
+- [ ] **TICKET-SEO-009: GBP — Calendario editorial mensual de posts EN+ES**
+    - **Fuente:** Estrategia de presencia local Miami — Con los 14 posts base (7 EN + 7 ES), Google premia la actividad regular en GBP. Posts frescos = mejor visibilidad en Google Maps local pack.
+    - **Historia de Usuario:** Como dueño del negocio, quiero un sistema de publicación mensual de posts en GBP (2 nuevos por mes: 1 EN + 1 ES) para mantener el perfil activo y mejorar el posicionamiento local en Miami-Dade de forma sostenida.
+    - **Criterios de Aceptación:**
+
+        ```gherkin
+        Scenario: Calendario editorial documentado
+          Given el calendario editorial está en docs/gbp-editorial-calendar.md
+          When se revisa el documento
+          Then existe una plantilla con tema, foto sugerida, CTA y URL para cada mes
+          And la plantilla tiene versión EN y versión ES para los 12 meses
+
+        Scenario: Rotación por servicio
+          Given Thor Metal Art tiene 5 servicios + arte + blog
+          When se planifica el calendario anual
+          Then cada servicio aparece al menos 1 vez en el año en GBP posts
+          And los temas complementan las páginas de servicio sin duplicarlas
+        ```
+
+    - **Archivos a Modificar:**
+        - `docs/gbp-editorial-calendar.md` (NEW — calendario 12 meses EN+ES)
+    - **Dependencias:** TICKET-SEO-008
+    - **Estimación:** 2 horas
+    - **Prioridad:** P3
+    - **Status:** ⏸️ PENDIENTE
+
 ---
 
-## �📊 Resumen
+## 📋 FASE 25 — SEO Técnico Profundo (Auditoría 2026-07-07)
 
-| Fase                          | Total  | ✅     | ⏸️    | 🚫    | Progreso |
-| ----------------------------- | ------ | ------ | ----- | ----- | -------- |
-| 1 — Infraestructura           | 3      | 3      | 0     | 0     | 100%     |
-| 2 — Dashboard                 | 3      | 3      | 0     | 0     | 100%     |
-| 3 — WordPress                 | 3      | 3      | 0     | 0     | 100%     |
-| 4 — SEO                       | 2      | 2      | 0     | 0     | 100%     |
-| 5 — Seguridad                 | 1      | 1      | 0     | 0     | 100%     |
-| 6 — Leads/CRM                 | 1      | 1      | 0     | 0     | 100%     |
-| 7 — Portal Docs               | 4      | 4      | 0     | 0     | 100%     |
-| 8 — TMA Panel Base            | 10     | 10     | 0     | 0     | 100%     |
-| 9 — Dashboard Datos Reales    | 7      | 5      | 0     | 2     | 71%      |
-| 10 — Portal Integrado         | 3      | 3      | 0     | 0     | 100%     |
-| 11 — Leads Dinámico           | 3      | 3      | 0     | 0     | 100%     |
-| 12 — Cleanup Docker           | 1      | 1      | 0     | 0     | 100%     |
-| 13 — UI/UX Polish             | 4      | 4      | 0     | 0     | 100%     |
-| 14 — Bug Fixes & Doc UX       | 1      | 1      | 0     | 0     | 100%     |
-| 15 — Website V1: Templates    | 10     | 10     | 0     | 0     | 100%     |
-| 16 — Website V1: Visual       | 4      | 4      | 0     | 0     | 100%     |
-| 17 — Website V1: SEO+Conv     | 6      | 6      | 0     | 0     | 100%     |
-| 18 — Google Ecosystem         | 7      | 4      | 1     | 2     | 57%      |
-| **19 — Visual Real (Drive)**  | **5**  | **5**  | **0** | **0** | **100%** |
-| **20 — Visual Full + Deploy** | **6**  | **6**  | **0** | **0** | **100%** |
-| **21 — TranslatePress i18n**  | **5**  | **5**  | **0** | **0** | **100%** |
-| **22 — Social Media Setup**   | **4**  | **0**  | **4** | **0** | **0%**   |
-| **23 — Blog SEO + Marca**     | **6**  | **2**  | **4** | **0** | **33%**  |
-| **TOTAL**                     | **99** | **87** | **8** | **4** | **88%**  |
+> **Fuente:** Auditoría SEO técnica profunda ejecutada el 2026-07-07 sobre 30 URLs del sitemap + validaciones de cabeceras, schema, canonical, hreflang, robots, DNS y Search Console API.
+
+- [x] **TICKET-SEO-010: Blog archive SEO fix — title/description/canonical/hreflang completo**
+    - **Fuente:** Auditoría 2026-07-07 — `/blog/` con metadata genérica y canonical ausente.
+    - **Historia de Usuario:** Como usuario de Google, quiero ver snippets claros y consistentes del blog para entender su relevancia y hacer click.
+    - **Criterios de Aceptación:**
+
+        ```gherkin
+        Scenario: Metadata optimizada para archivo de blog
+          Given la URL /blog/ indexable
+          When renderiza el head
+          Then title está entre 45 y 60 caracteres
+          And meta description está entre 140 y 160 caracteres
+          And existe rel=canonical apuntando a /blog/
+
+        Scenario: Internacionalización correcta del blog
+          Given versión en español /es/blog/
+          When renderiza el head
+          Then existen hreflang en/es/x-default sin conflictos
+          And canonical apunta a la variante idiomática correcta
+        ```
+
+    - **Archivos a Modificar:**
+        - `data/wordpress/wp-content/mu-plugins/tma-meta-tags.php` (MODIFIED)
+    - **Dependencias:** TICKET-WP-036 ✅, TICKET-WP-042 ✅
+    - **Estimación:** 2 horas
+    - **Prioridad:** P0
+    - **Status:** ✅ COMPLETADO (2026-07-07)
+
+- [x] **TICKET-SEO-011: Open Graph/Twitter image fallback global**
+    - **Fuente:** Auditoría 2026-07-07 — múltiples páginas clave sin `og:image`.
+    - **Historia de Usuario:** Como visitante que descubre la marca por redes/WhatsApp, quiero previews visuales consistentes para aumentar confianza y CTR.
+    - **Criterios de Aceptación:**
+
+        ```gherkin
+        Scenario: Fallback de imagen social en todas las páginas
+          Given una página sin featured image
+          When renderiza Open Graph y Twitter tags
+          Then se incluye og:image con fallback global del tema
+          And se incluye twitter:image con la misma URL
+
+        Scenario: Imagen específica en páginas con featured image
+          Given un post o portfolio con thumbnail
+          When renderiza meta social
+          Then usa la featured image como og:image
+          And no rompe el fallback en páginas sin thumbnail
+        ```
+
+    - **Archivos a Modificar:**
+        - `data/wordpress/wp-content/mu-plugins/tma-meta-tags.php` (MODIFIED)
+    - **Dependencias:** TICKET-SEO-002 ✅
+    - **Estimación:** 1.5 horas
+    - **Prioridad:** P0
+    - **Status:** ✅ COMPLETADO (2026-07-07)
+
+- [x] **TICKET-SEO-012: Sitemap governance — unificar robots y ampliar cobertura XML**
+    - **Fuente:** Auditoría 2026-07-07 — conflicto entre `/sitemap.xml` custom y `wp-sitemap.xml` declarado en robots.
+    - **Historia de Usuario:** Como crawler de Google, quiero una fuente de sitemap coherente para descubrir e indexar contenido sin ambigüedad.
+    - **Criterios de Aceptación:**
+
+        ```gherkin
+        Scenario: Robots y sitemap alineados
+          Given robots.txt público
+          When se consulta la directiva Sitemap
+          Then solo declara el sitemap oficial elegido
+          And dicho sitemap responde 200 y XML válido
+
+        Scenario: Cobertura de contenido clave
+          Given sitemap oficial activo
+          When se inspeccionan URLs listadas
+          Then incluye páginas, portfolio y posts de blog publicados
+          And excluye URLs no indexables o de bajo valor
+        ```
+
+    - **Archivos a Modificar:**
+        - `data/wordpress/wp-content/mu-plugins/tma-sitemap.php` (MODIFIED)
+        - `data/wordpress/wp-content/mu-plugins/tma-meta-tags.php` (MODIFIED)
+    - **Dependencias:** TICKET-SEO-006 ✅, TICKET-SEO-010
+    - **Estimación:** 3 horas
+    - **Prioridad:** P0
+    - **Status:** ✅ COMPLETADO (2026-07-07)
+
+- [x] **TICKET-SEO-013: Entidad LocalBusiness única EN/ES (schema @id consistency)**
+    - **Fuente:** Auditoría 2026-07-07 — riesgo de duplicar entidad al variar `@id` por idioma.
+    - **Historia de Usuario:** Como motor de búsqueda, quiero una sola entidad LocalBusiness para consolidar autoridad semántica y señales locales.
+    - **Criterios de Aceptación:**
+
+        ```gherkin
+        Scenario: @id estable en todos los idiomas
+          Given páginas EN y ES del sitio
+          When se inspecciona JSON-LD LocalBusiness
+          Then @id es exactamente igual en todas las variantes
+          And Service/BlogPosting/Breadcrumb referencian ese mismo @id
+
+        Scenario: Validación schema sin regresiones
+          Given cambios aplicados en schema
+          When se valida en Rich Results Test
+          Then no aparecen errores críticos
+          And mantiene compatibilidad con páginas de servicios
+        ```
+
+    - **Archivos a Modificar:**
+        - `data/wordpress/wp-content/mu-plugins/tma-schema.php` (MODIFIED)
+    - **Dependencias:** TICKET-SEO-001 ✅
+    - **Estimación:** 2 horas
+    - **Prioridad:** P1
+    - **Status:** ✅ COMPLETADO (2026-07-07)
+
+- [x] **TICKET-SEO-014: Noindex policy hardening — search y paginaciones profundas**
+    - **Fuente:** Auditoría 2026-07-07 — búsqueda interna indexable y política noindex incompleta.
+    - **Historia de Usuario:** Como negocio local, quiero evitar indexar URLs de baja intención para concentrar crawl budget en páginas que convierten.
+    - **Criterios de Aceptación:**
+
+        ```gherkin
+        Scenario: Search pages noindex
+          Given una URL de búsqueda interna (?s=...)
+          When renderiza el head
+          Then incluye meta robots noindex, nofollow
+
+        Scenario: Paginaciones profundas de archivos noindex
+          Given archivo paginado mayor a página 2
+          When renderiza el head
+          Then incluye meta robots noindex, follow
+          And canonical apunta al archivo base cuando aplique
+        ```
+
+    - **Archivos a Modificar:**
+        - `data/wordpress/wp-content/mu-plugins/tma-meta-tags.php` (MODIFIED)
+    - **Dependencias:** TICKET-SEO-002 ✅
+    - **Estimación:** 2 horas
+    - **Prioridad:** P1
+    - **Status:** ✅ COMPLETADO (2026-07-07)
+
+- [x] **TICKET-SEO-015: FAQ schema completeness — mínimo 3 Q&A por servicio**
+    - **Fuente:** Auditoría 2026-07-07 — páginas de servicio con FAQ schema por debajo del mínimo interno.
+    - **Historia de Usuario:** Como cliente potencial, quiero respuestas claras a dudas frecuentes para decidir más rápido y contactar con confianza.
+    - **Criterios de Aceptación:**
+
+        ```gherkin
+        Scenario: Cobertura mínima por servicio
+          Given cada página de servicio principal
+          When renderiza FAQPage schema
+          Then contiene al menos 3 preguntas y respuestas válidas
+          And el contenido coincide con la sección visible de FAQs
+
+        Scenario: Calidad semántica de preguntas
+          Given FAQs de cada servicio
+          When se revisa intención de búsqueda
+          Then incluyen dudas de precio, tiempo y cumplimiento de código local
+          And mantienen lenguaje natural EN/ES según página
+        ```
+
+    - **Archivos a Modificar:**
+        - `data/wordpress/wp-content/mu-plugins/tma-schema.php` (MODIFIED)
+        - `data/wordpress/wp-content/mu-plugins/tma-service-pages.php` (MODIFIED)
+    - **Dependencias:** TICKET-SEO-004 ✅
+    - **Estimación:** 3 horas
+    - **Prioridad:** P1
+    - **Status:** ✅ COMPLETADO (2026-07-07)
+
+- [x] **TICKET-SEO-016: Metadata normalization — portfolio + pages (title/description ranges)**
+    - **Fuente:** Auditoría 2026-07-07 — múltiples URLs fuera de rango en title/description y snippets truncados.
+    - **Historia de Usuario:** Como usuario de Google, quiero snippets claros y compactos para entender el valor de cada página antes de entrar.
+    - **Criterios de Aceptación:**
+
+        ```gherkin
+        Scenario: Títulos dentro de rango recomendado
+          Given URLs de portfolio y páginas clave
+          When renderiza title
+          Then queda entre 45 y 65 caracteres en 95%+ de URLs auditadas
+
+        Scenario: Descriptions dentro de rango recomendado
+          Given URLs de portfolio y páginas clave
+          When renderiza meta description
+          Then queda entre 140 y 160 caracteres en 95%+ de URLs auditadas
+          And incluye keyword primaria + ubicación cuando aplique
+        ```
+
+    - **Archivos a Modificar:**
+        - `data/wordpress/wp-content/mu-plugins/tma-meta-tags.php` (MODIFIED)
+    - **Dependencias:** TICKET-SEO-003 ✅
+    - **Estimación:** 2.5 horas
+    - **Prioridad:** P1
+    - **Status:** ✅ COMPLETADO (2026-07-07)
+
+- [x] **TICKET-SEO-017: Search Console ownership closure + OAuth alignment**
+    - **Fuente:** Validación técnica 2026-07-07 — TXT DNS publicado y API confirmada en `siteOwner`.
+    - **Historia de Usuario:** Como operador del sitio, quiero acceso verificado en Search Console para medir queries, CTR y cobertura real.
+    - **Criterios de Aceptación:**
+
+        ```gherkin
+        Scenario: Propiedad de dominio verificada
+          Given TXT google-site-verification en DNS autoritativo
+          When se ejecuta verificación en Google Search Console
+          Then la propiedad sc-domain:thormetalart.com queda en estado verificado
+
+        Scenario: OAuth con permisos correctos
+          Given plugin tma-panel con OAuth configurado
+          When consulta webmasters/v3/sites
+          Then permissionLevel para sc-domain:thormetalart.com no es siteUnverifiedUser
+          And los endpoints de Search Analytics responden 200
+        ```
+
+    - **Archivos a Modificar:**
+        - `scripts/get-google-token.py` (MODIFIED)
+        - `docs/cliente/` (MODIFIED/NEW — runbook corto de verificación y owner account)
+    - **Dependencias:** TICKET-SEO-012
+    - **Estimación:** 1.5 horas
+    - **Prioridad:** P0
+    - **Status:** ✅ COMPLETADO (2026-07-07)
+
+---
+
+## 📋 FASE 26 — Rediseño Visual "Lujo Forjado" + Fixes de Diseño (Auditoría 2026-07-28)
+
+> **Fuente:** Correo de actualización de diseño (adjuntos: `thor_homepage.html`, `thor_dev_guide.html`, `thor-global.css`, 2 logos SVG) + auditoría profunda de código ejecutada el 2026-07-28 sobre todas las plantillas FSE, patrones, mu-plugins de diseño, biblioteca de medios y renderizado real en `dev.thormetalart.com`.
+> **Nota de arquitectura:** la guía del cliente recomienda "Ruta A — Elementor", pero el sitio real usa FSE nativo (tema hijo `thormetalart` de `twentytwentyfive`, sin Elementor). Todos los tickets de esta fase asumen la **ruta FSE-nativa** (patrones de bloque reales) en vez de instalar Elementor.
+> **Nota de assets:** las "13 fotos" que pide la guía **ya están subidas** en `wp-content/uploads/2026/04/` con nombres equivalentes (con guiones). Los 2 logos SVG oficiales llegaron como adjuntos sueltos del correo. Solo falta `thor_brand_system.html` (documento de referencia, no bloqueante — pendiente de solicitar al cliente).
+
+- [x] **TICKET-FIX-001: Eliminar H1 duplicado en las 7 páginas de servicio/contenido**
+    - **Fuente:** Auditoría 2026-07-28 — `curl` confirmó 2x `<h1>` en `custom-metal-gates-miami`, `metal-railings-miami`, `metal-fences-miami`, `custom-metal-furniture-miami`, `metal-stairs-miami`, `art-commissions` y `how-we-work`.
+    - **Historia de Usuario:** Como usuario de Google, quiero que cada página tenga un único H1 semántico para que el buscador entienda correctamente la jerarquía y el tema principal de la página.
+    - **Criterios de Aceptación:**
+
+        ```gherkin
+        Scenario: Una sola etiqueta H1 por página de servicio
+          Given una página generada por tma_get_core_pages() o tma_service_page_content()
+          When se renderiza en el navegador
+          Then el HTML contiene exactamente un <h1>
+          And el heading del hero pasa a nivel <h2> o a un párrafo con clase "eyebrow"
+
+        Scenario: El post-title del template sigue siendo el H1 único
+          Given page.html renderiza wp:post-title level=1
+          When se compara con el heading dentro del hero cover
+          Then no hay colisión de niveles duplicados
+        ```
+
+    - **Archivos a Modificar:**
+        - `data/wordpress/wp-content/mu-plugins/tma-service-pages.php` (MODIFIED — línea ~205 `tma_service_page_content()`, línea ~229 `tma_get_core_pages()`)
+        - `tests/test-fix-001-single-h1.sh` (NEW)
+    - **Dependencias:** Ninguna
+    - **Estimación:** 1.5 horas
+    - **Prioridad:** P1
+    - **Status:** ✅ COMPLETADO
+    - **Completado:** 2026-07-28
+    - **Notas de cierre:** Heading del hero bajado a `<h2>` en `tma_service_page_content()` y `tma_get_core_pages()`. Versión de provisioning subida a `v3` para forzar `wp_update_post()` sobre las 9 páginas ya publicadas. Verificado con `tests/test-fix-001-single-h1.sh` (7/7 passed) contra dev.thormetalart.com.
+
+- [x] **TICKET-FIX-002: Corregir tokens de fuente/color rotos en plantillas de blog**
+    - **Fuente:** Auditoría 2026-07-28 — `templates/archive.html` y `templates/single.html` usan `var(--wp--preset--font-family--cormorant-garamond)` / `--dm-sans`, slugs que no existen en `theme.json` (los slugs reales son `heading` y `body`), y colores hex hardcodeados en vez de `var(--wp--preset--color--...)`.
+    - **Historia de Usuario:** Como visitante del blog, quiero ver la tipografía de marca correcta (Cormorant Garamond en títulos) para tener una experiencia visual consistente con el resto del sitio.
+    - **Criterios de Aceptación:**
+
+        ```gherkin
+        Scenario: Fuente correcta en títulos de blog
+          Given templates/archive.html y templates/single.html
+          When se referencia una custom property de fuente
+          Then usa var(--wp--preset--font-family--heading) o --body (slugs reales de theme.json)
+
+        Scenario: Colores tokenizados
+          Given los mismos templates
+          When se define un color de texto o fondo
+          Then usa var(--wp--preset--color--...) en vez de valores hex sueltos
+        ```
+
+    - **Archivos a Modificar:**
+        - `data/wordpress/wp-content/themes/thormetalart/templates/archive.html` (MODIFIED)
+        - `data/wordpress/wp-content/themes/thormetalart/templates/single.html` (MODIFIED)
+        - `tests/test-fix-002-blog-tokens.sh` (NEW)
+    - **Dependencias:** Ninguna
+    - **Estimación:** 1.5 horas
+    - **Prioridad:** P2
+    - **Status:** ✅ COMPLETADO
+    - **Completado:** 2026-07-28
+    - **Notas de cierre:** Reemplazados todos los `var(--wp--preset--font-family--cormorant-garamond|dm-sans)` por los slugs reales `--heading`/`--body` en archive.html y single.html. Verificado con `tests/test-fix-002-blog-tokens.sh` (4/4 passed).
+
+- [x] **TICKET-BRAND-001: Sistema de tokens de marca "Lujo Forjado" en theme.json**
+    - **Fuente:** `thor-global.css` (paquete de rediseño) — paleta oscura (`--obsidian`, `--graphite`, `--forge`, `--ember`, `--titanium`, `--ash`) y clara (`--paper`, `--ink`, `--line-lt`) + tipografías Archivo Expanded, Fraunces, Inter.
+    - **Historia de Usuario:** Como desarrollador, quiero los nuevos tokens de color y tipografía registrados en `theme.json` para poder construir las secciones del rediseño usando el sistema nativo de bloques sin hardcodear valores.
+    - **Criterios de Aceptación:**
+
+        ```gherkin
+        Scenario: Nueva paleta disponible como preset
+          Given theme.json actualizado
+          When abro el selector de color del editor de bloques
+          Then aparecen los colores obsidian, graphite, forge, ember, titanium, ash, paper, ink
+
+        Scenario: Nuevas tipografías disponibles como preset
+          Given theme.json actualizado
+          When abro el selector de tipografía del editor
+          Then aparecen Archivo Expanded, Fraunces, Inter además de las fuentes actuales
+
+        Scenario: Retrocompatibilidad
+          Given las plantillas actuales (front-page, page, archive, single)
+          When se cargan tras el cambio
+          Then siguen usando los tokens antiguos (heading/body, black/gold) sin romperse
+        ```
+
+    - **Archivos a Modificar:**
+        - `data/wordpress/wp-content/themes/thormetalart/theme.json` (MODIFIED — añadir presets, no eliminar existentes)
+        - `data/wordpress/wp-content/themes/thormetalart/functions.php` (MODIFIED — `wp_enqueue_style` para Archivo Expanded/Fraunces/Inter vía Google Fonts)
+        - `tests/test-brand-001-tokens.sh` (NEW)
+    - **Dependencias:** Ninguna
+    - **Estimación:** 3 horas
+    - **Prioridad:** P1
+    - **Status:** ✅ COMPLETADO
+    - **Completado:** 2026-07-28
+    - **Notas de cierre:** Añadidos aditivamente 13 colores (`obsidian`,`graphite`,`graphite-2`,`line`,`titanium`,`ash`,`ash-dim`,`forge`,`ember`,`paper`,`ink`,`ink-mute`,`line-lt`) y 3 fuentes (`forjado-display`=Archivo Expanded, `forjado-accent`=Fraunces italic, `forjado-body`=Inter) a theme.json, con `fontFace` vía Google Fonts. Fuentes también encoladas en `functions.php`. Tokens antiguos (`heading`,`body`,`primary`,`accent`) intactos. Verificado con `tests/test-brand-001-tokens.sh` (6/6 passed).
+
+- [x] **TICKET-BRAND-002: Migrar logos SVG oficiales a header/footer**
+    - **Fuente:** Adjuntos del correo — `Logo_THOR METAL ART_black.svg` y `_white.svg`.
+    - **Historia de Usuario:** Como visitante, quiero ver el logo oficial de la marca en el header y footer en vez del logo de texto genérico actual.
+    - **Criterios de Aceptación:**
+
+        ```gherkin
+        Scenario: Logo blanco en header sobre fondo oscuro
+          Given parts/header.html
+          When la página carga
+          Then se muestra el SVG blanco con atributo alt="Thor Metal Art"
+
+        Scenario: Logo negro disponible para fondos claros
+          Given una sección clara que requiera el logo
+          When se referencia el asset
+          Then usa el SVG negro subido a Media Library
+        ```
+
+    - **Archivos a Modificar:**
+        - `data/wordpress/wp-content/uploads/2026/07/` (NEW — logos SVG subidos)
+        - `data/wordpress/wp-content/themes/thormetalart/parts/header.html` (MODIFIED)
+        - `data/wordpress/wp-content/themes/thormetalart/parts/footer.html` (MODIFIED)
+    - **Dependencias:** TICKET-BRAND-001
+    - **Estimación:** 1.5 horas
+    - **Prioridad:** P2
+    - **Status:** ✅ COMPLETADO
+    - **Completado:** 2026-07-28
+    - **Notas de cierre:** Logos oficiales subidos a `uploads/2026/07/` (verificados sin scripts/handlers). `header.html`: `wp:site-logo` reemplazado por `wp:image` con el SVG blanco + alt="Thor Metal Art", enlazado a home. `footer.html`: `wp:site-title` reemplazado por el mismo logo SVG blanco (fondo oscuro en ambos). Verificado visualmente con Playwright y con `tests/test-brand-002-logos.sh` (6/6 passed).
+
+- [x] **TICKET-BRAND-003: Patrones FSE nuevos para las 8 secciones del homepage rediseñado**
+    - **Fuente:** `thor_homepage.html` + `thor_dev_guide.html` sección 11 (copy) — Hero, Disciplines, Selected Work, Atelier, Quote Band, Process, CTA, Client Logos.
+    - **Historia de Usuario:** Como editor de contenido, quiero cada sección del nuevo homepage como un patrón de bloque reutilizable para poder editarlas desde el editor de WordPress sin tocar código.
+    - **Criterios de Aceptación:**
+
+        ```gherkin
+        Scenario: 8 patrones nuevos registrados
+          Given la carpeta patterns/ del tema
+          When WordPress carga el tema
+          Then existen los patrones thormetalart/hero-forjado, disciplines, selected-work, atelier, quote-band, process-forjado, cta-forjado, client-logos
+
+        Scenario: Alternancia oscuro/claro respetada
+          Given los 8 patrones en el orden del homepage
+          When se listan sus colores de fondo
+          Then alternan oscuro-claro-oscuro-claro-oscuro-claro-oscuro-(claro en footer) según el guide
+
+        Scenario: Patrones huérfanos anteriores retirados
+          Given los 7 patrones antiguos sin uso (hero-section.php, service-card.php, etc.)
+          When se completa esta migración
+          Then se eliminan o se documentan como deprecados si ya no aplican
+        ```
+
+    - **Archivos a Modificar:**
+        - `data/wordpress/wp-content/themes/thormetalart/patterns/hero-forjado.php` (NEW)
+        - `data/wordpress/wp-content/themes/thormetalart/patterns/disciplines.php` (NEW)
+        - `data/wordpress/wp-content/themes/thormetalart/patterns/selected-work.php` (NEW)
+        - `data/wordpress/wp-content/themes/thormetalart/patterns/atelier.php` (NEW)
+        - `data/wordpress/wp-content/themes/thormetalart/patterns/quote-band.php` (NEW)
+        - `data/wordpress/wp-content/themes/thormetalart/patterns/process-forjado.php` (NEW)
+        - `data/wordpress/wp-content/themes/thormetalart/patterns/cta-forjado.php` (NEW)
+        - `data/wordpress/wp-content/themes/thormetalart/patterns/client-logos.php` (NEW)
+        - `data/wordpress/wp-content/themes/thormetalart/patterns/hero-section.php` (DELETED — huérfano)
+        - `data/wordpress/wp-content/themes/thormetalart/patterns/service-card.php` (DELETED — huérfano)
+        - `data/wordpress/wp-content/themes/thormetalart/patterns/testimonial-card.php` (DELETED — huérfano)
+        - `data/wordpress/wp-content/themes/thormetalart/patterns/trust-bar.php` (DELETED — huérfano)
+        - `data/wordpress/wp-content/themes/thormetalart/patterns/cta-banner.php` (DELETED — huérfano)
+        - `data/wordpress/wp-content/themes/thormetalart/patterns/process-step.php` (DELETED — huérfano)
+        - `data/wordpress/wp-content/themes/thormetalart/patterns/faq-item.php` (DELETED — huérfano, FAQ sigue viviendo inline en tma-service-pages.php)
+    - **Dependencias:** TICKET-BRAND-001
+    - **Estimación:** 8 horas
+    - **Prioridad:** P1
+    - **Status:** ✅ COMPLETADO
+    - **Completado:** 2026-07-28
+    - **Notas de cierre:** 8 patrones nuevos creados con bloques nativos de Gutenberg (`wp:cover`, `wp:group`, `wp:columns`, `wp:heading`, `wp:paragraph`, `wp:buttons`, `wp:image`, `wp:list`) usando los tokens de theme.json (BRAND-001) y fotos reales de `uploads/2026/04/` (sin placeholders base64 del mockup). Alternancia oscuro/claro respetada: hero(oscuro)→disciplines(claro)→selected-work(oscuro)→atelier(claro)→quote-band(oscuro)→process-forjado(claro)→cta-forjado(oscuro)→client-logos(oscuro, banda de transición al footer). Se añadieron className hooks (`tma-rv`, `tma-sparks`, `tma-marquee`) para que TICKET-BRAND-004 (JS) y TICKET-BRAND-007 (CSS responsive) los aprovechen. Los 7 patrones huérfanos (hero-section, service-card, testimonial-card, trust-bar, cta-banner, process-step, faq-item) fueron eliminados. `client-logos.php` usa placeholders SVG genéricos — **pendiente de logos reales del cliente**. Verificado: registro de los 8 patrones vía `WP_Block_Patterns_Registry` (bootstrap PHP), sintaxis PHP sin errores, homepage sigue respondiendo 200. Tests: `tests/test-brand-003-patterns.sh` (40/40 passed).
+
+- [x] **TICKET-BRAND-004: Interacciones JS del rediseño (header sólido, chispas, scroll-reveal, marquee)**
+    - **Fuente:** `thor_dev_guide.html` secciones 7, 8, 12, 13.
+    - **Historia de Usuario:** Como visitante, quiero las micro-interacciones del nuevo diseño (chispas, aparición al hacer scroll, header que se solidifica, logos en movimiento) para percibir un sitio premium y cuidado.
+    - **Criterios de Aceptación:**
+
+        ```gherkin
+        Scenario: Header cambia a sólido al hacer scroll
+          Given el usuario está en el homepage
+          When hace scroll más de 40px
+          Then el header recibe la clase "solid"
+
+        Scenario: Chispas solo en secciones con foto de fondo
+          Given hero, quote-band y cta-forjado
+          When la página carga
+          Then cada una contiene su contenedor .sparks con partículas animadas
+
+        Scenario: Respeto a accesibilidad de movimiento
+          Given prefers-reduced-motion: reduce activado en el sistema
+          When la página carga
+          Then no se generan chispas ni animaciones de reveal
+
+        Scenario: Marquee de logos infinito
+          Given la sección client-logos
+          When el contenido carga
+          Then el contenedor se duplica vía JS y el scroll es continuo sin cortes
+        ```
+
+    - **Archivos a Modificar:**
+        - `data/wordpress/wp-content/themes/thormetalart/assets/js/tma-forjado.js` (NEW)
+        - `data/wordpress/wp-content/themes/thormetalart/functions.php` (MODIFIED — encolar el script condicionalmente en front-page)
+        - `data/wordpress/wp-content/themes/thormetalart/style.css` (MODIFIED — soporte CSS necesario para que las interacciones JS sean visibles: `.tma-rv`/`.tma-rv.in`, `.tma-sparks`/`@keyframes tma-rise`, `.tma-marquee`/`@keyframes tma-scroll-logos`, `.tma-site-header.solid`, `prefers-reduced-motion`)
+    - **Dependencias:** TICKET-BRAND-003
+    - **Estimación:** 4 horas
+    - **Prioridad:** P2
+    - **Status:** ✅ COMPLETADO
+    - **Completado:** 2026-07-28
+    - **Notas de cierre:** `assets/js/tma-forjado.js` porta las 4 interacciones del mockup: header `.tma-site-header` recibe la clase `solid` al superar 40px de scroll; `IntersectionObserver` revela los elementos `.tma-rv` (clase `in`) añadidos en los 8 patrones de BRAND-003; `makeSparks()` genera partículas `.spark` dentro de cada `.tma-sparks` (hero, quote-band, cta-forjado); el marquee de `client-logos.php` se duplica vía `innerHTML` para el loop infinito. Todo el bloque respeta `prefers-reduced-motion: reduce` (sin chispas ni reveal). Se añadió el soporte CSS correspondiente en `style.css` (no listado originalmente pero indispensable para que las interacciones tengan efecto visual). Script encolado solo en `is_front_page()` vía `tma_enqueue_forjado_script()`. Tests: `tests/test-brand-004-interactions.sh` (12/12 passed).
+
+- [x] **TICKET-BRAND-005: Reconstruir front-page.html con los nuevos patrones y remapeo de fotos existentes**
+    - **Fuente:** `thor_homepage.html` (estructura) + inventario de `wp-content/uploads/2026/04/` (fotos ya disponibles).
+    - **Historia de Usuario:** Como visitante, quiero ver el nuevo homepage "Lujo Forjado" completo y funcional en dev.thormetalart.com para evaluar el rediseño real antes de aprobarlo.
+    - **Criterios de Aceptación:**
+
+        ```gherkin
+        Scenario: Homepage usa los 8 patrones en el orden correcto
+          Given front-page.html reconstruido
+          When se renderiza en dev.thormetalart.com
+          Then aparecen en orden: Hero, Disciplines, Selected Work, Atelier, Quote Band, Process, CTA, Client Logos
+
+        Scenario: Fotos remapeadas sin re-subir nada
+          Given las 8 secciones con foto de fondo
+          When se inspeccionan las URLs de imagen
+          Then apuntan a archivos ya existentes en wp-content/uploads/2026/04/ (tig-soldadura-frente, karel-foto-taller, tma-fenix-full, etc.)
+
+        Scenario: Un solo H1 en el homepage
+          Given el nuevo hero-forjado
+          When se audita el HTML
+          Then existe exactamente un <h1> con el copy "STEEL, SHAPED WITH intent."
+        ```
+
+    - **Archivos a Modificar:**
+        - `data/wordpress/wp-content/themes/thormetalart/templates/front-page.html` (MODIFIED)
+        - `tests/test-brand-005-homepage-structure.sh` (NEW)
+    - **Dependencias:** TICKET-BRAND-003, TICKET-BRAND-004
+    - **Estimación:** 5 horas
+    - **Prioridad:** P1
+    - **Status:** ✅ COMPLETADO
+    - **Completado:** 2026-07-28
+    - **Notas de cierre:** `front-page.html` reconstruido íntegramente: header template-part → 8 bloques `wp:pattern` (hero-forjado, disciplines, selected-work, atelier, quote-band, process-forjado, cta-forjado, client-logos) → footer template-part. Se retiraron el grid de servicios antiguo, el `about-snippet`, el `wp:query` dinámico de `tma_portfolio` y el shortcode `[tma_testimonials]`, ya que las nuevas secciones Disciplines/Selected Work/Atelier/CTA cubren ese mismo rol narrativo bajo el diseño "Lujo Forjado" aprobado (el ticket pide "reconstruir", no "extender"). Verificado en dev.thormetalart.com vía curl + Playwright: HTTP 200, un solo `<h1>` con el copy exacto "Steel, shaped with intent.", las 7 secciones ancladas (`hero`, `disciplines`, `work`, `atelier`, `philosophy`, `process`, `contact`) en el orden correcto, sección de client-logos renderizando el marquee, e imágenes apuntando a archivos ya existentes en `wp-content/uploads/2026/04/`. Sin errores PHP fatales nuevos en `debug.log` tras retirar el query/shortcode antiguos. Tests: `tests/test-brand-005-homepage-structure.sh` (7/7 passed). **Nota pendiente de decisión del cliente:** el homepage ya no muestra testimonios dinámicos (`tma_testimonials`) ni el query en vivo de `tma_portfolio`; si se desea recuperar ese contenido dinámico, deberá reincorporarse en un ticket posterior (posiblemente dentro de BRAND-006/007).
+
+- [x] **TICKET-BRAND-006: Extender el sistema de marca al resto de plantillas (page/archive/single/portfolio)**
+    - **Fuente:** Auditoría 2026-07-28 — consistencia de marca fuera del homepage.
+    - **Historia de Usuario:** Como visitante, quiero que las páginas de servicio, blog y portfolio compartan la misma identidad visual del nuevo homepage para que el sitio se sienta coherente.
+    - **Criterios de Aceptación:**
+
+        ```gherkin
+        Scenario: Páginas de servicio usan la nueva tipografía de headings
+          Given page.html y tma-service-pages.php
+          When se renderiza cualquier página de servicio
+          Then los H2/H3 usan var(--wp--preset--font-family--heading) apuntando a Archivo Expanded
+
+        Scenario: Blog y portfolio consistentes
+          Given archive.html, single.html, archive-tma_portfolio.html, single-tma_portfolio.html
+          When se comparan visualmente con el homepage
+          Then comparten paleta y tipografía sin colores hex sueltos
+        ```
+
+    - **Archivos a Modificar:**
+        - `data/wordpress/wp-content/themes/thormetalart/templates/page.html` (MODIFIED)
+        - `data/wordpress/wp-content/themes/thormetalart/templates/archive.html` (MODIFIED)
+        - `data/wordpress/wp-content/themes/thormetalart/templates/single.html` (MODIFIED)
+        - `data/wordpress/wp-content/themes/thormetalart/templates/archive-tma_portfolio.html` (MODIFIED)
+        - `data/wordpress/wp-content/themes/thormetalart/templates/single-tma_portfolio.html` (MODIFIED)
+        - `data/wordpress/wp-content/themes/thormetalart/templates/taxonomy-tma_project_type.html` (MODIFIED)
+        - `data/wordpress/wp-content/mu-plugins/tma-service-pages.php` (MODIFIED)
+    - **Dependencias:** TICKET-BRAND-001, TICKET-FIX-002
+    - **Estimación:** 5 horas
+    - **Prioridad:** P2
+    - **Status:** ✅ COMPLETADO
+    - **Completado:** 2026-07-28
+    - **Notas de cierre:** El fix estructural clave fue en `theme.json` (no listado originalmente en el ticket, pero indispensable para satisfacer el criterio "H2/H3 usan var(--wp--preset--font-family--heading) apuntando a Archivo Expanded" de forma global): el slug de fuente `heading` pasó de Cormorant Garamond a Archivo Expanded, por lo que `page.html`, `archive.html`, `single.html`, `archive-tma_portfolio.html`, `single-tma_portfolio.html` y las páginas de servicio heredan automáticamente la tipografía "Lujo Forjado" sin duplicar overrides por archivo. Se eliminaron todos los colores hex sueltos (`#1A1A1A`, `#B8860B`, `#555555`, `#F5F5F0`, `#CCCCCC`, `#E0E0E0`, `#888888`, `#FFFFFF`) de `archive.html` y `single.html`, remplazados por `var(--wp--preset--color--{obsidian|forge|ink-mute|titanium|ash|line-lt})`. `tma-service-pages.php` cambió el overlay de los hero covers de `"overlayColor":"primary"` (negro plano legado) a `"overlayColor":"obsidian"` en las 3 ubicaciones (páginas de servicio + art-commissions + how-we-work), y se incrementó `tma_pages_version` a `v4` para forzar la re-provisión de las páginas ya generadas en la base de datos con el nuevo overlay (verificado vía bootstrap PHP: `HAS_OBSIDIAN` + `NO_PRIMARY`). `page.html`, `archive-tma_portfolio.html`, `single-tma_portfolio.html` y `taxonomy-tma_project_type.html` no requirieron cambios de contenido: ya heredan la paleta/tipografía global sin hex sueltos — verificado. Verificado visualmente en dev.thormetalart.com (páginas de servicio, blog archive, blog CTA) vía Playwright: headings en Archivo Expanded, CTAs en fondo obsidian/botón forge/texto titanium-ash, coherentes con el homepage. Tests: `tests/test-brand-006-brand-extension.sh` (10/10 passed).
+
+- [x] **TICKET-BRAND-007: Ajustar breakpoints responsive mobile-first para el nuevo diseño**
+    - **Fuente:** Auditoría 2026-07-28 — `style.css` solo tiene 2 media queries (960px, 782px); `thor_dev_guide.html` define 960px/600px para los nuevos grids.
+    - **Historia de Usuario:** Como visitante desde móvil, quiero que las nuevas secciones (Disciplines, Selected Work, Process, Client Logos) se vean bien en pantallas pequeñas.
+    - **Criterios de Aceptación:**
+
+        ```gherkin
+        Scenario: Grids se apilan en móvil
+          Given cualquier sección con grid de 2-3 columnas del nuevo diseño
+          When el viewport es menor a 600px
+          Then las columnas se apilan en 1 columna sin overflow horizontal
+
+        Scenario: Marquee sigue funcionando en móvil
+          Given la sección client-logos
+          When el viewport es menor a 960px
+          Then el carrusel continúa desplazándose sin cortes visuales
+        ```
+
+    - **Archivos a Modificar:**
+        - `data/wordpress/wp-content/themes/thormetalart/style.css` (MODIFIED)
+    - **Dependencias:** TICKET-BRAND-005
+    - **Estimación:** 2.5 horas
+    - **Prioridad:** P2
+    - **Status:** ✅ COMPLETADO
+    - **Completado:** 2026-07-28
+    - **Notas de cierre:** Bloque CSS añadido a `style.css` con dos nuevos puntos de quiebre (960px y 600px) específicos para los grids "Lujo Forjado". A 960px: `.tma-forjado-proc-grid` y `.tma-forjado-work-grid` pasan a grilla 2+1 (flex-wrap), `.tma-forjado-atelier-grid` mantiene 50/50, padding vertical de secciones reducido a 72px. A 600px: todos los grids (disc, work, proc, atelier) pasan a `flex-direction: column !important` + `flex-basis: 100%`, stats del atelier en columna vertical, h1 del hero ajustado con `clamp(2.5rem, 11vw, 4rem)`, marquee con `gap: 36px` y `animation-duration: 20s` para mejor legibilidad móvil. El bloque `@media (prefers-reduced-motion: reduce)` existente se conservó sin tocar. Verificado visualmente en desktop (1280px) sin regresiones. Tests: `tests/test-brand-007-responsive.sh` (11/11 passed).
+
+- [x] **TICKET-BRAND-008: QA visual, accesibilidad y performance end-to-end del rediseño**
+    - **Fuente:** Checklist final del `thor_dev_guide.html` (sección 15) + hallazgos de accesibilidad de la auditoría 2026-07-28.
+    - **Historia de Usuario:** Como responsable del sitio, quiero validar que el rediseño no introduce regresiones de SEO, accesibilidad o performance antes de promoverlo a producción.
+    - **Criterios de Aceptación:**
+
+        ```gherkin
+        Scenario: Un solo H1 por página en todo el sitio
+          Given todas las URLs públicas del sitemap
+          When se auditan con curl + grep
+          Then cada una contiene exactamente un <h1>
+
+        Scenario: Contraste de color AA
+          Given la paleta oscura (--ash sobre --obsidian) y clara (--ink-mute sobre --paper)
+          When se calcula el ratio de contraste
+          Then cumple WCAG AA (4.5:1 para texto normal)
+
+        Scenario: prefers-reduced-motion respetado globalmente
+          Given cualquier página con animaciones del nuevo sistema
+          When el usuario tiene la preferencia activada
+          Then ninguna animación se ejecuta
+
+        Scenario: Bilingüe ES/EN intacto
+          Given las 8 secciones nuevas del homepage
+          When se visita la versión /es/
+          Then todos los textos están traducidos vía TranslatePress
+        ```
+
+    - **Archivos a Modificar:**
+        - `tests/test-brand-008-qa-e2e.sh` (NEW)
+    - **Dependencias:** TICKET-BRAND-005, TICKET-BRAND-006, TICKET-BRAND-007
+    - **Estimación:** 3 horas
+    - **Prioridad:** P1
+    - **Status:** ✅ COMPLETADO
+    - **Completado:** 2026-07-28
+    - **Notas de cierre:** QA automatizado aprobado en todos los criterios. Hallazgo y fix durante la fase QA: los eyebrows de 11px uppercase en los 3 patrones con fondo oscuro (hero-forjado, cta-forjado, quote-band) usóban `textColor:forge` (3.95:1 — no cumple WCAG AA para texto normal pequeño); corregido a `textColor:ember` (7.57:1) vía `sed` + `php -l` inmediato. Tests cubren: (1) H1 único en 7 URLs públicas; (2) contraste WCAG AA ≥4.5:1 para todos los pares de color activos (ember, ash, titanium, ink-mute, ink); (3) `@media (prefers-reduced-motion: reduce)` presente en `style.css`; (4) homepage renderizado sin errores PHP fatales/warnings; (5) homepage en `/es/` responde 200; (6) meta viewport presente; (7) ninguno de los 3 patrones oscuros tiene eyebrow forge; (8) todos los patrones PHP pasan `php -l`; (9) `functions.php` + `theme.json` válidos; (10) las 8 secciones Lujo Forjado renderizan en el homepage. Tests: `tests/test-brand-008-qa-e2e.sh` (11/11 passed).
+
+- [ ] **TICKET-BRAND-009: Deployment del rediseño a PROD + verificación post-deploy**
+    - **Fuente:** DEV-FIRST rule del proyecto — promoción obligatoria tras validación completa en dev.thormetalart.com.
+    - **Historia de Usuario:** Como responsable del sitio, quiero el rediseño visible en thormetalart.com solo después de que todos los tickets anteriores estén verificados en dev.
+    - **Criterios de Aceptación:**
+
+        ```gherkin
+        Scenario: Backup previo a producción
+          Given el stack de PROD corriendo
+          When se ejecuta el deployment
+          Then existe un backup de base de datos y archivos previo al cambio
+
+        Scenario: Paridad DEV/PROD
+          Given los archivos modificados en las 8 tickets anteriores
+          When se copian a /srv/stacks/thormetalart-prod/
+          Then thormetalart.com refleja exactamente lo validado en dev.thormetalart.com
+
+        Scenario: Verificación post-deploy
+          Given el deployment completado
+          When se ejecutan los tests de tests/test-brand-*.sh contra producción
+          Then todos pasan en verde
+        ```
+
+    - **Archivos a Modificar:**
+        - `/srv/stacks/thormetalart-prod/` (MODIFIED — réplica de archivos de dev)
+    - **Dependencias:** TICKET-BRAND-008
+    - **Estimación:** 2 horas
+    - **Prioridad:** P1
+    - **Status:** ⏸️ PENDIENTE
+
+- [ ] **TICKET-BRAND-010: Rediseñar `page.html` genérico con banner "Lujo Forjado" (eyebrow + H1 + breadcrumb oscuro)**
+    - **Fuente:** Investigación 2026-07-29 — el correo del cliente confirma que "Lujo Forjado" (v3) es el sistema de diseño vigente; auditoría de plantillas confirma que `page.html` (usado por las 12 páginas estáticas) solo heredó paleta/tipografía en BRAND-006, sin ningún tratamiento de sección tipo hero.
+    - **Historia de Usuario:** Como visitante, quiero que cualquier página interna del sitio (contacto, blog, legales) tenga un encabezado con la misma identidad visual oscura del homepage para percibir un sitio coherente y profesional.
+    - **Criterios de Aceptación:**
+
+        ```gherkin
+        Scenario: Banner oscuro consistente en páginas internas
+          Given cualquier página que use templates/page.html
+          When se renderiza
+          Then muestra una franja superior oscura (--obsidian) con eyebrow (--ember), H1 en Archivo Expanded (--titanium) y breadcrumb
+
+        Scenario: No rompe el contenido existente
+          Given una página con contenido largo (ej. terms-of-service)
+          When se aplica el nuevo banner
+          Then el contenido del body permanece legible y sin overlap con el banner
+        ```
+
+    - **Archivos a Modificar:**
+        - `data/wordpress/wp-content/themes/thormetalart/templates/page.html` (MODIFIED)
+        - `data/wordpress/wp-content/themes/thormetalart/patterns/` (NEW — pattern reutilizable `page-banner-forjado.php`)
+    - **Dependencias:** TICKET-BRAND-006 ✅
+    - **Estimación:** 3 horas
+    - **Prioridad:** P2
+    - **Status:** ⏸️ PENDIENTE
+
+- [ ] **TICKET-BRAND-011: Reconstruir las 5 páginas de servicio con patterns Lujo Forjado completos**
+    - **Fuente:** Investigación 2026-07-29 — `custom-metal-gates-miami`, `metal-railings-miami`, `metal-fences-miami`, `custom-metal-furniture-miami`, `metal-stairs-miami` solo tienen un hero cover básico (overlay obsidian, fix de BRAND-006) inyectado por `tma-service-pages.php`, sin el resto del lenguaje visual (eyebrow, disciplinas, FAQ estilizado, CTA final con textura).
+    - **Historia de Usuario:** Como cliente potencial buscando un servicio específico, quiero que la página de ese servicio transmita la misma calidad visual "Lujo Forjado" del homepage para confiar en la marca antes de solicitar un presupuesto.
+    - **Criterios de Aceptación:**
+
+        ```gherkin
+        Scenario: Hero completo por página de servicio
+          Given cualquiera de las 5 páginas de servicio
+          When se renderiza
+          Then usa el pattern hero-forjado (o variante) con foto real ya existente en uploads/2026/04/
+
+        Scenario: FAQ con estilo Lujo Forjado
+          Given la sección de FAQs de cada página (dataset en tma-service-pages.php)
+          When se renderiza
+          Then usa tipografía y tokens de color del sistema, no el markup HTML plano actual
+
+        Scenario: CTA final consistente
+          Given el final de cada página de servicio
+          When se renderiza
+          Then reutiliza el pattern cta-forjado.php en vez del bloque `tma-final-cta` hardcodeado
+        ```
+
+    - **Archivos a Modificar:**
+        - `data/wordpress/wp-content/mu-plugins/tma-service-pages.php` (MODIFIED)
+        - `data/wordpress/wp-content/themes/thormetalart/patterns/cta-forjado.php` (referenciado, no modificado)
+    - **Dependencias:** TICKET-BRAND-003 ✅, TICKET-FIX-001 ✅
+    - **Estimación:** 6 horas
+    - **Prioridad:** P1
+    - **Status:** ⏸️ PENDIENTE
+
+- [ ] **TICKET-BRAND-012: Art Commissions + How We Work con patterns Lujo Forjado completos**
+    - **Fuente:** Investigación 2026-07-29 — mismo hallazgo que BRAND-011, aplicado a las 2 páginas de venta restantes generadas por `tma-service-pages.php` (líneas ~229 y ~233).
+    - **Historia de Usuario:** Como visitante interesado en encargos de arte o en el proceso de trabajo, quiero una experiencia visual consistente con el resto del sitio rediseñado.
+    - **Criterios de Aceptación:**
+
+        ```gherkin
+        Scenario: Art Commissions con hero e identidad completa
+          Given /art-commissions/
+          When se renderiza
+          Then usa los mismos patterns Lujo Forjado que las páginas de servicio (BRAND-011)
+
+        Scenario: How We Work con proceso visual
+          Given /how-we-work/
+          When se renderiza
+          Then reutiliza el pattern process-forjado.php para ilustrar el flujo de trabajo
+        ```
+
+    - **Archivos a Modificar:**
+        - `data/wordpress/wp-content/mu-plugins/tma-service-pages.php` (MODIFIED)
+    - **Dependencias:** TICKET-BRAND-011
+    - **Estimación:** 3 horas
+    - **Prioridad:** P2
+    - **Status:** ⏸️ PENDIENTE
+
+- [ ] **TICKET-BRAND-013: Página de Contacto — hero + formulario con tokens "Lujo Forjado"**
+    - **Fuente:** Investigación 2026-07-29 — `/contact/` no tiene ningún tratamiento visual del rediseño (usa `page.html` genérico plano).
+    - **Historia de Usuario:** Como visitante listo para contactar, quiero que la página de contacto se sienta parte de la misma marca premium, no una página administrativa aparte.
+    - **Criterios de Aceptación:**
+
+        ```gherkin
+        Scenario: Hero de contacto
+          Given /contact/
+          When se renderiza
+          Then muestra el banner de BRAND-010 con eyebrow "Get in Touch" / "Contáctanos"
+
+        Scenario: Formulario estilizado
+          Given el formulario de contacto existente
+          When se aplica el nuevo diseño
+          Then los inputs/botones usan --forge como acento y tipografía Inter, manteniendo la validación y el envío funcionando sin regresiones
+        ```
+
+    - **Archivos a Modificar:**
+        - `data/wordpress/wp-content/themes/thormetalart/templates/page-contact.html` (MODIFIED)
+        - `data/wordpress/wp-content/themes/thormetalart/style.css` (MODIFIED)
+    - **Dependencias:** TICKET-BRAND-010
+    - **Estimación:** 3 horas
+    - **Prioridad:** P2
+    - **Status:** ⏸️ PENDIENTE
+
+- [ ] **TICKET-BRAND-014: Blog (listado + artículo) — hero banner y tarjetas estilo "Selected Work"**
+    - **Fuente:** Investigación 2026-07-29 — `archive.html`/`single.html` ya heredan paleta y tipografía (BRAND-006, FIX-002) pero no tienen secciones tipo hero ni tarjetas con el lenguaje visual del homepage.
+    - **Historia de Usuario:** Como lector del blog, quiero que el listado y los artículos se vean con la misma calidad visual que el resto del sitio rediseñado.
+    - **Criterios de Aceptación:**
+
+        ```gherkin
+        Scenario: Listado de blog con tarjetas Lujo Forjado
+          Given /blog/
+          When se renderiza el listado de posts
+          Then las tarjetas de post usan el mismo lenguaje visual que selected-work.php (imagen, eyebrow de categoría, título en Archivo Expanded)
+
+        Scenario: Artículo individual con hero
+          Given cualquier post del blog
+          When se abre
+          Then muestra un banner superior oscuro con la imagen destacada y overlay, coherente con el resto del sitio
+        ```
+
+    - **Archivos a Modificar:**
+        - `data/wordpress/wp-content/themes/thormetalart/templates/archive.html` (MODIFIED)
+        - `data/wordpress/wp-content/themes/thormetalart/templates/single.html` (MODIFIED)
+        - `data/wordpress/wp-content/themes/thormetalart/templates/home.html` (MODIFIED — si es la plantilla real de /blog/)
+    - **Dependencias:** TICKET-BRAND-010
+    - **Estimación:** 4 horas
+    - **Prioridad:** P2
+    - **Status:** ⏸️ PENDIENTE
+
+- [ ] **TICKET-BRAND-015: Portfolio (archivo/single/taxonomía) — mismo tratamiento visual**
+    - **Fuente:** Investigación 2026-07-29 — mismas plantillas de portfolio con paleta heredada pero sin secciones hero/tarjetas del nuevo sistema.
+    - **Historia de Usuario:** Como visitante explorando el portafolio de proyectos, quiero una experiencia visual consistente con el homepage al navegar por categorías y proyectos individuales.
+    - **Criterios de Aceptación:**
+
+        ```gherkin
+        Scenario: Archivo de portfolio con grid Lujo Forjado
+          Given archive-tma_portfolio.html
+          When se renderiza
+          Then el grid de proyectos usa el mismo estilo de tarjeta que selected-work.php
+
+        Scenario: Proyecto individual con hero
+          Given single-tma_portfolio.html
+          When se renderiza un proyecto
+          Then muestra hero con imagen destacada y overlay obsidian consistente
+        ```
+
+    - **Archivos a Modificar:**
+        - `data/wordpress/wp-content/themes/thormetalart/templates/archive-tma_portfolio.html` (MODIFIED)
+        - `data/wordpress/wp-content/themes/thormetalart/templates/single-tma_portfolio.html` (MODIFIED)
+        - `data/wordpress/wp-content/themes/thormetalart/templates/taxonomy-tma_project_type.html` (MODIFIED)
+    - **Dependencias:** TICKET-BRAND-010
+    - **Estimación:** 4 horas
+    - **Prioridad:** P2
+    - **Status:** ⏸️ PENDIENTE
+
+- [ ] **TICKET-BRAND-016: Páginas legales (Privacy Policy, Terms of Service) — verificación y ajuste ligero**
+    - **Fuente:** Investigación 2026-07-29 — estas páginas heredan el banner de BRAND-010 al usar `page.html`, pero su contenido extenso (listas largas, texto legal) necesita QA tipográfico específico.
+    - **Historia de Usuario:** Como visitante consultando términos legales, quiero que la página sea legible y coherente con la marca sin sacrificar claridad legal.
+    - **Criterios de Aceptación:**
+        ```gherkin
+        Scenario: Contenido legal legible
+          Given /privacy-policy/ y /terms-of-service/
+          When se renderizan con el banner de BRAND-010
+          Then el texto largo mantiene buen contraste (--ink sobre --paper) y jerarquía clara de encabezados sin secciones oscuras pesadas
+        ```
+    - **Archivos a Modificar:**
+        - `data/wordpress/wp-content/themes/thormetalart/style.css` (MODIFIED — ajustes tipográficos puntuales si aplica)
+    - **Dependencias:** TICKET-BRAND-010
+    - **Estimación:** 1 hora
+    - **Prioridad:** P3
+    - **Status:** ⏸️ PENDIENTE
+
+- [ ] **TICKET-BRAND-017: TranslatePress — Traducir strings ES de los nuevos patterns "Lujo Forjado"**
+    - **Fuente:** Investigación 2026-07-29 — conteo directo en `tma_trp_dictionary_en_us_es_es` muestra 197 strings con `status=0` (sin traducir), incluyendo el H1 del hero ("Steel, shaped" / "with intent.") y otro contenido introducido en BRAND-001 a BRAND-008 que nunca se agregó al diccionario. Relacionado pero distinto en alcance a TICKET-WP-044 (86 strings de un diagnóstico anterior, 2026-05-26, centrado en "What's Included" de páginas de servicio).
+    - **Historia de Usuario:** Como visitante hispanohablante, quiero leer el nuevo hero y las secciones del homepage/páginas rediseñadas completamente en español al visitar `/es/`.
+    - **Criterios de Aceptación:**
+
+        ```gherkin
+        Scenario: Hero traducido
+          Given /es/ (homepage)
+          When se renderiza el H1 del hero
+          Then el texto aparece en español (no "Steel, shaped / with intent." en inglés)
+
+        Scenario: Cero strings de patterns nuevos sin traducir
+          Given tma_trp_dictionary_en_us_es_es
+          When se filtran los originales que pertenecen a los patterns hero-forjado, disciplines, atelier, quote-band, process-forjado, cta-forjado, client-logos
+          Then ninguno tiene status=0
+        ```
+
+    - **Archivos a Modificar:**
+        - `data/wordpress/wp-content/mu-plugins/tma-blog-translations.php` (MODIFIED — o nuevo mu-plugin `tma-brand-translations.php` siguiendo el mismo patrón de `$upsert`)
+    - **Dependencias:** TICKET-BRAND-005 ✅, TICKET-WP-044 (relacionado, no bloqueante)
+    - **Estimación:** 3 horas
+    - **Prioridad:** P1
+    - **Status:** ⏸️ PENDIENTE
+
+- [ ] **TICKET-BRAND-018: Deploy a PROD de la extensión completa del rediseño**
+    - **Fuente:** DEV-FIRST rule — promoción obligatoria tras validar en dev.thormetalart.com todas las páginas extendidas.
+    - **Historia de Usuario:** Como responsable del sitio, quiero que thormetalart.com refleje el mismo diseño y traducción coherentes en todas las páginas, no solo en el homepage.
+    - **Criterios de Aceptación:**
+
+        ```gherkin
+        Scenario: Paridad completa DEV/PROD
+          Given todos los archivos modificados en BRAND-010 a BRAND-017
+          When se copian a /srv/stacks/thormetalart-prod/
+          Then thormetalart.com refleja el mismo diseño y traducciones que dev.thormetalart.com en las 12 páginas estáticas + blog + portfolio
+
+        Scenario: Backup previo
+          Given el stack de PROD corriendo
+          When se ejecuta el deployment
+          Then existe un backup de base de datos y archivos previo al cambio
+        ```
+
+    - **Archivos a Modificar:**
+        - `/srv/stacks/thormetalart-prod/` (MODIFIED — réplica de archivos de dev)
+    - **Dependencias:** TICKET-BRAND-009, TICKET-BRAND-010, TICKET-BRAND-011, TICKET-BRAND-012, TICKET-BRAND-013, TICKET-BRAND-014, TICKET-BRAND-015, TICKET-BRAND-016, TICKET-BRAND-017
+    - **Estimación:** 2 horas
+    - **Prioridad:** P1
+    - **Status:** ⏸️ PENDIENTE
+
+- [ ] **TICKET-DOC-001: Documentar regla de Definition-of-Done bilingüe en el flujo de tickets**
+    - **Fuente:** Investigación 2026-07-29 — causa raíz de por qué el hero y otros textos nuevos quedaron sin traducir: ningún ticket de contenido (BRAND-001 a BRAND-008) incluyó explícitamente el paso de traducción ES como parte de su cierre.
+    - **Historia de Usuario:** Como equipo de desarrollo, quiero que todo ticket que agregue texto visible al frontend incluya un paso obligatorio de traducción ES antes de marcarse como completado, para evitar que el sitio quede parcialmente en inglés después de cada rediseño o feature nueva.
+    - **Criterios de Aceptación:**
+
+        ```gherkin
+        Scenario: Checklist actualizado
+          Given .github/instructions/workflows.instructions.md
+          When se agrega contenido visible nuevo en un ticket (patterns, páginas, textos de UI)
+          Then el checklist de cierre exige verificar que las nuevas cadenas existen y están traducidas en tma_trp_dictionary_en_us_es_es antes de Status: COMPLETADO
+
+        Scenario: Referencia al mecanismo existente
+          Given el mu-plugin tma-blog-translations.php como precedente
+          When se documenta el proceso
+          Then se referencia ese patrón ($upsert + option de versión) como forma recomendada de agregar traducciones en bloque
+        ```
+
+    - **Archivos a Modificar:**
+        - `.github/instructions/workflows.instructions.md` (MODIFIED)
+    - **Dependencias:** Ninguna
+    - **Estimación:** 1 hora
+    - **Prioridad:** P3
+    - **Status:** ⏸️ PENDIENTE
+
+---
+
+## 📊 Resumen
+
+| Fase                             | Total   | ✅     | ⏸️     | 🚫    | Progreso |
+| -------------------------------- | ------- | ------ | ------ | ----- | -------- |
+| 1 — Infraestructura              | 3       | 3      | 0      | 0     | 100%     |
+| 2 — Dashboard                    | 3       | 3      | 0      | 0     | 100%     |
+| 3 — WordPress                    | 3       | 3      | 0      | 0     | 100%     |
+| 4 — SEO                          | 2       | 2      | 0      | 0     | 100%     |
+| 5 — Seguridad                    | 1       | 1      | 0      | 0     | 100%     |
+| 6 — Leads/CRM                    | 1       | 1      | 0      | 0     | 100%     |
+| 7 — Portal Docs                  | 4       | 4      | 0      | 0     | 100%     |
+| 8 — TMA Panel Base               | 10      | 10     | 0      | 0     | 100%     |
+| 9 — Dashboard Datos Reales       | 7       | 5      | 0      | 2     | 71%      |
+| 10 — Portal Integrado            | 3       | 3      | 0      | 0     | 100%     |
+| 11 — Leads Dinámico              | 3       | 3      | 0      | 0     | 100%     |
+| 12 — Cleanup Docker              | 1       | 1      | 0      | 0     | 100%     |
+| 13 — UI/UX Polish                | 4       | 4      | 0      | 0     | 100%     |
+| 14 — Bug Fixes & Doc UX          | 1       | 1      | 0      | 0     | 100%     |
+| 15 — Website V1: Templates       | 10      | 10     | 0      | 0     | 100%     |
+| 16 — Website V1: Visual          | 4       | 4      | 0      | 0     | 100%     |
+| 17 — Website V1: SEO+Conv        | 6       | 6      | 0      | 0     | 100%     |
+| 18 — Google Ecosystem            | 7       | 4      | 1      | 2     | 57%      |
+| **19 — Visual Real (Drive)**     | **5**   | **5**  | **0**  | **0** | **100%** |
+| **20 — Visual Full + Deploy**    | **6**   | **6**  | **0**  | **0** | **100%** |
+| **21 — TranslatePress i18n**     | **5**   | **5**  | **0**  | **0** | **100%** |
+| **22 — Social Media Setup**      | **4**   | **0**  | **4**  | **0** | **0%**   |
+| **23 — Blog SEO + Marca**        | **6**   | **2**  | **4**  | **0** | **33%**  |
+| **24 — Español Miami Market**    | **5**   | **0**  | **5**  | **0** | **0%**   |
+| **25 — SEO Técnico Profundo**    | **8**   | **0**  | **8**  | **0** | **0%**   |
+| **26 — Rediseño "Lujo Forjado"** | **20**  | **10** | **10** | **0** | **50%**  |
+| **TOTAL**                        | **132** | **97** | **31** | **4** | **73%**  |

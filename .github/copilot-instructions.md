@@ -66,6 +66,24 @@ Run `make help` or see the [Makefile](Makefile) for all 28+ targets including pe
 
 See [.github/instructions/workflows.instructions.md](.github/instructions/workflows.instructions.md) for full branching strategy, PR requirements, and quality gates.
 
+## DEV-FIRST Rule (CRITICAL)
+
+**Always make changes in DEV first, verify, then promote to PROD.**
+
+| Environment | Stack | Domain |
+|-------------|-------|--------|
+| DEV | `/srv/stacks/thormetalart-dev/` | `dev.thormetalart.com` |
+| PROD | `/srv/stacks/thormetalart-prod/` | `thormetalart.com` |
+
+```
+1. Edit in DEV
+2. Test in DEV (make test-all, curl dev.thormetalart.com)
+3. Copy modified files to PROD
+4. Verify in PROD
+```
+Exceptions: operations only meaningful in prod (DNS, OAuth tokens) — configure in dev first when possible.
+Use the `/promote-to-prod` prompt for the promotion workflow.
+
 ## Environment
 
 - Secrets in `.env` (never commit — in `.gitignore`). See [.github/instructions/env-validation.instructions.md](.github/instructions/env-validation.instructions.md)
@@ -83,6 +101,8 @@ See [.github/instructions/workflows.instructions.md](.github/instructions/workfl
 | `scripts/` | Operational scripts (backup, restore, test, cache) |
 | `tests/` | Bash test scripts (TDD, integration) |
 | `data/wordpress/` | WordPress files (volume mount) |
+| `data/wordpress/wp-content/themes/thormetalart/` | FSE block theme (parent: twentytwentyfive) |
+| `data/wordpress/wp-content/plugins/tma-panel/` | Client panel plugin (v0.4.0, 10 classes, 6 DB tables) |
 | `data/mysql/` | MySQL data (volume mount) |
 | `docs/` | Project docs and branding — see [docs/README.md](docs/README.md) |
 | `.github/` | AI customization ecosystem — see [.github/README.md](.github/README.md) |
@@ -103,8 +123,13 @@ This project has a comprehensive `.github/` setup — **check [.github/README.md
 
 | Primitive | Count | Location |
 |-----------|-------|----------|
-| Instructions | 13 | `.github/instructions/` — auto-loaded by `applyTo` file patterns |
-| Agents | 12 | `.github/agents/` — domain-specific with restricted tool sets |
+| Instructions | 15 | `.github/instructions/` — auto-loaded by `applyTo` file patterns |
+| Agents | 13 | `.github/agents/` — domain-specific with restricted tool sets |
 | Skills | 7 | `.github/skills/` — reusable workflows (TDD, code-review, ship-feature, stack-mgmt, tickets, WP, API) |
-| Prompts | 21 | `.github/prompts/` — quick-action slash commands |
+| Prompts | 22 | `.github/prompts/` — quick-action slash commands |
 | Hooks | 4 | `.github/hooks/` — safety-checks.json + php-lint-check.sh + format-on-save.sh + sql-guard.sh |
+
+**Active Phase 16+ tickets:**
+- `TICKET-SEO-003` — Local SEO optimization & content sync (P1)
+- `TICKET-WP-010` — Blog setup & content templates (P2)
+- `TICKET-PANEL-016` — Analytics dashboard improvements (P3)
