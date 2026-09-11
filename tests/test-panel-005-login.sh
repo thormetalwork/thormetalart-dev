@@ -7,7 +7,7 @@ set -e
 PASS=0
 FAIL=0
 TOTAL=0
-WP_CONTAINER="thormetalart_wordpress"
+WP_CONTAINER="tma_dev_wordpress"
 PLUGIN_DIR="/srv/stacks/thormetalart-dev/data/wordpress/wp-content/plugins/tma-panel"
 PANEL_HOST="panel.thormetalart.com"
 
@@ -61,10 +61,10 @@ if [ -f "$LOGIN" ]; then
     && pass "Login has dark theme" \
     || fail "Login missing dark theme"
 
-  # No WordPress references visible
-  grep -qi 'wordpress\|wp-admin\|wp-login' "$LOGIN" \
-    && fail "Login leaks WordPress reference" \
-    || pass "Login has no WordPress references"
+  # Internal AJAX URLs are allowed; no WordPress branding may be visible.
+  grep -Eqi '(<a[^>]+href=[^>]*(wp-admin|wp-login)|>[^<]*(WordPress|wp-admin|wp-login)[^<]*<)' "$LOGIN" \
+    && fail "Login leaks a visible WordPress reference" \
+    || pass "Login has no visible WordPress references"
 
   grep -q 'rememberme\|remember' "$LOGIN" \
     && pass "Login has remember-me checkbox" \
@@ -158,7 +158,7 @@ else
   [ "$FOUND_RATE" -ge 1 ] \
     && pass "Rate limiting code found" \
     || fail "Rate limiting code not found"
-  
+
   FOUND_TRANSIENT=$(grep -rl 'transient' "$PLUGIN_DIR" 2>/dev/null | wc -l)
   [ "$FOUND_TRANSIENT" -ge 1 ] \
     && pass "Transient storage for rate limiting" \

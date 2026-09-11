@@ -1,0 +1,107 @@
+<!-- wp:template-part {"slug":"header","theme":"thormetalart","tagName":"header"} /-->
+
+<!-- wp:group {"className":"tma-page-shell","style":{"spacing":{"padding":{"top":"0","bottom":"0","left":"24px","right":"24px"}}},"layout":{"type":"constrained","wideSize":"1400px"}} -->
+<div
+    class="wp-block-group tma-page-shell"
+    style="padding-top: 0; padding-right: 24px; padding-bottom: 0; padding-left: 24px"
+>
+    <!-- wp:group {"className":"tma-page-hero","style":{"spacing":{"padding":{"top":"48px","bottom":"48px","left":"32px","right":"32px"}},"border":{"radius":"24px"}},"layout":{"type":"constrained","contentSize":"1120px"}} -->
+    <div
+        class="wp-block-group tma-page-hero"
+        style="padding-top: 48px; padding-right: 32px; padding-bottom: 48px; padding-left: 32px; border-radius: 24px"
+    >
+        <!-- wp:shortcode -->
+        [tma_breadcrumbs]
+        <!-- /wp:shortcode -->
+
+        <!-- wp:heading {"textAlign":"center","level":1,"className":"tma-page-title","style":{"typography":{"fontFamily":"var(--wp--preset--font-family--forjado-display)","fontWeight":"700","textTransform":"uppercase","lineHeight":"0.95"}},"textColor":"titanium"} -->
+        <h1 class="wp-block-heading has-text-align-center tma-page-title has-titanium-color has-text-color">
+            Let’s Talk About Your Project
+        </h1>
+        <!-- /wp:heading -->
+
+        <!-- wp:paragraph {"align":"center","className":"tma-page-kicker","style":{"typography":{"fontSize":"11px","letterSpacing":"0.28em","textTransform":"uppercase","fontWeight":"600"}},"textColor":"ember"} -->
+        <p
+            class="has-text-align-center tma-page-kicker has-ember-color has-text-color"
+            style="font-size: 11px; font-weight: 600; letter-spacing: 0.28em; text-transform: uppercase"
+        >
+            Thor Metal Art
+        </p>
+        <!-- /wp:paragraph -->
+    </div>
+    <!-- /wp:group -->
+
+    <!-- wp:group {"className":"tma-page-content","style":{"spacing":{"padding":{"top":"32px","bottom":"32px","left":"32px","right":"32px"}}},"layout":{"type":"constrained","contentSize":"1120px"}} -->
+    <div
+        class="wp-block-group tma-page-content"
+        style="padding-top: 32px; padding-right: 32px; padding-bottom: 32px; padding-left: 32px"
+    >
+        <!-- wp:columns {"className":"tma-contact-layout"} -->
+        <div class="wp-block-columns tma-contact-layout">
+            <!-- wp:column {"width":"62%"} -->
+            <div class="wp-block-column" style="flex-basis: 62%">
+                <!-- wp:group {"className":"tma-contact-form-card","layout":{"type":"constrained"}} -->
+                <div class="wp-block-group tma-contact-form-card">
+                    <!-- wp:shortcode -->
+                    [tma_contact_form lang="en"]
+                    <!-- /wp:shortcode -->
+
+                    <!-- wp:list -->
+                    <ul>
+                        <li>We respond within 24 business hours</li>
+                        <li>Free estimate, no commitment</li>
+                        <li>English &amp; Spanish</li>
+                    </ul>
+                    <!-- /wp:list -->
+                </div>
+                <!-- /wp:group -->
+            </div>
+            <!-- /wp:column -->
+
+            <!-- wp:column {"width":"38%"} -->
+            <div class="wp-block-column" style="flex-basis: 38%">
+                <!-- wp:group {"className":"tma-contact-info-card","layout":{"type":"constrained"}} -->
+                <div class="wp-block-group tma-contact-info-card">
+                    <!-- wp:heading {"level":3} -->
+                    <h3 class="wp-block-heading">Direct Contact</h3>
+                    <!-- /wp:heading -->
+
+                    <!-- wp:list -->
+                    <ul>
+                        <li><a href="tel:+17868547309">+1 (786) 854-7309</a></li>
+                        <li>
+                            <a href="https://wa.me/17868547309" target="_blank" rel="noreferrer noopener">WhatsApp</a>
+                        </li>
+                        <li><a href="mailto:contact@thormetalart.com">contact@thormetalart.com</a></li>
+                        <li>Serving Miami-Dade &amp; Broward County, Florida</li>
+                    </ul>
+                    <!-- /wp:list -->
+
+                    <!-- wp:paragraph -->
+                    <p>Business hours: Monday-Friday 8:00 AM-6:00 PM | Saturday 9:00 AM-2:00 PM</p>
+                    <!-- /wp:paragraph -->
+
+                    <!-- wp:image {"sizeSlug":"large","className":"tma-contact-workshop-image"} -->
+                    <figure class="wp-block-image size-large tma-contact-workshop-image">
+                        <img
+                            src="/wp-content/uploads/2026/04/tma-workshop-facade.jpg"
+                            alt="Thor Metal Art workshop facade in Miami"
+                        />
+                    </figure>
+                    <!-- /wp:image -->
+
+                    <!-- wp:shortcode -->
+                    [tma_contact_map]
+                    <!-- /wp:shortcode -->
+                </div>
+                <!-- /wp:group -->
+            </div>
+            <!-- /wp:column -->
+        </div>
+        <!-- /wp:columns -->
+    </div>
+    <!-- /wp:group -->
+</div>
+<!-- /wp:group -->
+
+<!-- wp:template-part {"slug":"footer","theme":"thormetalart","tagName":"footer"} /-->

@@ -3,7 +3,7 @@ set -e
 PASS=0
 FAIL=0
 TOTAL=0
-WP_CONTAINER="thormetalart_wordpress"
+WP_CONTAINER="tma_dev_wordpress"
 PLUGIN_DIR="/srv/stacks/thormetalart-dev/data/wordpress/wp-content/plugins/tma-panel"
 DATA_FILE="$PLUGIN_DIR/includes/class-tma-panel-data.php"
 API_FILE="$PLUGIN_DIR/includes/class-tma-panel-api.php"
@@ -19,7 +19,7 @@ echo "\nTICKET-LEAD-003 — Historial por lead\n"
 [ -f "$MIGRATION_FILE" ] && pass "Migración 002 existe" || fail "Falta migración 002-lead-history.php"
 grep -q "panel_lead_history" "$MIGRATION_FILE" && pass "Migración crea tabla panel_lead_history" || fail "Migración historial incompleta"
 
-grep -q "DB_VERSION = 2" "$DATA_FILE" && pass "DB version incrementada" || fail "DB version no incrementada"
+grep -q "DB_VERSION = 3" "$DATA_FILE" && pass "DB version incrementada" || fail "DB version no incrementada"
 
 grep -q "log_status_change\|lead_history" "$LEADS_FILE" && pass "Servicio leads registra historial" || fail "Registro de historial faltante"
 

@@ -7,7 +7,7 @@ set -e
 PASS=0
 FAIL=0
 TOTAL=0
-WP_CONTAINER="thormetalart_wordpress"
+WP_CONTAINER="tma_dev_wordpress"
 PLUGIN_DIR="/srv/stacks/thormetalart-dev/data/wordpress/wp-content/plugins/tma-panel"
 
 pass() { PASS=$((PASS + 1)); TOTAL=$((TOTAL + 1)); echo "  ✅ $1"; }
@@ -218,13 +218,20 @@ DB_VER=$(docker exec "$WP_CONTAINER" php -r "
   echo get_option('tma_panel_db_version', '');
 " 2>/dev/null || echo "")
 
+EXPECTED_DB_VER=$(docker exec "$WP_CONTAINER" php -r "
+  require '/var/www/html/wp-load.php';
+  if (!class_exists('TMA_Panel_Data')) { exit; }
+  \$reflection = new ReflectionClass('TMA_Panel_Data');
+  echo \$reflection->getConstant('DB_VERSION');
+" 2>/dev/null || echo "")
+
 [ -n "$DB_VER" ] \
   && pass "tma_panel_db_version option exists (value: $DB_VER)" \
   || fail "tma_panel_db_version option not set"
 
-[ "$DB_VER" = "1" ] \
-  && pass "DB version is 1 (migration 001 applied)" \
-  || fail "DB version should be 1, got: '$DB_VER'"
+[ -n "$EXPECTED_DB_VER" ] && [ "$DB_VER" = "$EXPECTED_DB_VER" ] \
+  && pass "DB version matches code (version $DB_VER)" \
+  || fail "DB version '$DB_VER' does not match code version '$EXPECTED_DB_VER'"
 
 # ─────────────────────────────────────────────────────────────────
 # 9. SEED DATA VERIFICATION

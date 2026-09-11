@@ -62,6 +62,7 @@ $nonce        = wp_create_nonce( 'wp_rest' );
 				<li><a href="#leads" class="nav-link" data-section="leads" data-i18n="nav.leads">Leads</a></li>
 				<li><a href="#notes" class="nav-link" data-section="notes" data-i18n="nav.notes">Notas</a></li>
 				<?php if ( $is_admin ) : ?>
+				<li><a href="#google-setup" class="nav-link" data-section="google-setup" data-i18n="nav.googleSetup">Google Setup</a></li>
 				<li><a href="#audit" class="nav-link" data-section="audit" data-i18n="nav.audit">Audit Log</a></li>
 				<?php endif; ?>
 			</ul>

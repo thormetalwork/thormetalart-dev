@@ -14,8 +14,8 @@
 defined( 'ABSPATH' ) || exit;
 
 /* ═══════════════════════════════════════════════════════════════════
-   TABLE SCHEMAS
-   ═══════════════════════════════════════════════════════════════════ */
+	TABLE SCHEMAS
+	═══════════════════════════════════════════════════════════════════ */
 
 $sql = array();
 
@@ -100,27 +100,27 @@ $sql[] = "CREATE TABLE {$prefix}panel_docs (
 dbDelta( implode( "\n", $sql ) );
 
 /* ═══════════════════════════════════════════════════════════════════
-   SEED DATA — 12 Portal Documents
-   ═══════════════════════════════════════════════════════════════════ */
+	SEED DATA — 12 Portal Documents
+	═══════════════════════════════════════════════════════════════════ */
 
 $docs_table = $prefix . 'panel_docs';
 $doc_count  = (int) $wpdb->get_var( "SELECT COUNT(*) FROM `{$docs_table}`" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
 if ( 0 === $doc_count ) {
 	$documents = array(
-		array( 1, 'Metodología Maestra',            'metodologia_maestra',           'pending' ),
-		array( 2, 'Diagnóstico & Auditoría',         'diagnostico_auditoria',         'pending' ),
-		array( 3, 'Brief de Posicionamiento',        'brief_posicionamiento',         'pending' ),
-		array( 4, 'Plan de Proyecto & Checklists',   'plan_proyecto_checklists',      'pending' ),
-		array( 5, 'Checklist Maestro',               'checklist_maestro',             'pending' ),
-		array( 6, 'Reporte Mensual',                 'reporte_mensual',               'pending' ),
-		array( 7, 'Propuesta de Consultoría',        'propuesta_consultoria',         'pending' ),
-		array( 8, 'Scripts de Comunicación',         'scripts_comunicacion',          'pending' ),
-		array( 9, 'Guía de Fotografía',              'guia_fotografia',               'pending' ),
-		array( 10, 'Copys del Sitio Web',            'copys_sitio_web',               'pending' ),
-		array( 11, 'Tracker de Leads',               'tracker_leads',                 'pending' ),
-		array( 12, 'Dashboard & Arquitectura',       'dashboard_arquitectura',        'pending' ),
-		array( 13, 'Thor Kickoff Deck',              'thor_kickoff_deck',             'pending' ),
+		array( 1, 'Metodología Maestra', 'metodologia_maestra', 'pending' ),
+		array( 2, 'Diagnóstico & Auditoría', 'diagnostico_auditoria', 'pending' ),
+		array( 3, 'Brief de Posicionamiento', 'brief_posicionamiento', 'pending' ),
+		array( 4, 'Plan de Proyecto & Checklists', 'plan_proyecto_checklists', 'pending' ),
+		array( 5, 'Checklist Maestro', 'checklist_maestro', 'pending' ),
+		array( 6, 'Reporte Mensual', 'reporte_mensual', 'pending' ),
+		array( 7, 'Propuesta de Consultoría', 'propuesta_consultoria', 'pending' ),
+		array( 8, 'Scripts de Comunicación', 'scripts_comunicacion', 'pending' ),
+		array( 9, 'Guía de Fotografía', 'guia_fotografia', 'pending' ),
+		array( 10, 'Copys del Sitio Web', 'copys_sitio_web', 'pending' ),
+		array( 11, 'Tracker de Leads', 'tracker_leads', 'pending' ),
+		array( 12, 'Dashboard & Arquitectura', 'dashboard_arquitectura', 'pending' ),
+		array( 13, 'Thor Kickoff Deck', 'thor_kickoff_deck', 'pending' ),
 	);
 
 	foreach ( $documents as $doc ) {
@@ -139,8 +139,8 @@ if ( 0 === $doc_count ) {
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   SEED DATA — Demo KPIs (Sep 2025 – Feb 2026)
-   ═══════════════════════════════════════════════════════════════════ */
+	SEED DATA — Demo KPIs (Sep 2025 – Feb 2026)
+	═══════════════════════════════════════════════════════════════════ */
 
 $kpis_table = $prefix . 'panel_kpis';
 $kpi_count  = (int) $wpdb->get_var( "SELECT COUNT(*) FROM `{$kpis_table}`" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
@@ -148,12 +148,12 @@ $kpi_count  = (int) $wpdb->get_var( "SELECT COUNT(*) FROM `{$kpis_table}`" ); //
 if ( 0 === $kpi_count ) {
 	$periods = array( '2025-09', '2025-10', '2025-11', '2025-12', '2026-01', '2026-02' );
 	$kpis    = array(
-		array( 'revenue',         'ingresos',    array( 12500, 14200, 15800, 18500, 16200, 19800 ) ),
-		array( 'leads',           'marketing',   array( 8, 12, 15, 22, 18, 25 ) ),
-		array( 'conversion_rate', 'marketing',   array( 12.5, 16.7, 20.0, 22.7, 16.7, 24.0 ) ),
+		array( 'revenue', 'ingresos', array( 12500, 14200, 15800, 18500, 16200, 19800 ) ),
+		array( 'leads', 'marketing', array( 8, 12, 15, 22, 18, 25 ) ),
+		array( 'conversion_rate', 'marketing', array( 12.5, 16.7, 20.0, 22.7, 16.7, 24.0 ) ),
 		array( 'projects_active', 'operaciones', array( 3, 4, 5, 6, 5, 7 ) ),
-		array( 'avg_ticket',      'ingresos',    array( 4166, 3550, 3160, 3083, 3240, 2828 ) ),
-		array( 'satisfaction',    'calidad',     array( 4.5, 4.6, 4.7, 4.8, 4.7, 4.9 ) ),
+		array( 'avg_ticket', 'ingresos', array( 4166, 3550, 3160, 3083, 3240, 2828 ) ),
+		array( 'satisfaction', 'calidad', array( 4.5, 4.6, 4.7, 4.8, 4.7, 4.9 ) ),
 	);
 
 	foreach ( $kpis as $kpi ) {

@@ -42,9 +42,9 @@ class TMA_Panel_Roles {
 	public static function activate(): void {
 		// tma_admin — full panel access + basic WP caps.
 		$admin_caps = array(
-			'read'           => true,
-			'upload_files'   => true,
-			'edit_posts'     => true,
+			'read'         => true,
+			'upload_files' => true,
+			'edit_posts'   => true,
 		);
 		foreach ( self::ALL_CAPS as $cap ) {
 			$admin_caps[ $cap ] = true;

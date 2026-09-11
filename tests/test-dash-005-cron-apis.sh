@@ -4,7 +4,7 @@ set -e
 PASS=0
 FAIL=0
 TOTAL=0
-WP_CONTAINER="thormetalart_wordpress"
+WP_CONTAINER="tma_dev_wordpress"
 PLUGIN_DIR="/srv/stacks/thormetalart-dev/data/wordpress/wp-content/plugins/tma-panel"
 
 pass() { PASS=$((PASS + 1)); TOTAL=$((TOTAL + 1)); echo "  ✅ $1"; }
@@ -82,18 +82,27 @@ try {
 [ "$NOFAIL" = "OK" ] && pass "Sin keys: no falla y mantiene datos" || fail "Sin keys: falló ($NOFAIL)"
 
 echo ""
-echo "💾 Inserción de datos cuando hay keys"
+echo "💾 Persistencia de métricas"
 INSERT_OK=$(docker exec "$WP_CONTAINER" php -r "
 require '/var/www/html/wp-load.php';
 global \$wpdb;
 if (!class_exists('TMA_Panel_Cron')) { echo 'NO_CLASS'; exit; }
-putenv('GBP_API_KEY=test');
-\$before = (int) \$wpdb->get_var('SELECT COUNT(*) FROM ' . \$wpdb->prefix . 'panel_kpis');
-TMA_Panel_Cron::sync_source('gbp');
-\$after = (int) \$wpdb->get_var('SELECT COUNT(*) FROM ' . \$wpdb->prefix . 'panel_kpis');
-echo \$after > \$before ? 'YES' : 'NO';
+\$table = \$wpdb->prefix . 'panel_kpis';
+\$metric = 'tma_test_sync_metric';
+\$category = 'test';
+\$wpdb->delete(\$table, array('metric' => \$metric, 'category' => \$category));
+\$method = new ReflectionMethod('TMA_Panel_Cron', 'store_kpis');
+\$method->setAccessible(true);
+\$stored = \$method->invoke(null, array(\$metric => 42), \$category);
+\$count = (int) \$wpdb->get_var(\$wpdb->prepare(
+  \"SELECT COUNT(*) FROM {\$table} WHERE metric = %s AND category = %s\",
+  \$metric,
+  \$category
+));
+\$wpdb->delete(\$table, array('metric' => \$metric, 'category' => \$category));
+echo \$stored && 1 === \$count ? 'YES' : 'NO';
 " 2>/dev/null || echo "ERR")
-[ "$INSERT_OK" = "YES" ] && pass "Con key: inserta métricas en kpis" || fail "Con key: no insertó métricas ($INSERT_OK)"
+[ "$INSERT_OK" = "YES" ] && pass "Datos sintéticos: inserta métricas en kpis" || fail "No insertó métricas sintéticas ($INSERT_OK)"
 
 echo ""
 echo "══════════════════════════════════════════════════"

@@ -1,0 +1,155 @@
+{
+    "$schema": "https://schemas.wp.org/wp/6.9/theme.json",
+    "version": 3,
+    "settings": {
+        "color": {
+            "palette": [
+                { "slug": "primary", "color": "#1A1A1A", "name": "Primary (Negro)" },
+                { "slug": "accent", "color": "#B8860B", "name": "Accent (Oro)" },
+                { "slug": "background", "color": "#F5F5F0", "name": "Background (Blanco roto)" },
+                { "slug": "surface", "color": "#FFFFFF", "name": "Surface (Blanco)" },
+                { "slug": "text-secondary", "color": "#666666", "name": "Text Secondary" },
+                { "slug": "obsidian", "color": "#0C0E12", "name": "Obsidian (Forjado)" },
+                { "slug": "graphite", "color": "#14171B", "name": "Graphite (Forjado)" },
+                { "slug": "graphite-2", "color": "#1A1E23", "name": "Graphite 2 (Forjado)" },
+                { "slug": "line", "color": "#23282F", "name": "Line (Forjado)" },
+                { "slug": "titanium", "color": "#F4F1EC", "name": "Titanium (Forjado)" },
+                { "slug": "ash", "color": "#9AA1A9", "name": "Ash (Forjado)" },
+                { "slug": "ash-dim", "color": "#6C727A", "name": "Ash Dim (Forjado)" },
+                { "slug": "forge", "color": "#B8531E", "name": "Forge (Forjado)" },
+                { "slug": "ember", "color": "#F0873A", "name": "Ember (Forjado)" },
+                { "slug": "paper", "color": "#F7F5F1", "name": "Paper (Forjado)" },
+                { "slug": "ink", "color": "#16181C", "name": "Ink (Forjado)" },
+                { "slug": "ink-mute", "color": "#565b62", "name": "Ink Mute (Forjado)" },
+                { "slug": "line-lt", "color": "#E2DDD3", "name": "Line Light (Forjado)" }
+            ]
+        },
+        "typography": {
+            "fontFamilies": [
+                {
+                    "fontFamily": "'Archivo Expanded', Arial, sans-serif",
+                    "slug": "heading",
+                    "name": "Heading (Archivo Expanded — Lujo Forjado)",
+                    "fontFace": [
+                        {
+                            "fontFamily": "Archivo Expanded",
+                            "fontWeight": "500 800",
+                            "fontStyle": "normal",
+                            "fontDisplay": "swap",
+                            "src": [
+                                "https://fonts.googleapis.com/css2?family=Archivo+Expanded:wght@500;600;700;800&display=swap"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "fontFamily": "'DM Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+                    "slug": "body",
+                    "name": "Body (DM Sans)"
+                },
+                {
+                    "fontFamily": "'Archivo Expanded', Arial, sans-serif",
+                    "slug": "forjado-display",
+                    "name": "Forjado Display (Archivo Expanded)",
+                    "fontFace": [
+                        {
+                            "fontFamily": "Archivo Expanded",
+                            "fontWeight": "500 800",
+                            "fontStyle": "normal",
+                            "fontDisplay": "swap",
+                            "src": [
+                                "https://fonts.googleapis.com/css2?family=Archivo+Expanded:wght@500;600;700;800&display=swap"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "fontFamily": "'Fraunces', Georgia, serif",
+                    "slug": "forjado-accent",
+                    "name": "Forjado Accent (Fraunces)",
+                    "fontFace": [
+                        {
+                            "fontFamily": "Fraunces",
+                            "fontWeight": "500 600",
+                            "fontStyle": "italic",
+                            "fontDisplay": "swap",
+                            "src": [
+                                "https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@1,500;1,600&display=swap"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "fontFamily": "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+                    "slug": "forjado-body",
+                    "name": "Forjado Body (Inter)",
+                    "fontFace": [
+                        {
+                            "fontFamily": "Inter",
+                            "fontWeight": "400 700",
+                            "fontStyle": "normal",
+                            "fontDisplay": "swap",
+                            "src": ["https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"]
+                        }
+                    ]
+                }
+            ]
+        },
+        "layout": { "contentSize": "1200px", "wideSize": "1400px" },
+        "spacing": { "units": ["px", "em", "rem", "%", "vw"] }
+    },
+    "styles": {
+        "color": {
+            "background": "var(--wp--preset--color--background)",
+            "text": "var(--wp--preset--color--primary)"
+        },
+        "typography": {
+            "fontFamily": "var(--wp--preset--font-family--body)",
+            "fontSize": "16px",
+            "lineHeight": "1.6"
+        },
+        "elements": {
+            "heading": {
+                "typography": { "fontFamily": "var(--wp--preset--font-family--heading)", "fontWeight": "600" },
+                "color": { "text": "var(--wp--preset--color--primary)" }
+            },
+            "h1": { "typography": { "fontSize": "clamp(2.5rem, 5vw, 4rem)" } },
+            "h2": { "typography": { "fontSize": "clamp(2rem, 4vw, 3rem)" } },
+            "link": {
+                "color": { "text": "#7c5a07" },
+                ":hover": { "color": { "text": "var(--wp--preset--color--primary)" } }
+            },
+            "button": {
+                "color": {
+                    "background": "var(--wp--preset--color--accent)",
+                    "text": "var(--wp--preset--color--primary)"
+                },
+                "border": { "radius": "4px" },
+                ":hover": {
+                    "color": {
+                        "background": "var(--wp--preset--color--primary)",
+                        "text": "var(--wp--preset--color--surface)"
+                    }
+                }
+            }
+        },
+        "blocks": {
+            "core/site-title": {
+                "typography": {
+                    "fontFamily": "var(--wp--preset--font-family--heading)",
+                    "fontWeight": "700",
+                    "letterSpacing": "0.04em"
+                },
+                "color": { "text": "var(--wp--preset--color--accent)" }
+            },
+            "core/navigation": {
+                "typography": {
+                    "fontFamily": "var(--wp--preset--font-family--body)",
+                    "fontSize": "14px",
+                    "textTransform": "uppercase",
+                    "letterSpacing": "0.06em"
+                }
+            }
+        }
+    }
+}

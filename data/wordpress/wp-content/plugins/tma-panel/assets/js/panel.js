@@ -9,386 +9,470 @@
  */
 
 (function () {
-	'use strict';
+    'use strict';
 
-	const { apiBase, nonce, user } = window.TMA_PANEL;
-	const t = window.TMA_i18n ? window.TMA_i18n.t : function (key) { return key; };
-	const DASHBOARD_REFRESH_SECONDS = 120;
-	let dashboardRefreshInterval = null;
-	let dashboardRefreshRemaining = DASHBOARD_REFRESH_SECONDS;
-	let activeCharts = {};
+    const { apiBase, nonce, user } = window.TMA_PANEL;
+    const t = window.TMA_i18n
+        ? window.TMA_i18n.t
+        : function (key) {
+              return key;
+          };
+    const DASHBOARD_REFRESH_SECONDS = 120;
+    let dashboardRefreshInterval = null;
+    let dashboardRefreshRemaining = DASHBOARD_REFRESH_SECONDS;
+    let activeCharts = {};
 
-	/* ═══════════════════════════════════════════════════════════════
+    /* ═══════════════════════════════════════════════════════════════
 	   API Helper
 	   ═══════════════════════════════════════════════════════════════ */
 
-	async function api(endpoint, opts = {}) {
-		const url = `${apiBase}${endpoint}`;
-		const headers = {
-			'X-WP-Nonce': nonce,
-			'Content-Type': 'application/json',
-		};
+    async function api(endpoint, opts = {}) {
+        const url = `${apiBase}${endpoint}`;
+        const headers = {
+            'X-WP-Nonce': nonce,
+            'Content-Type': 'application/json',
+        };
 
-		const response = await fetch(url, {
-			credentials: 'include',
-			headers,
-			...opts,
-		});
+        const response = await fetch(url, {
+            credentials: 'include',
+            headers,
+            ...opts,
+        });
 
-		if (!response.ok) {
-			throw new Error(`API ${response.status}: ${response.statusText}`);
-		}
+        if (!response.ok) {
+            throw new Error(`API ${response.status}: ${response.statusText}`);
+        }
 
-		return response.json();
-	}
+        return response.json();
+    }
 
-	/* ═══════════════════════════════════════════════════════════════
+    /* ═══════════════════════════════════════════════════════════════
 	   Helpers
 	   ═══════════════════════════════════════════════════════════════ */
 
-	function escapeHtml(str) {
-		const div = document.createElement('div');
-		div.textContent = str;
-		return div.innerHTML;
-	}
+    function escapeHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
 
-	function formatDate(dateStr) {
-		if (!dateStr) return '—';
-		const d = new Date(dateStr);
-		return d.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
-	}
+    function formatDate(dateStr) {
+        if (!dateStr) return '—';
+        const d = new Date(dateStr);
+        return d.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
 
-	function showError(container, message) {
-		container.innerHTML = `<div class="card"><p class="text-danger">${escapeHtml(message)}</p></div>`;
-	}
+    function showError(container, message) {
+        container.innerHTML = `<div class="card"><p class="text-danger">${escapeHtml(message)}</p></div>`;
+    }
 
-	function getErrorMessage(err, fallback) {
-		if (err && typeof err.message === 'string' && err.message.trim()) {
-			return err.message;
-		}
-		if (typeof err === 'string' && err.trim()) {
-			return err;
-		}
-		if (err && err.type === 'error') {
-			return fallback || 'No se pudo cargar un recurso externo.';
-		}
-		return fallback || 'Error desconocido.';
-	}
+    function getErrorMessage(err, fallback) {
+        if (err && typeof err.message === 'string' && err.message.trim()) {
+            return err.message;
+        }
+        if (typeof err === 'string' && err.trim()) {
+            return err;
+        }
+        if (err && err.type === 'error') {
+            return fallback || 'No se pudo cargar un recurso externo.';
+        }
+        return fallback || 'Error desconocido.';
+    }
 
-	function clearDashboardAutoRefresh() {
-		if (dashboardRefreshInterval) {
-			clearInterval(dashboardRefreshInterval);
-			dashboardRefreshInterval = null;
-		}
-	}
+    function clearDashboardAutoRefresh() {
+        if (dashboardRefreshInterval) {
+            clearInterval(dashboardRefreshInterval);
+            dashboardRefreshInterval = null;
+        }
+    }
 
-	function destroyCharts() {
-		Object.keys(activeCharts).forEach(function (key) {
-			try { activeCharts[key].destroy(); } catch (e) { /* already destroyed */ }
-		});
-		activeCharts = {};
-	}
+    function destroyCharts() {
+        Object.keys(activeCharts).forEach(function (key) {
+            try {
+                activeCharts[key].destroy();
+            } catch (e) {
+                /* already destroyed */
+            }
+        });
+        activeCharts = {};
+    }
 
-	function showToast(message, type) {
-		type = type || 'info';
-		var container = document.getElementById('tma-toast-container');
-		if (!container) {
-			container = document.createElement('div');
-			container.id = 'tma-toast-container';
-			container.className = 'toast-container';
-			document.body.appendChild(container);
-		}
-		var toast = document.createElement('div');
-		toast.className = 'toast toast--' + type;
-		toast.textContent = message;
-		container.appendChild(toast);
-		requestAnimationFrame(function () { toast.classList.add('toast--visible'); });
-		setTimeout(function () {
-			toast.classList.remove('toast--visible');
-			toast.addEventListener('transitionend', function () { toast.remove(); });
-		}, 3500);
-	}
+    function showToast(message, type) {
+        type = type || 'info';
+        let container = document.getElementById('tma-toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'tma-toast-container';
+            container.className = 'toast-container';
+            document.body.appendChild(container);
+        }
+        const toast = document.createElement('div');
+        toast.className = 'toast toast--' + type;
+        toast.textContent = message;
+        container.appendChild(toast);
+        requestAnimationFrame(function () {
+            toast.classList.add('toast--visible');
+        });
+        setTimeout(function () {
+            toast.classList.remove('toast--visible');
+            toast.addEventListener('transitionend', function () {
+                toast.remove();
+            });
+        }, 3500);
+    }
 
-	function updateSidebarBadge(section, count) {
-		var link = document.querySelector('.nav-link[data-section="' + section + '"]');
-		if (!link) return;
-		var badge = link.querySelector('.nav-badge');
-		if (count > 0) {
-			if (!badge) {
-				badge = document.createElement('span');
-				badge.className = 'nav-badge';
-				link.appendChild(badge);
-			}
-			badge.textContent = String(count);
-		} else if (badge) {
-			badge.remove();
-		}
-	}
+    function updateSidebarBadge(section, count) {
+        const link = document.querySelector('.nav-link[data-section="' + section + '"]');
+        if (!link) return;
+        let badge = link.querySelector('.nav-badge');
+        if (count > 0) {
+            if (!badge) {
+                badge = document.createElement('span');
+                badge.className = 'nav-badge';
+                link.appendChild(badge);
+            }
+            badge.textContent = String(count);
+        } else if (badge) {
+            badge.remove();
+        }
+    }
 
-	function getDashboardRefreshLabel(seconds) {
-		const template = t('dashboard.auto_refresh_in') || 'Autoactualizacion en {{s}}s';
-		return template.replace('{{s}}', String(seconds));
-	}
+    function getDashboardRefreshLabel(seconds) {
+        const template = t('dashboard.auto_refresh_in') || 'Autoactualizacion en {{s}}s';
+        return template.replace('{{s}}', String(seconds));
+    }
 
-	function updateDashboardRefreshCounter() {
-		const counter = document.getElementById('tma-refresh-countdown');
-		if (!counter) {
-			return;
-		}
-		counter.textContent = getDashboardRefreshLabel(dashboardRefreshRemaining);
-	}
+    function updateDashboardRefreshCounter() {
+        const counter = document.getElementById('tma-refresh-countdown');
+        if (!counter) {
+            return;
+        }
+        counter.textContent = getDashboardRefreshLabel(dashboardRefreshRemaining);
+    }
 
-	function startDashboardAutoRefresh(container) {
-		clearDashboardAutoRefresh();
-		dashboardRefreshRemaining = DASHBOARD_REFRESH_SECONDS;
-		updateDashboardRefreshCounter();
+    function startDashboardAutoRefresh(container) {
+        clearDashboardAutoRefresh();
+        dashboardRefreshRemaining = DASHBOARD_REFRESH_SECONDS;
+        updateDashboardRefreshCounter();
 
-		dashboardRefreshInterval = setInterval(async function () {
-			if ((location.hash || '#dashboard') !== '#dashboard') {
-				clearDashboardAutoRefresh();
-				return;
-			}
+        dashboardRefreshInterval = setInterval(async function () {
+            if ((location.hash || '#dashboard') !== '#dashboard') {
+                clearDashboardAutoRefresh();
+                return;
+            }
 
-			dashboardRefreshRemaining -= 1;
-			if (dashboardRefreshRemaining <= 0) {
-				clearDashboardAutoRefresh();
-				await refreshDashboardData(container);
-				startDashboardAutoRefresh(container);
-				return;
-			}
+            dashboardRefreshRemaining -= 1;
+            if (dashboardRefreshRemaining <= 0) {
+                clearDashboardAutoRefresh();
+                await refreshDashboardData(container);
+                startDashboardAutoRefresh(container);
+                return;
+            }
 
-			updateDashboardRefreshCounter();
-		}, 1000);
-	}
+            updateDashboardRefreshCounter();
+        }, 1000);
+    }
 
-	/**
-	 * Refresh dashboard data in-place without rebuilding DOM.
-	 * Updates KPI values and chart datasets, zero flicker.
-	 */
-	async function refreshDashboardData(container) {
-		try {
-			var data = await api('/dashboard');
-			var counts = data.counts || {};
-			var kpis = data.kpis || {};
-			var history = data.history || {};
-			var leadSources = data.lead_sources || [];
-			var gbp = data.gbp || {};
-			var web = data.web || {};
-			var instagram = data.instagram || {};
-			var newAttention = data.new_attention || {};
-			var newLeadsCount = Number(newAttention.new_leads || 0);
-			var docProgress = data.doc_progress || {};
-			var pendingDocs = Number(docProgress.pending || 0) + Number(docProgress.changes || 0);
+    /**
+     * Refresh dashboard data in-place without rebuilding DOM.
+     * Updates KPI values and chart datasets, zero flicker.
+     */
+    async function refreshDashboardData(container) {
+        try {
+            const data = await api('/dashboard');
+            const counts = data.counts || {};
+            const kpis = data.kpis || {};
+            const history = data.history || {};
+            const leadSources = data.lead_sources || [];
+            const gbp = data.gbp || {};
+            const web = data.web || {};
+            const instagram = data.instagram || {};
+            const newAttention = data.new_attention || {};
+            const newLeadsCount = Number(newAttention.new_leads || 0);
+            const docProgress = data.doc_progress || {};
+            const pendingDocs = Number(docProgress.pending || 0) + Number(docProgress.changes || 0);
 
-			// Update KPI card values (order: reviews, impressions, sessions, leads)
-			var kpiCards = container.querySelectorAll('.kpi-grid:first-of-type .kpi-card');
-			var kpiValues = [
-				{ value: parseInt(counts.reviews) || 0, trend: kpis.reviews },
-				{ value: parseInt(counts.impressions) || 0, trend: kpis.impressions },
-				{ value: parseInt(counts.sessions) || 0, trend: kpis.sessions },
-				{ value: parseInt(counts.leads) || 0, trend: kpis.leads },
-			];
-			kpiCards.forEach(function (card, i) {
-				if (!kpiValues[i]) return;
-				var valEl = card.querySelector('.kpi-card__value');
-				var metaEl = card.querySelector('.kpi-card__meta');
-				if (valEl) valEl.textContent = String(kpiValues[i].value);
-				if (metaEl) metaEl.textContent = renderTrend(kpiValues[i].trend);
-			});
+            // Update KPI card values (order: reviews, impressions, sessions, leads)
+            const kpiCards = container.querySelectorAll('.kpi-grid:first-of-type .kpi-card');
+            const kpiValues = [
+                { value: parseInt(counts.reviews) || 0, trend: kpis.reviews },
+                { value: parseInt(counts.impressions) || 0, trend: kpis.impressions },
+                { value: parseInt(counts.sessions) || 0, trend: kpis.sessions },
+                { value: parseInt(counts.leads) || 0, trend: kpis.leads },
+            ];
+            kpiCards.forEach(function (card, i) {
+                if (!kpiValues[i]) return;
+                const valEl = card.querySelector('.kpi-card__value');
+                const metaEl = card.querySelector('.kpi-card__meta');
+                if (valEl) valEl.textContent = String(kpiValues[i].value);
+                if (metaEl) metaEl.textContent = renderTrend(kpiValues[i].trend);
+            });
 
-			// Update charts in-place via Chart.js API
-			updateChartData('impressions', history.impressions, 'value');
-			updateChartLeadSources(leadSources);
-			updateChartGbpSplit(gbp);
-			updateChartData('webSessions', (web && web.sessions_history) || [], 'value');
-			updateChartData('igReach', (instagram && instagram.reach_history) || [], 'value');
+            // Update charts in-place via Chart.js API
+            updateChartData('impressions', history.impressions, 'value');
+            updateChartLeadSources(leadSources);
+            updateChartGbpSplit(gbp);
+            updateChartData('webSessions', (web && web.sessions_history) || [], 'value');
+            updateChartData('igReach', (instagram && instagram.reach_history) || [], 'value');
 
-			// Update sidebar badges
-			updateSidebarBadge('leads', newLeadsCount);
-			if (pendingDocs > 0) updateSidebarBadge('documents', pendingDocs);
+            // Update sidebar badges
+            updateSidebarBadge('leads', newLeadsCount);
+            if (pendingDocs > 0) updateSidebarBadge('documents', pendingDocs);
 
-			// Update countdown badge
-			dashboardRefreshRemaining = DASHBOARD_REFRESH_SECONDS;
-			updateDashboardRefreshCounter();
-		} catch (err) {
-			// Silent fail on refresh — don't destroy the dashboard
-			console.warn('Dashboard refresh failed:', err.message);
-		}
-	}
+            // Update countdown badge
+            dashboardRefreshRemaining = DASHBOARD_REFRESH_SECONDS;
+            updateDashboardRefreshCounter();
+        } catch (err) {
+            // Silent fail on refresh — don't destroy the dashboard
+            console.warn('Dashboard refresh failed:', err.message);
+        }
+    }
 
-	function updateChartData(chartKey, dataArray, valueKey) {
-		var chart = activeCharts[chartKey];
-		if (!chart || !Array.isArray(dataArray)) return;
-		chart.data.labels = dataArray.map(function (x) { return x.period; });
-		chart.data.datasets[0].data = dataArray.map(function (x) { return Number(x[valueKey] || 0); });
-		chart.update('none');
-	}
+    function updateChartData(chartKey, dataArray, valueKey) {
+        const chart = activeCharts[chartKey];
+        if (!chart || !Array.isArray(dataArray)) return;
+        chart.data.labels = dataArray.map(function (x) {
+            return x.period;
+        });
+        chart.data.datasets[0].data = dataArray.map(function (x) {
+            return Number(x[valueKey] || 0);
+        });
+        chart.update('none');
+    }
 
-	function updateChartLeadSources(leadSources) {
-		var chart = activeCharts.leadSources;
-		if (!chart || !Array.isArray(leadSources)) return;
-		chart.data.labels = leadSources.map(function (x) { return x.label; });
-		chart.data.datasets[0].data = leadSources.map(function (x) { return Number(x.value || 0); });
-		chart.update('none');
-	}
+    function updateChartLeadSources(leadSources) {
+        const chart = activeCharts.leadSources;
+        if (!chart || !Array.isArray(leadSources)) return;
+        chart.data.labels = leadSources.map(function (x) {
+            return x.label;
+        });
+        chart.data.datasets[0].data = leadSources.map(function (x) {
+            return Number(x.value || 0);
+        });
+        chart.update('none');
+    }
 
-	function updateChartGbpSplit(gbp) {
-		var chart = activeCharts.gbpSplit;
-		var split = (gbp && gbp.impressions_split) ? gbp.impressions_split : [];
-		if (!chart || !split.length) return;
-		chart.data.labels = split.map(function (x) { return x.period; });
-		chart.data.datasets[0].data = split.map(function (x) { return x.impressions_search; });
-		chart.data.datasets[1].data = split.map(function (x) { return x.impressions_maps; });
-		chart.update('none');
-	}
+    function updateChartGbpSplit(gbp) {
+        const chart = activeCharts.gbpSplit;
+        const split = gbp && gbp.impressions_split ? gbp.impressions_split : [];
+        if (!chart || !split.length) return;
+        chart.data.labels = split.map(function (x) {
+            return x.period;
+        });
+        chart.data.datasets[0].data = split.map(function (x) {
+            return x.impressions_search;
+        });
+        chart.data.datasets[1].data = split.map(function (x) {
+            return x.impressions_maps;
+        });
+        chart.update('none');
+    }
 
-	/* ═══════════════════════════════════════════════════════════════
+    /* ═══════════════════════════════════════════════════════════════
 	   Router (hash-based)
 	   ═══════════════════════════════════════════════════════════════ */
 
-	const routes = {
-		dashboard: renderDashboard,
-		documents: renderDocuments,
-		leads: renderLeads,
-		notes: renderNotes,
-		audit: renderAudit,
-	};
+    const routes = {
+        dashboard: renderDashboard,
+        documents: renderDocuments,
+        leads: renderLeads,
+        notes: renderNotes,
+        'google-setup': renderGoogleSetup,
+        audit: renderAudit,
+    };
 
-	const sectionTitleKeys = {
-		dashboard: 'nav.dashboard',
-		documents: 'nav.documents',
-		leads: 'nav.leads',
-		notes: 'nav.notes',
-		audit: 'nav.audit',
-	};
+    const sectionTitleKeys = {
+        dashboard: 'nav.dashboard',
+        documents: 'nav.documents',
+        leads: 'nav.leads',
+        notes: 'nav.notes',
+        'google-setup': 'nav.googleSetup',
+        audit: 'nav.audit',
+    };
 
-	function navigate() {
-		clearDashboardAutoRefresh();
-		destroyCharts();
-		const hash = (location.hash || '#dashboard').slice(1);
-		const section = routes[hash] ? hash : 'dashboard';
-		const render = routes[section];
+    function navigate() {
+        clearDashboardAutoRefresh();
+        destroyCharts();
+        const hash = (location.hash || '#dashboard').slice(1);
+        const section = routes[hash] ? hash : 'dashboard';
+        const render = routes[section];
 
-		// Update active nav link.
-		document.querySelectorAll('.nav-link').forEach(function (link) {
-			link.classList.toggle('active', link.dataset.section === section);
-		});
+        // Update active nav link.
+        document.querySelectorAll('.nav-link').forEach(function (link) {
+            link.classList.toggle('active', link.dataset.section === section);
+        });
 
-		// Update page title.
-		const title = document.getElementById('tma-page-title');
-		if (title) {
-			title.textContent = t(sectionTitleKeys[section] || section);
-		}
+        // Update page title.
+        const title = document.getElementById('tma-page-title');
+        if (title) {
+            title.textContent = t(sectionTitleKeys[section] || section);
+        }
 
-		// Render section.
-		const content = document.getElementById('tma-content');
-		if (content && render) {
-			content.innerHTML = '<div class="loading">Cargando...</div>';
-			render(content);
-		}
-	}
+        // Render section.
+        const content = document.getElementById('tma-content');
+        if (content && render) {
+            content.innerHTML = '<div class="loading">Cargando...</div>';
+            render(content);
+        }
+    }
 
-	/* ═══════════════════════════════════════════════════════════════
+    /* ═══════════════════════════════════════════════════════════════
 	   Section: Dashboard
 	   ═══════════════════════════════════════════════════════════════ */
 
-	async function renderDashboard(container) {
-		try {
-			clearDashboardAutoRefresh();
-			destroyCharts();
-			await ensureChartJs();
-			const data = await api('/dashboard');
-			const kpis = data.kpis || {};
-			const counts = data.counts || {};
-			const history = data.history || {};
-			const leadSources = data.lead_sources || [];
-			const gbp = data.gbp || {};
-			const web = data.web || {};
-			const instagram = data.instagram || {};
-			const isDemo = !!data.is_demo;
-			const newAttention = data.new_attention || {};
-			const attentionCount = Number(newAttention.high_value_leads || 0);
-			const newLeadsCount = Number(newAttention.new_leads || 0);
-			const docProgress = data.doc_progress || {};
-			const recentActivity = data.recent_activity || [];
+    async function renderDashboard(container) {
+        try {
+            clearDashboardAutoRefresh();
+            destroyCharts();
+            await ensureChartJs();
+            const data = await api('/dashboard');
+            const kpis = data.kpis || {};
+            const counts = data.counts || {};
+            const history = data.history || {};
+            const leadSources = data.lead_sources || [];
+            const gbp = data.gbp || {};
+            const web = data.web || {};
+            const instagram = data.instagram || {};
+            const isDemo = !!data.is_demo;
+            const newAttention = data.new_attention || {};
+            const attentionCount = Number(newAttention.high_value_leads || 0);
+            const newLeadsCount = Number(newAttention.new_leads || 0);
+            const docProgress = data.doc_progress || {};
+            const recentActivity = data.recent_activity || [];
 
-			// Build contextual alerts
-			var alertsHtml = '';
-			var hasAlerts = false;
-			if (newLeadsCount > 0) {
-				hasAlerts = true;
-				var leadsAlertText = (t('dashboard.new_leads_alert') || '{{n}} lead(s) nuevos requieren atención').replace('{{n}}', String(newLeadsCount));
-				alertsHtml += '<a href="#leads" class="dash-alert-card dash-alert-card--gold">'
-					+ '<span class="dash-alert-card__icon">📥</span>'
-					+ '<div class="dash-alert-card__body">'
-					+ '<p class="dash-alert-card__title">' + escapeHtml(leadsAlertText) + '</p>'
-					+ '<p class="dash-alert-card__detail">' + escapeHtml('Hay leads pendientes de seguimiento.') + '</p>'
-					+ '</div>'
-					+ '<span class="dash-alert-card__link">' + escapeHtml(t('dashboard.view_leads')) + ' →</span>'
-					+ '</a>';
-			}
-			var pendingDocs = Number(docProgress.pending || 0) + Number(docProgress.changes || 0);
-			if (pendingDocs > 0) {
-				hasAlerts = true;
-				var docsAlertText = (t('dashboard.pending_docs_alert') || '{{n}} documento(s) pendientes de revisión').replace('{{n}}', String(pendingDocs));
-				alertsHtml += '<a href="#documents" class="dash-alert-card dash-alert-card--warning">'
-					+ '<span class="dash-alert-card__icon">📄</span>'
-					+ '<div class="dash-alert-card__body">'
-					+ '<p class="dash-alert-card__title">' + escapeHtml(docsAlertText) + '</p>'
-					+ '<p class="dash-alert-card__detail">' + escapeHtml(t('dashboard.doc_approval')) + ': ' + Number(docProgress.approved || 0) + '/' + Number(docProgress.total || 0) + '</p>'
-					+ '</div>'
-					+ '<span class="dash-alert-card__link">' + escapeHtml(t('dashboard.view_docs')) + ' →</span>'
-					+ '</a>';
-			}
-			if (!hasAlerts) {
-				alertsHtml = '<a href="#" class="dash-alert-card dash-alert-card--success">'
-					+ '<span class="dash-alert-card__icon">✅</span>'
-					+ '<div class="dash-alert-card__body">'
-					+ '<p class="dash-alert-card__title">Todo al día</p>'
-					+ '<p class="dash-alert-card__detail">No hay acciones pendientes.</p>'
-					+ '</div></a>';
-			}
+            // Build contextual alerts
+            let alertsHtml = '';
+            let hasAlerts = false;
+            if (newLeadsCount > 0) {
+                hasAlerts = true;
+                const leadsAlertText = (
+                    t('dashboard.new_leads_alert') || '{{n}} lead(s) nuevos requieren atención'
+                ).replace('{{n}}', String(newLeadsCount));
+                alertsHtml +=
+                    '<a href="#leads" class="dash-alert-card dash-alert-card--gold">' +
+                    '<span class="dash-alert-card__icon">📥</span>' +
+                    '<div class="dash-alert-card__body">' +
+                    '<p class="dash-alert-card__title">' +
+                    escapeHtml(leadsAlertText) +
+                    '</p>' +
+                    '<p class="dash-alert-card__detail">' +
+                    escapeHtml('Hay leads pendientes de seguimiento.') +
+                    '</p>' +
+                    '</div>' +
+                    '<span class="dash-alert-card__link">' +
+                    escapeHtml(t('dashboard.view_leads')) +
+                    ' →</span>' +
+                    '</a>';
+            }
+            const pendingDocs = Number(docProgress.pending || 0) + Number(docProgress.changes || 0);
+            if (pendingDocs > 0) {
+                hasAlerts = true;
+                const docsAlertText = (
+                    t('dashboard.pending_docs_alert') || '{{n}} documento(s) pendientes de revisión'
+                ).replace('{{n}}', String(pendingDocs));
+                alertsHtml +=
+                    '<a href="#documents" class="dash-alert-card dash-alert-card--warning">' +
+                    '<span class="dash-alert-card__icon">📄</span>' +
+                    '<div class="dash-alert-card__body">' +
+                    '<p class="dash-alert-card__title">' +
+                    escapeHtml(docsAlertText) +
+                    '</p>' +
+                    '<p class="dash-alert-card__detail">' +
+                    escapeHtml(t('dashboard.doc_approval')) +
+                    ': ' +
+                    Number(docProgress.approved || 0) +
+                    '/' +
+                    Number(docProgress.total || 0) +
+                    '</p>' +
+                    '</div>' +
+                    '<span class="dash-alert-card__link">' +
+                    escapeHtml(t('dashboard.view_docs')) +
+                    ' →</span>' +
+                    '</a>';
+            }
+            if (!hasAlerts) {
+                alertsHtml =
+                    '<a href="#" class="dash-alert-card dash-alert-card--success">' +
+                    '<span class="dash-alert-card__icon">✅</span>' +
+                    '<div class="dash-alert-card__body">' +
+                    '<p class="dash-alert-card__title">Todo al día</p>' +
+                    '<p class="dash-alert-card__detail">No hay acciones pendientes.</p>' +
+                    '</div></a>';
+            }
 
-			// Build doc progress card
-			var docTotal = Number(docProgress.total || 0);
-			var docApproved = Number(docProgress.approved || 0);
-			var docPercent = docTotal > 0 ? Math.round((docApproved / docTotal) * 100) : 0;
-			var docProgressHtml = '<div class="dash-doc-progress" id="tma-dash-doc-progress">'
-				+ '<div class="dash-doc-progress__header">'
-				+ '<span class="dash-doc-progress__title">' + escapeHtml(t('dashboard.doc_progress')) + '</span>'
-				+ '<div class="dash-doc-progress__stats">'
-				+ '<span>✅ ' + docApproved + '</span>'
-				+ '<span>⏳ ' + Number(docProgress.pending || 0) + '</span>'
-				+ '<span>📝 ' + Number(docProgress.changes || 0) + '</span>'
-				+ '</div></div>'
-				+ '<div class="progress-bar__header"><span>' + escapeHtml(t('dashboard.doc_approval')) + '</span><strong>' + docApproved + '/' + docTotal + ' (' + docPercent + '%)</strong></div>'
-				+ '<div class="progress-bar"><div class="progress-bar__fill" style="width:' + docPercent + '%"></div></div>'
-				+ '</div>';
+            // Build doc progress card
+            const docTotal = Number(docProgress.total || 0);
+            const docApproved = Number(docProgress.approved || 0);
+            const docPercent = docTotal > 0 ? Math.round((docApproved / docTotal) * 100) : 0;
+            const docProgressHtml =
+                '<div class="dash-doc-progress" id="tma-dash-doc-progress">' +
+                '<div class="dash-doc-progress__header">' +
+                '<span class="dash-doc-progress__title">' +
+                escapeHtml(t('dashboard.doc_progress')) +
+                '</span>' +
+                '<div class="dash-doc-progress__stats">' +
+                '<span>✅ ' +
+                docApproved +
+                '</span>' +
+                '<span>⏳ ' +
+                Number(docProgress.pending || 0) +
+                '</span>' +
+                '<span>📝 ' +
+                Number(docProgress.changes || 0) +
+                '</span>' +
+                '</div></div>' +
+                '<div class="progress-bar__header"><span>' +
+                escapeHtml(t('dashboard.doc_approval')) +
+                '</span><strong>' +
+                docApproved +
+                '/' +
+                docTotal +
+                ' (' +
+                docPercent +
+                '%)</strong></div>' +
+                '<div class="progress-bar"><div class="progress-bar__fill" style="width:' +
+                docPercent +
+                '%"></div></div>' +
+                '</div>';
 
-			// Build recent activity
-			var activityHtml = '';
-			if (recentActivity.length) {
-				var activityItems = '';
-				recentActivity.forEach(function (act) {
-					var icon = '📝';
-					if (act.action === 'login') icon = '🔑';
-					else if (act.action === 'approve_document') icon = '✅';
-					else if (act.action === 'update_lead_status') icon = '📥';
-					else if (act.action === 'create_note') icon = '💬';
-					else if (act.action === 'view_document') icon = '👁️';
-					activityItems += '<div class="activity-item">'
-						+ '<span class="activity-item__icon">' + icon + '</span>'
-						+ '<div class="activity-item__body">'
-						+ '<p class="activity-item__text"><strong>' + escapeHtml(act.user_name || '') + '</strong> — ' + escapeHtml(act.action || '') + (act.entity_type ? ' (' + escapeHtml(act.entity_type) + ')' : '') + '</p>'
-						+ '<p class="activity-item__meta">' + formatDate(act.created_at) + '</p>'
-						+ '</div></div>';
-				});
-				activityHtml = '<div class="section-card">'
-					+ '<h2 class="card__title">' + escapeHtml(t('dashboard.recent_activity')) + '</h2>'
-					+ activityItems + '</div>';
-			}
+            // Build recent activity
+            let activityHtml = '';
+            if (recentActivity.length) {
+                let activityItems = '';
+                recentActivity.forEach(function (act) {
+                    let icon = '📝';
+                    if (act.action === 'login') icon = '🔑';
+                    else if (act.action === 'approve_document') icon = '✅';
+                    else if (act.action === 'update_lead_status') icon = '📥';
+                    else if (act.action === 'create_note') icon = '💬';
+                    else if (act.action === 'view_document') icon = '👁️';
+                    activityItems +=
+                        '<div class="activity-item">' +
+                        '<span class="activity-item__icon">' +
+                        icon +
+                        '</span>' +
+                        '<div class="activity-item__body">' +
+                        '<p class="activity-item__text"><strong>' +
+                        escapeHtml(act.user_name || '') +
+                        '</strong> — ' +
+                        escapeHtml(act.action || '') +
+                        (act.entity_type ? ' (' + escapeHtml(act.entity_type) + ')' : '') +
+                        '</p>' +
+                        '<p class="activity-item__meta">' +
+                        formatDate(act.created_at) +
+                        '</p>' +
+                        '</div></div>';
+                });
+                activityHtml =
+                    '<div class="section-card">' +
+                    '<h2 class="card__title">' +
+                    escapeHtml(t('dashboard.recent_activity')) +
+                    '</h2>' +
+                    activityItems +
+                    '</div>';
+            }
 
-			container.innerHTML = `
+            container.innerHTML = `
 				<div class="dashboard-actions">
 					${isDemo ? '<span class="badge badge--warning mr-auto">(Datos de ejemplo)</span>' : ''}
 					<span class="badge badge--info mr-2" id="tma-refresh-countdown">${escapeHtml(getDashboardRefreshLabel(DASHBOARD_REFRESH_SECONDS))}</span>
@@ -440,74 +524,103 @@
 				${renderKpiTable(kpis)}
 			`;
 
-			renderDashboardCharts(history, leadSources, gbp, web, instagram);
+            renderDashboardCharts(history, leadSources, gbp, web, instagram);
 
-			// Bind export button.
-			var exportBtn = document.getElementById('tma-export-btn');
-			if (exportBtn) {
-				exportBtn.addEventListener('click', handleExport);
-			}
+            // Bind export button.
+            const exportBtn = document.getElementById('tma-export-btn');
+            if (exportBtn) {
+                exportBtn.addEventListener('click', handleExport);
+            }
 
-			var refreshNowBtn = document.getElementById('tma-refresh-now');
-			if (refreshNowBtn) {
-				refreshNowBtn.addEventListener('click', function () {
-					renderDashboard(container);
-				});
-			}
+            const refreshNowBtn = document.getElementById('tma-refresh-now');
+            if (refreshNowBtn) {
+                refreshNowBtn.addEventListener('click', function () {
+                    renderDashboard(container);
+                });
+            }
 
-			// Doc progress card click → navigate to documents
-			var docProgressCard = document.getElementById('tma-dash-doc-progress');
-			if (docProgressCard) {
-				docProgressCard.addEventListener('click', function () {
-					location.hash = '#documents';
-				});
-			}
+            // Doc progress card click → navigate to documents
+            const docProgressCard = document.getElementById('tma-dash-doc-progress');
+            if (docProgressCard) {
+                docProgressCard.addEventListener('click', function () {
+                    location.hash = '#documents';
+                });
+            }
 
-			// Update sidebar badges from dashboard data
-			updateSidebarBadge('leads', newLeadsCount);
-			if (pendingDocs > 0) updateSidebarBadge('documents', pendingDocs);
+            // Update sidebar badges from dashboard data
+            updateSidebarBadge('leads', newLeadsCount);
+            if (pendingDocs > 0) updateSidebarBadge('documents', pendingDocs);
 
-			startDashboardAutoRefresh(container);
-		} catch (err) {
-			clearDashboardAutoRefresh();
-			destroyCharts();
-			showError(container, t('error.loading_dashboard') + ': ' + getErrorMessage(err, 'Recurso bloqueado o no disponible.'));
-		}
-	}
+            startDashboardAutoRefresh(container);
+        } catch (err) {
+            clearDashboardAutoRefresh();
+            destroyCharts();
+            showError(
+                container,
+                t('error.loading_dashboard') + ': ' + getErrorMessage(err, 'Recurso bloqueado o no disponible.')
+            );
+        }
+    }
 
-	function renderGBPSection(gbp) {
-		return `
+    function renderGBPSection(gbp) {
+        const lastReview = gbp.latest_review;
+        const reviewHtml = lastReview
+            ? `<div class="review-snippet mt-4">
+					<div class="review-snippet__header">
+						<span class="review-snippet__author">${escapeHtml(String(lastReview.author || ''))}</span>
+						<span class="review-snippet__stars">${'★'.repeat(Math.min(5, Math.max(0, parseInt(lastReview.rating) || 0)))}</span>
+					</div>
+					<p class="review-snippet__text">${escapeHtml(String(lastReview.comment || ''))}</p>
+				</div>`
+            : '';
+
+        return `
 			<div class="section-card">
 				<h2 class="card__title">Google Business Profile</h2>
 				<div class="kpi-grid mt-3">
 					<div class="kpi-card"><span class="kpi-card__label">Rating</span><span class="kpi-card__value">${escapeHtml(String(gbp.rating || 0))}</span></div>
 					<div class="kpi-card"><span class="kpi-card__label">Reviews</span><span class="kpi-card__value">${escapeHtml(String(gbp.reviews || 0))}</span></div>
+					<div class="kpi-card"><span class="kpi-card__label">Posts</span><span class="kpi-card__value">${escapeHtml(String(gbp.posts || 0))}</span></div>
+					<div class="kpi-card"><span class="kpi-card__label">Photos</span><span class="kpi-card__value">${escapeHtml(String(gbp.photos || 0))}</span></div>
 					<div class="kpi-card"><span class="kpi-card__label">Impressions</span><span class="kpi-card__value">${escapeHtml(String(gbp.impressions || 0))}</span></div>
 					<div class="kpi-card"><span class="kpi-card__label">Actions</span><span class="kpi-card__value">${escapeHtml(String(gbp.actions || 0))}</span></div>
 				</div>
+				${reviewHtml}
 				<div class="chart-wrap mt-4"><canvas id="tma-chart-gbp-impressions-split"></canvas></div>
 			</div>
 		`;
-	}
+    }
 
-	function renderWebSection(web) {
-		var pages = Array.isArray(web.top_pages) ? web.top_pages : [];
-		var maxSessions = pages.reduce(function (m, p) { return Math.max(m, Number(p.sessions || 0)); }, 1);
-		var rows = pages.map(function (p) {
-			var sessions = Number(p.sessions || 0);
-			var width = Math.max(4, Math.round((sessions / maxSessions) * 100));
-			return '<div class="stat-bar">'
-				+ '<div class="stat-bar__header">'
-				+ '<span>' + escapeHtml(String(p.path || '/')) + '</span>'
-				+ '<strong>' + escapeHtml(String(sessions)) + '</strong>'
-				+ '</div>'
-				+ '<div class="stat-bar__track">'
-				+ '<div class="stat-bar__fill" style="width:' + width + '%"></div>'
-				+ '</div>'
-				+ '</div>';
-		}).join('');
+    function renderWebSection(web) {
+        const pages = Array.isArray(web.top_pages) ? web.top_pages : [];
+        const maxSessions = pages.reduce(function (m, p) {
+            return Math.max(m, Number(p.sessions || 0));
+        }, 1);
+        const rows = pages
+            .map(function (p) {
+                const sessions = Number(p.sessions || 0);
+                const width = Math.max(4, Math.round((sessions / maxSessions) * 100));
+                return (
+                    '<div class="stat-bar">' +
+                    '<div class="stat-bar__header">' +
+                    '<span>' +
+                    escapeHtml(String(p.path || '/')) +
+                    '</span>' +
+                    '<strong>' +
+                    escapeHtml(String(sessions)) +
+                    '</strong>' +
+                    '</div>' +
+                    '<div class="stat-bar__track">' +
+                    '<div class="stat-bar__fill" style="width:' +
+                    width +
+                    '%"></div>' +
+                    '</div>' +
+                    '</div>'
+                );
+            })
+            .join('');
 
-		return `
+        return `
 			<div class="section-card">
 				<h2 class="card__title">Web Analytics (GA4)</h2>
 				<div class="kpi-grid mt-3">
@@ -526,10 +639,10 @@
 				</div>
 			</div>
 		`;
-	}
+    }
 
-	function renderInstagramSection(instagram) {
-		return `
+    function renderInstagramSection(instagram) {
+        return `
 			<div class="section-card">
 				<h2 class="card__title">Instagram</h2>
 				<div class="kpi-grid mt-3">
@@ -540,180 +653,230 @@
 				<div class="chart-wrap chart-wrap--sm mt-4"><canvas id="tma-chart-instagram-reach"></canvas></div>
 			</div>
 		`;
-	}
+    }
 
-	function renderTrend(kpi) {
-		if (!kpi) return '→ neutral';
-		const trend = kpi.trend || 'neutral';
-		if (trend === 'up') return '↑ up';
-		if (trend === 'down') return '↓ down';
-		return '→ neutral';
-	}
+    function renderTrend(kpi) {
+        if (!kpi) return '→ neutral';
+        const trend = kpi.trend || 'neutral';
+        if (trend === 'up') return '↑ up';
+        if (trend === 'down') return '↓ down';
+        return '→ neutral';
+    }
 
-	function ensureChartJs() {
-		return Promise.resolve();
-	}
+    function ensureChartJs() {
+        return Promise.resolve();
+    }
 
-	function renderDashboardCharts(history, leadSources, gbp, web, instagram) {
-		if (!window.Chart) return;
-		destroyCharts();
+    function renderDashboardCharts(history, leadSources, gbp, web, instagram) {
+        if (!window.Chart) return;
+        destroyCharts();
 
-		// Kill animation globally — prevents resize-loop visual feedback
-		window.Chart.defaults.animation = false;
-		window.Chart.defaults.resizeDelay = 100;
+        // Kill animation globally — prevents resize-loop visual feedback
+        window.Chart.defaults.animation = false;
+        window.Chart.defaults.resizeDelay = 100;
 
-		const gold = '#B8860B';
-		const dark = '#1A1A1A';
-		const impressions = history.impressions || [];
-		const impLabels = impressions.map(function (x) { return x.period; });
-		const impValues = impressions.map(function (x) { return Number(x.value || 0); });
+        const gold = '#B8860B';
+        const dark = '#1A1A1A';
+        const impressions = history.impressions || [];
+        const impLabels = impressions.map(function (x) {
+            return x.period;
+        });
+        const impValues = impressions.map(function (x) {
+            return Number(x.value || 0);
+        });
 
-		const impCanvas = document.getElementById('tma-chart-impressions');
-		if (impCanvas) {
-			activeCharts.impressions = new window.Chart(impCanvas, {
-				type: 'line',
-				data: {
-					labels: impLabels,
-					datasets: [{
-						label: 'Impressions',
-						data: impValues,
-						borderColor: gold,
-						backgroundColor: 'rgba(184,134,11,0.15)',
-						tension: 0.3,
-						fill: true,
-					}],
-				},
-				options: { responsive: true, maintainAspectRatio: false },
-			});
-		}
+        const impCanvas = document.getElementById('tma-chart-impressions');
+        if (impCanvas) {
+            activeCharts.impressions = new window.Chart(impCanvas, {
+                type: 'line',
+                data: {
+                    labels: impLabels,
+                    datasets: [
+                        {
+                            label: 'Impressions',
+                            data: impValues,
+                            borderColor: gold,
+                            backgroundColor: 'rgba(184,134,11,0.15)',
+                            tension: 0.3,
+                            fill: true,
+                        },
+                    ],
+                },
+                options: { responsive: true, maintainAspectRatio: false },
+            });
+        }
 
-		const leadCanvas = document.getElementById('tma-chart-lead-sources');
-		if (leadCanvas) {
-			activeCharts.leadSources = new window.Chart(leadCanvas, {
-				type: 'doughnut',
-				data: {
-					labels: leadSources.map(function (x) { return x.label; }),
-					datasets: [{
-						data: leadSources.map(function (x) { return Number(x.value || 0); }),
-						backgroundColor: [gold, dark, '#6b7280', '#c7a24d', '#9ca3af'],
-					}],
-				},
-				options: { responsive: true, maintainAspectRatio: false },
-			});
-		}
+        const leadCanvas = document.getElementById('tma-chart-lead-sources');
+        if (leadCanvas) {
+            activeCharts.leadSources = new window.Chart(leadCanvas, {
+                type: 'doughnut',
+                data: {
+                    labels: leadSources.map(function (x) {
+                        return x.label;
+                    }),
+                    datasets: [
+                        {
+                            data: leadSources.map(function (x) {
+                                return Number(x.value || 0);
+                            }),
+                            backgroundColor: [gold, dark, '#6b7280', '#c7a24d', '#9ca3af'],
+                        },
+                    ],
+                },
+                options: { responsive: true, maintainAspectRatio: false },
+            });
+        }
 
-		const split = (gbp && gbp.impressions_split) ? gbp.impressions_split : [];
-		const splitCanvas = document.getElementById('tma-chart-gbp-impressions-split');
-		if (splitCanvas && split.length) {
-			activeCharts.gbpSplit = new window.Chart(splitCanvas, {
-				type: 'bar',
-				data: {
-					labels: split.map(function (x) { return x.period; }),
-					datasets: [
-						{ label: 'Search', data: split.map(function (x) { return x.impressions_search; }), backgroundColor: '#B8860B', stack: 'impressions' },
-						{ label: 'Maps', data: split.map(function (x) { return x.impressions_maps; }), backgroundColor: '#1A1A1A', stack: 'impressions' },
-					],
-				},
-				options: {
-					responsive: true,
-					maintainAspectRatio: false,
-					scales: { x: { stacked: true }, y: { stacked: true } },
-				},
-			});
-		}
+        const split = gbp && gbp.impressions_split ? gbp.impressions_split : [];
+        const splitCanvas = document.getElementById('tma-chart-gbp-impressions-split');
+        if (splitCanvas && split.length) {
+            activeCharts.gbpSplit = new window.Chart(splitCanvas, {
+                type: 'bar',
+                data: {
+                    labels: split.map(function (x) {
+                        return x.period;
+                    }),
+                    datasets: [
+                        {
+                            label: 'Search',
+                            data: split.map(function (x) {
+                                return x.impressions_search;
+                            }),
+                            backgroundColor: '#B8860B',
+                            stack: 'impressions',
+                        },
+                        {
+                            label: 'Maps',
+                            data: split.map(function (x) {
+                                return x.impressions_maps;
+                            }),
+                            backgroundColor: '#1A1A1A',
+                            stack: 'impressions',
+                        },
+                    ],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { x: { stacked: true }, y: { stacked: true } },
+                },
+            });
+        }
 
-		const webHistory = (web && web.sessions_history) ? web.sessions_history : [];
-		const webCanvas = document.getElementById('tma-chart-web-sessions');
-		if (webCanvas && webHistory.length) {
-			activeCharts.webSessions = new window.Chart(webCanvas, {
-				type: 'line',
-				data: {
-					labels: webHistory.map(function (x) { return x.period; }),
-					datasets: [{
-						label: 'Sessions',
-						data: webHistory.map(function (x) { return Number(x.value || 0); }),
-						borderColor: '#B8860B',
-						backgroundColor: 'rgba(184,134,11,0.2)',
-						tension: 0.3,
-						fill: true,
-					}],
-				},
-				options: { responsive: true, maintainAspectRatio: false },
-			});
-		}
+        const webHistory = web && web.sessions_history ? web.sessions_history : [];
+        const webCanvas = document.getElementById('tma-chart-web-sessions');
+        if (webCanvas && webHistory.length) {
+            activeCharts.webSessions = new window.Chart(webCanvas, {
+                type: 'line',
+                data: {
+                    labels: webHistory.map(function (x) {
+                        return x.period;
+                    }),
+                    datasets: [
+                        {
+                            label: 'Sessions',
+                            data: webHistory.map(function (x) {
+                                return Number(x.value || 0);
+                            }),
+                            borderColor: '#B8860B',
+                            backgroundColor: 'rgba(184,134,11,0.2)',
+                            tension: 0.3,
+                            fill: true,
+                        },
+                    ],
+                },
+                options: { responsive: true, maintainAspectRatio: false },
+            });
+        }
 
-		const igHistory = (instagram && instagram.reach_history) ? instagram.reach_history : [];
-		const igCanvas = document.getElementById('tma-chart-instagram-reach');
-		if (igCanvas && igHistory.length) {
-			activeCharts.igReach = new window.Chart(igCanvas, {
-				type: 'line',
-				data: {
-					labels: igHistory.map(function (x) { return x.period; }),
-					datasets: [{
-						label: 'Reach',
-						data: igHistory.map(function (x) { return Number(x.value || 0); }),
-						borderColor: '#B8860B',
-						backgroundColor: 'rgba(184,134,11,0.15)',
-						fill: true,
-						tension: 0.35,
-					}],
-				},
-				options: {
-					responsive: true,
-					maintainAspectRatio: false,
-					plugins: { legend: { display: false } },
-					scales: { x: { display: false }, y: { display: false } },
-				},
-			});
-		}
-	}
+        const igHistory = instagram && instagram.reach_history ? instagram.reach_history : [];
+        const igCanvas = document.getElementById('tma-chart-instagram-reach');
+        if (igCanvas && igHistory.length) {
+            activeCharts.igReach = new window.Chart(igCanvas, {
+                type: 'line',
+                data: {
+                    labels: igHistory.map(function (x) {
+                        return x.period;
+                    }),
+                    datasets: [
+                        {
+                            label: 'Reach',
+                            data: igHistory.map(function (x) {
+                                return Number(x.value || 0);
+                            }),
+                            borderColor: '#B8860B',
+                            backgroundColor: 'rgba(184,134,11,0.15)',
+                            fill: true,
+                            tension: 0.35,
+                        },
+                    ],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { x: { display: false }, y: { display: false } },
+                },
+            });
+        }
+    }
 
-	async function handleExport() {
-		var btn = document.getElementById('tma-export-btn');
-		if (btn) btn.disabled = true;
-		try {
-			var data = await api('/export');
-			var text = (data && typeof data.summary === 'string') ? data.summary : '';
-			if (!text) {
-				throw new Error('Export summary is empty');
-			}
-			if (navigator.clipboard && navigator.clipboard.writeText) {
-				await navigator.clipboard.writeText(text);
-			} else {
-				var ta = document.createElement('textarea');
-				ta.value = text;
-				ta.style.position = 'fixed';
-				ta.style.left = '-9999px';
-				document.body.appendChild(ta);
-				ta.select();
-				document.execCommand('copy');
-				document.body.removeChild(ta);
-			}
-			if (btn) {
-				btn.textContent = '✅ ' + (t('dashboard.exported') || 'Copiado');
-				setTimeout(function () {
-					btn.textContent = '📋 ' + (t('dashboard.export') || 'Exportar resumen');
-					btn.disabled = false;
-				}, 2000);
-			}
-		} catch (err) {
-			if (btn) { btn.disabled = false; }
-			showToast((t('error.export_failed') || 'Error al exportar') + ': ' + err.message, 'error');
-		}
-	}
+    async function handleExport() {
+        const btn = document.getElementById('tma-export-btn');
+        if (btn) btn.disabled = true;
+        try {
+            const data = await api('/export');
+            const text = data && typeof data.summary === 'string' ? data.summary : '';
+            if (!text) {
+                throw new Error('Export summary is empty');
+            }
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                await navigator.clipboard.writeText(text);
+            } else {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                ta.style.position = 'fixed';
+                ta.style.left = '-9999px';
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+            }
+            if (btn) {
+                btn.textContent = '✅ ' + (t('dashboard.exported') || 'Copiado');
+                setTimeout(function () {
+                    btn.textContent = '📋 ' + (t('dashboard.export') || 'Exportar resumen');
+                    btn.disabled = false;
+                }, 2000);
+            }
+        } catch (err) {
+            if (btn) {
+                btn.disabled = false;
+            }
+            showToast((t('error.export_failed') || 'Error al exportar') + ': ' + err.message, 'error');
+        }
+    }
 
-	function renderKpiTable(kpis) {
-		const entries = Object.entries(kpis);
-		if (!entries.length) return '<div class="card"><p class="text-muted">' + escapeHtml(t('dashboard.no_kpis')) + '</p></div>';
+    function renderKpiTable(kpis) {
+        const entries = Object.entries(kpis);
+        if (!entries.length)
+            return '<div class="card"><p class="text-muted">' + escapeHtml(t('dashboard.no_kpis')) + '</p></div>';
 
-		let rows = '';
-		entries.forEach(function (entry) {
-			const metric = entry[0];
-			const val = entry[1];
-			rows += '<tr><td>' + escapeHtml(metric) + '</td><td>' + escapeHtml(String(val.latest || '—')) + '</td><td>' + escapeHtml(String(val.previous || '—')) + '</td></tr>';
-		});
+        let rows = '';
+        entries.forEach(function (entry) {
+            const metric = entry[0];
+            const val = entry[1];
+            rows +=
+                '<tr><td>' +
+                escapeHtml(metric) +
+                '</td><td>' +
+                escapeHtml(String(val.latest || '—')) +
+                '</td><td>' +
+                escapeHtml(String(val.previous || '—')) +
+                '</td></tr>';
+        });
 
-		return `
+        return `
 			<div class="section-card">
 				<h2 class="card__title">${escapeHtml(t('dashboard.kpis'))}</h2>
 				<div class="table-wrap">
@@ -724,56 +887,83 @@
 				</div>
 			</div>
 		`;
-	}
+    }
 
-	/* ═══════════════════════════════════════════════════════════════
+    /* ═══════════════════════════════════════════════════════════════
 	   Section: Documents
 	   ═══════════════════════════════════════════════════════════════ */
-	let docsState = [];
-	let currentDocIndex = -1;
+    let docsState = [];
+    let currentDocIndex = -1;
 
-	async function renderDocuments(container) {
-		try {
-			docsState = await api('/documents');
-			if (!docsState.length) {
-				container.innerHTML = '<div class="empty-state"><div class="empty-state__icon">📄</div><p class="empty-state__text">' + escapeHtml(t('documents.no_docs')) + '</p></div>';
-				return;
-			}
+    async function renderDocuments(container) {
+        try {
+            docsState = await api('/documents');
+            if (!docsState.length) {
+                container.innerHTML =
+                    '<div class="empty-state"><div class="empty-state__icon">📄</div><p class="empty-state__text">' +
+                    escapeHtml(t('documents.no_docs')) +
+                    '</p></div>';
+                return;
+            }
 
-			function docStatusIcon(status) {
-				if (status === 'approved') return '✅';
-				if (status === 'changes_requested') return '📝';
-				return '⏳';
-			}
+            function docStatusIcon(status) {
+                if (status === 'approved') return '✅';
+                if (status === 'changes_requested') return '📝';
+                return '⏳';
+            }
 
-			let cards = '';
-			docsState.forEach(function (doc, idx) {
-				const statusClass = doc.status === 'approved' ? 'badge--success' : (doc.status === 'pending' ? 'badge--warning' : 'badge--info');
-				const code = doc.slug || '';
-				cards += '<article class="doc-card doc-card--grid">'
-					+ '<div class="doc-card__row">'
-					+ '<div class="flex-1">'
-					+ '<p class="doc-card__code">' + escapeHtml(code) + '</p>'
-					+ '<h3 class="doc-card__title">' + escapeHtml(doc.title || '') + '</h3>'
-					+ '<p class="doc-card__date">Actualizado: ' + formatDate(doc.updated_at) + '</p>'
-					+ (doc.status === 'changes_requested' && doc.notes
-						? '<p class="doc-card__change-note">💬 ' + escapeHtml(doc.notes) + '</p>'
-						: '')
-					+ '</div>'
-					+ '<div class="doc-card__actions">'
-					+ '<span class="doc-card__status-icon">' + docStatusIcon(doc.status) + '</span>'
-					+ '<span class="badge ' + statusClass + '">' + escapeHtml(doc.status || '') + '</span>'
-					+ '<button class="btn btn--primary btn-view-doc" data-doc-code="' + escapeHtml(code) + '" data-doc-index="' + idx + '">Ver</button>'
-					+ '</div>'
-					+ '</div>'
-					+ '</article>';
-			});
+            let cards = '';
+            docsState.forEach(function (doc, idx) {
+                const statusClass =
+                    doc.status === 'approved'
+                        ? 'badge--success'
+                        : doc.status === 'pending'
+                          ? 'badge--warning'
+                          : 'badge--info';
+                const code = doc.slug || '';
+                cards +=
+                    '<article class="doc-card doc-card--grid">' +
+                    '<div class="doc-card__row">' +
+                    '<div class="flex-1">' +
+                    '<p class="doc-card__code">' +
+                    escapeHtml(code) +
+                    '</p>' +
+                    '<h3 class="doc-card__title">' +
+                    escapeHtml(doc.title || '') +
+                    '</h3>' +
+                    '<p class="doc-card__date">Actualizado: ' +
+                    formatDate(doc.updated_at) +
+                    '</p>' +
+                    (doc.status === 'changes_requested' && doc.notes
+                        ? '<p class="doc-card__change-note">💬 ' + escapeHtml(doc.notes) + '</p>'
+                        : '') +
+                    '</div>' +
+                    '<div class="doc-card__actions">' +
+                    '<span class="doc-card__status-icon">' +
+                    docStatusIcon(doc.status) +
+                    '</span>' +
+                    '<span class="badge ' +
+                    statusClass +
+                    '">' +
+                    escapeHtml(doc.status || '') +
+                    '</span>' +
+                    '<button class="btn btn--primary btn-view-doc" data-doc-code="' +
+                    escapeHtml(code) +
+                    '" data-doc-index="' +
+                    idx +
+                    '">Ver</button>' +
+                    '</div>' +
+                    '</div>' +
+                    '</article>';
+            });
 
-			const approvedCount = docsState.filter(function (d) { return d.status === 'approved'; }).length;
-			const total = docsState.length;
-			const percent = total > 0 ? Math.round((approvedCount / total) * 100) : 0;
+            const approvedCount = docsState.filter(function (d) {
+                return d.status === 'approved';
+            }).length;
+            const total = docsState.length;
+            const percent = total > 0 ? Math.round((approvedCount / total) * 100) : 0;
 
-			container.innerHTML = `
+            container.innerHTML = `
 				<div class="card">
 					<h2 class="card__title">${escapeHtml(t('documents.title'))}</h2>
 					<div class="doc-progress">
@@ -814,187 +1004,220 @@
 				</div>
 			`;
 
-			container.querySelectorAll('.btn-view-doc').forEach(function (btn) {
-				btn.addEventListener('click', function () {
-					currentDocIndex = parseInt(btn.dataset.docIndex || '-1', 10);
-					openDocumentViewer(btn.dataset.docCode || '', btn.closest('article') ? btn.closest('article').querySelector('h3').textContent : 'Documento');
-				});
-			});
+            container.querySelectorAll('.btn-view-doc').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    currentDocIndex = parseInt(btn.dataset.docIndex || '-1', 10);
+                    openDocumentViewer(
+                        btn.dataset.docCode || '',
+                        btn.closest('article') ? btn.closest('article').querySelector('h3').textContent : 'Documento'
+                    );
+                });
+            });
 
-			const closeBtn = document.getElementById('tma-doc-viewer-close');
-			if (closeBtn) closeBtn.addEventListener('click', closeDocumentViewer);
-			const prevBtn = document.getElementById('tma-doc-prev');
-			if (prevBtn) prevBtn.addEventListener('click', function () { navigateDoc(-1); });
-			const nextBtn = document.getElementById('tma-doc-next');
-			if (nextBtn) nextBtn.addEventListener('click', function () { navigateDoc(1); });
+            const closeBtn = document.getElementById('tma-doc-viewer-close');
+            if (closeBtn) closeBtn.addEventListener('click', closeDocumentViewer);
+            const prevBtn = document.getElementById('tma-doc-prev');
+            if (prevBtn)
+                prevBtn.addEventListener('click', function () {
+                    navigateDoc(-1);
+                });
+            const nextBtn = document.getElementById('tma-doc-next');
+            if (nextBtn)
+                nextBtn.addEventListener('click', function () {
+                    navigateDoc(1);
+                });
 
-			const approveBtn = document.getElementById('tma-doc-approve');
-			if (approveBtn) approveBtn.addEventListener('click', function () { saveDocStatus('approved', ''); });
-			const changesBtn = document.getElementById('tma-doc-changes');
-			if (changesBtn) {
-				changesBtn.addEventListener('click', function () {
-					document.getElementById('tma-doc-change-notes').classList.remove('hidden');
-					document.getElementById('tma-doc-save-changes').classList.remove('hidden');
-				});
-			}
-			const saveChangesBtn = document.getElementById('tma-doc-save-changes');
-			if (saveChangesBtn) {
-				saveChangesBtn.addEventListener('click', function () {
-					const notes = document.getElementById('tma-doc-change-notes').value || '';
-					if (notes.trim().length < 10) {
-						showToast('La nota debe tener al menos 10 caracteres.', 'error');
-						return;
-					}
-					saveDocStatus('changes_requested', notes.trim());
-				});
-			}
+            const approveBtn = document.getElementById('tma-doc-approve');
+            if (approveBtn)
+                approveBtn.addEventListener('click', function () {
+                    saveDocStatus('approved', '');
+                });
+            const changesBtn = document.getElementById('tma-doc-changes');
+            if (changesBtn) {
+                changesBtn.addEventListener('click', function () {
+                    document.getElementById('tma-doc-change-notes').classList.remove('hidden');
+                    document.getElementById('tma-doc-save-changes').classList.remove('hidden');
+                });
+            }
+            const saveChangesBtn = document.getElementById('tma-doc-save-changes');
+            if (saveChangesBtn) {
+                saveChangesBtn.addEventListener('click', function () {
+                    const notes = document.getElementById('tma-doc-change-notes').value || '';
+                    if (notes.trim().length < 10) {
+                        showToast('La nota debe tener al menos 10 caracteres.', 'error');
+                        return;
+                    }
+                    saveDocStatus('changes_requested', notes.trim());
+                });
+            }
 
-			const addNoteBtn = document.getElementById('tma-doc-add-note');
-			if (addNoteBtn) {
-				addNoteBtn.addEventListener('click', function () {
-					var noteForm = document.getElementById('tma-doc-note-form');
-					if (noteForm) noteForm.classList.toggle('open');
-				});
-			}
-			const saveNoteBtn = document.getElementById('tma-doc-save-note');
-			if (saveNoteBtn) {
-				saveNoteBtn.addEventListener('click', async function () {
-					var noteTextEl = document.getElementById('tma-doc-note-text');
-					var content = noteTextEl ? noteTextEl.value.trim() : '';
-					if (!content) { showToast('La nota no puede estar vacía.', 'error'); return; }
-					try {
-						await addDocumentNote(content);
-						if (noteTextEl) noteTextEl.value = '';
-						var noteForm = document.getElementById('tma-doc-note-form');
-						if (noteForm) noteForm.classList.remove('open');
-					} catch (err) {
-						showToast('Error al guardar nota: ' + getErrorMessage(err), 'error');
-					}
-				});
-			}
-			const cancelNoteBtn = document.getElementById('tma-doc-cancel-note');
-			if (cancelNoteBtn) {
-				cancelNoteBtn.addEventListener('click', function () {
-					var noteForm = document.getElementById('tma-doc-note-form');
-					if (noteForm) noteForm.classList.remove('open');
-				});
-			}
-		} catch (err) {
-			showError(container, t('error.loading_documents') + ': ' + getErrorMessage(err));
-		}
-	}
+            const addNoteBtn = document.getElementById('tma-doc-add-note');
+            if (addNoteBtn) {
+                addNoteBtn.addEventListener('click', function () {
+                    const noteForm = document.getElementById('tma-doc-note-form');
+                    if (noteForm) noteForm.classList.toggle('open');
+                });
+            }
+            const saveNoteBtn = document.getElementById('tma-doc-save-note');
+            if (saveNoteBtn) {
+                saveNoteBtn.addEventListener('click', async function () {
+                    const noteTextEl = document.getElementById('tma-doc-note-text');
+                    const content = noteTextEl ? noteTextEl.value.trim() : '';
+                    if (!content) {
+                        showToast('La nota no puede estar vacía.', 'error');
+                        return;
+                    }
+                    try {
+                        await addDocumentNote(content);
+                        if (noteTextEl) noteTextEl.value = '';
+                        const noteForm = document.getElementById('tma-doc-note-form');
+                        if (noteForm) noteForm.classList.remove('open');
+                    } catch (err) {
+                        showToast('Error al guardar nota: ' + getErrorMessage(err), 'error');
+                    }
+                });
+            }
+            const cancelNoteBtn = document.getElementById('tma-doc-cancel-note');
+            if (cancelNoteBtn) {
+                cancelNoteBtn.addEventListener('click', function () {
+                    const noteForm = document.getElementById('tma-doc-note-form');
+                    if (noteForm) noteForm.classList.remove('open');
+                });
+            }
+        } catch (err) {
+            showError(container, t('error.loading_documents') + ': ' + getErrorMessage(err));
+        }
+    }
 
-	function navigateDoc(direction) {
-		if (!docsState.length || currentDocIndex < 0) return;
-		const nextIndex = currentDocIndex + direction;
-		if (nextIndex < 0 || nextIndex >= docsState.length) return;
-		currentDocIndex = nextIndex;
-		const doc = docsState[currentDocIndex];
-		openDocumentViewer(doc.slug || '', doc.title || 'Documento');
-		updateDocNavButtons();
-	}
+    function navigateDoc(direction) {
+        if (!docsState.length || currentDocIndex < 0) return;
+        const nextIndex = currentDocIndex + direction;
+        if (nextIndex < 0 || nextIndex >= docsState.length) return;
+        currentDocIndex = nextIndex;
+        const doc = docsState[currentDocIndex];
+        openDocumentViewer(doc.slug || '', doc.title || 'Documento');
+        updateDocNavButtons();
+    }
 
-	function updateDocNavButtons() {
-		var prevBtn = document.getElementById('tma-doc-prev');
-		var nextBtn = document.getElementById('tma-doc-next');
-		if (prevBtn) {
-			prevBtn.disabled = (currentDocIndex <= 0);
-			var prevTitle = currentDocIndex > 0 ? docsState[currentDocIndex - 1].title : '';
-			prevBtn.textContent = prevTitle ? '← ' + prevTitle : '← Anterior';
-		}
-		if (nextBtn) {
-			nextBtn.disabled = (currentDocIndex >= docsState.length - 1);
-			var nextTitle = currentDocIndex < docsState.length - 1 ? docsState[currentDocIndex + 1].title : '';
-			nextBtn.textContent = nextTitle ? nextTitle + ' →' : 'Siguiente →';
-		}
-	}
+    function updateDocNavButtons() {
+        const prevBtn = document.getElementById('tma-doc-prev');
+        const nextBtn = document.getElementById('tma-doc-next');
+        if (prevBtn) {
+            prevBtn.disabled = currentDocIndex <= 0;
+            const prevTitle = currentDocIndex > 0 ? docsState[currentDocIndex - 1].title : '';
+            prevBtn.textContent = prevTitle ? '← ' + prevTitle : '← Anterior';
+        }
+        if (nextBtn) {
+            nextBtn.disabled = currentDocIndex >= docsState.length - 1;
+            const nextTitle = currentDocIndex < docsState.length - 1 ? docsState[currentDocIndex + 1].title : '';
+            nextBtn.textContent = nextTitle ? nextTitle + ' →' : 'Siguiente →';
+        }
+    }
 
-	async function saveDocStatus(status, notes) {
-		if (currentDocIndex < 0 || !docsState[currentDocIndex]) return;
-		const doc = docsState[currentDocIndex];
-		if (status === 'approved') {
-			const ok = window.confirm('Confirmar aprobación de "' + (doc.title || 'documento') + '"?');
-			if (!ok) return;
-		}
-		try {
-			await api('/documents/' + doc.id + '/status', {
-				method: 'POST',
-				body: JSON.stringify({ status: status, notes: notes || '' })
-			});
-			docsState[currentDocIndex].status = status;
-			// Update badge in the list card without destroying the modal
-			var viewBtn = document.querySelector('.btn-view-doc[data-doc-index="' + currentDocIndex + '"]');
-			if (viewBtn) {
-				var badge = viewBtn.closest('article') && viewBtn.closest('article').querySelector('.badge');
-				if (badge) {
-					badge.className = 'badge ' + (status === 'approved' ? 'badge--success' : (status === 'pending' ? 'badge--warning' : 'badge--info'));
-					badge.textContent = status;
-				}
-			}
-			updateViewerActionButtons(status);
-			// Reset change notes controls
-			var notesEl = document.getElementById('tma-doc-change-notes');
-			var saveBtn = document.getElementById('tma-doc-save-changes');
-			if (notesEl) { notesEl.value = ''; notesEl.classList.add('hidden'); }
-			if (saveBtn) { saveBtn.classList.add('hidden'); }
-		} catch (err) {
-			showToast('Error al guardar estado: ' + getErrorMessage(err), 'error');
-		}
-	}
+    async function saveDocStatus(status, notes) {
+        if (currentDocIndex < 0 || !docsState[currentDocIndex]) return;
+        const doc = docsState[currentDocIndex];
+        if (status === 'approved') {
+            const ok = window.confirm('Confirmar aprobación de "' + (doc.title || 'documento') + '"?');
+            if (!ok) return;
+        }
+        try {
+            await api('/documents/' + doc.id + '/status', {
+                method: 'POST',
+                body: JSON.stringify({ status: status, notes: notes || '' }),
+            });
+            docsState[currentDocIndex].status = status;
+            // Update badge in the list card without destroying the modal
+            const viewBtn = document.querySelector('.btn-view-doc[data-doc-index="' + currentDocIndex + '"]');
+            if (viewBtn) {
+                const badge = viewBtn.closest('article') && viewBtn.closest('article').querySelector('.badge');
+                if (badge) {
+                    badge.className =
+                        'badge ' +
+                        (status === 'approved'
+                            ? 'badge--success'
+                            : status === 'pending'
+                              ? 'badge--warning'
+                              : 'badge--info');
+                    badge.textContent = status;
+                }
+            }
+            updateViewerActionButtons(status);
+            // Reset change notes controls
+            const notesEl = document.getElementById('tma-doc-change-notes');
+            const saveBtn = document.getElementById('tma-doc-save-changes');
+            if (notesEl) {
+                notesEl.value = '';
+                notesEl.classList.add('hidden');
+            }
+            if (saveBtn) {
+                saveBtn.classList.add('hidden');
+            }
+        } catch (err) {
+            showToast('Error al guardar estado: ' + getErrorMessage(err), 'error');
+        }
+    }
 
-	function updateViewerActionButtons(status) {
-		var approveBtn = document.getElementById('tma-doc-approve');
-		var changesBtn = document.getElementById('tma-doc-changes');
-		if (approveBtn) {
-			approveBtn.disabled = (status === 'approved');
-			approveBtn.textContent = (status === 'approved') ? '✅ Aprobado' : 'Aprobado';
-		}
-		if (changesBtn) {
-			changesBtn.disabled = (status === 'changes_requested');
-			changesBtn.textContent = (status === 'changes_requested') ? '📝 Con cambios' : 'Con cambios';
-		}
-	}
+    function updateViewerActionButtons(status) {
+        const approveBtn = document.getElementById('tma-doc-approve');
+        const changesBtn = document.getElementById('tma-doc-changes');
+        if (approveBtn) {
+            approveBtn.disabled = status === 'approved';
+            approveBtn.textContent = status === 'approved' ? '✅ Aprobado' : 'Aprobado';
+        }
+        if (changesBtn) {
+            changesBtn.disabled = status === 'changes_requested';
+            changesBtn.textContent = status === 'changes_requested' ? '📝 Con cambios' : 'Con cambios';
+        }
+    }
 
-	async function addDocumentNote(content) {
-		if (currentDocIndex < 0 || !docsState[currentDocIndex]) return;
-		const doc = docsState[currentDocIndex];
-		await api('/notes', {
-			method: 'POST',
-			body: JSON.stringify({
-				title: 'Nota sobre ' + (doc.slug || 'documento'),
-				content: content.trim(),
-				visibility: 'client',
-				module: 'documents',
-				item_id: doc.id,
-			}),
-		});
-		showToast('Nota guardada.', 'success');
-	}
+    async function addDocumentNote(content) {
+        if (currentDocIndex < 0 || !docsState[currentDocIndex]) return;
+        const doc = docsState[currentDocIndex];
+        await api('/notes', {
+            method: 'POST',
+            body: JSON.stringify({
+                title: 'Nota sobre ' + (doc.slug || 'documento'),
+                content: content.trim(),
+                visibility: 'client',
+                module: 'documents',
+                item_id: doc.id,
+            }),
+        });
+        showToast('Nota guardada.', 'success');
+    }
 
-	async function openDocumentViewer(code, title) {
-		const modal = document.getElementById('tma-doc-viewer-modal');
-		const host = document.getElementById('tma-doc-viewer-host');
-		const titleEl = document.getElementById('tma-doc-viewer-title');
-		if (!modal || !host) return;
-		modal.classList.add('open');
-		document.addEventListener('keydown', handleViewerKeydown);
-		if (titleEl) titleEl.textContent = title || 'Documento';
+    async function openDocumentViewer(code, title) {
+        const modal = document.getElementById('tma-doc-viewer-modal');
+        const host = document.getElementById('tma-doc-viewer-host');
+        const titleEl = document.getElementById('tma-doc-viewer-title');
+        if (!modal || !host) return;
+        modal.classList.add('open');
+        document.addEventListener('keydown', handleViewerKeydown);
+        if (titleEl) titleEl.textContent = title || 'Documento';
 
-		// Reflect current doc status in action buttons immediately
-		if (currentDocIndex >= 0 && docsState[currentDocIndex]) {
-			updateViewerActionButtons(docsState[currentDocIndex].status || 'pending');
-		}
+        // Reflect current doc status in action buttons immediately
+        if (currentDocIndex >= 0 && docsState[currentDocIndex]) {
+            updateViewerActionButtons(docsState[currentDocIndex].status || 'pending');
+        }
 
-		// Prev/Next with document titles
-		updateDocNavButtons();
+        // Prev/Next with document titles
+        updateDocNavButtons();
 
-		try {
-			const doc = await api('/documents/' + encodeURIComponent(code) + '/content');
-			host.innerHTML = '';
-			const root = host.shadowRoot ? host.shadowRoot : (host.attachShadow ? host.attachShadow({ mode: 'open' }) : host);
-			const now = new Date().toLocaleString('es-ES');
-			const userName = (window.TMA_PANEL && window.TMA_PANEL.user && window.TMA_PANEL.user.name) ? window.TMA_PANEL.user.name : 'Usuario';
-			root.innerHTML = `
+        try {
+            const doc = await api('/documents/' + encodeURIComponent(code) + '/content');
+            host.innerHTML = '';
+            const root = host.shadowRoot
+                ? host.shadowRoot
+                : host.attachShadow
+                  ? host.attachShadow({ mode: 'open' })
+                  : host;
+            const now = new Date().toLocaleString('es-ES');
+            const userName =
+                window.TMA_PANEL && window.TMA_PANEL.user && window.TMA_PANEL.user.name
+                    ? window.TMA_PANEL.user.name
+                    : 'Usuario';
+            root.innerHTML = `
 				<style>
 					.viewer-wrap{position:relative;min-height:100%;padding:28px;background:#fff;user-select:none;-webkit-user-select:none;}
 					.viewer-prose{max-width:900px;margin:0 auto;color:#1a1a1a;font:16px/1.65 'DM Sans',sans-serif;}
@@ -1019,129 +1242,186 @@
 					</div>
 				</div>
 			`;
-			// Load notes for this document
-			loadViewerNotes(root, currentDocIndex >= 0 ? docsState[currentDocIndex] : null);
-		} catch (err) {
-			host.innerHTML = '<div class="modal__error">No se pudo cargar el documento: ' + escapeHtml(getErrorMessage(err, 'No existe en caché o la API no lo encontró.')) + '</div>';
-		}
-	}
+            // Load notes for this document
+            loadViewerNotes(root, currentDocIndex >= 0 ? docsState[currentDocIndex] : null);
+        } catch (err) {
+            host.innerHTML =
+                '<div class="modal__error">No se pudo cargar el documento: ' +
+                escapeHtml(getErrorMessage(err, 'No existe en caché o la API no lo encontró.')) +
+                '</div>';
+        }
+    }
 
-	function closeDocumentViewer() {
-		const modal = document.getElementById('tma-doc-viewer-modal');
-		const host = document.getElementById('tma-doc-viewer-host');
-		if (modal) modal.classList.remove('open');
-		if (host) host.innerHTML = '';
-		currentDocIndex = -1;
-		document.removeEventListener('keydown', handleViewerKeydown);
-	}
+    function closeDocumentViewer() {
+        const modal = document.getElementById('tma-doc-viewer-modal');
+        const host = document.getElementById('tma-doc-viewer-host');
+        if (modal) modal.classList.remove('open');
+        if (host) host.innerHTML = '';
+        currentDocIndex = -1;
+        document.removeEventListener('keydown', handleViewerKeydown);
+    }
 
-	async function loadViewerNotes(root, doc) {
-		var section = root.getElementById ? root.getElementById('viewer-notes-section') : root.querySelector('#viewer-notes-section');
-		if (!section || !doc) {
-			if (section) section.innerHTML = '<h4>📝 Notas</h4><p class="viewer-notes-empty">Sin notas.</p>';
-			return;
-		}
-		try {
-			var allNotes = await api('/notes');
-			var docNotes = allNotes.filter(function (n) {
-				return n.module === 'documents' && n.item_id === doc.id;
-			});
-			if (!docNotes.length) {
-				section.innerHTML = '<h4>📝 Notas</h4><p class="viewer-notes-empty">Sin notas para este documento.</p>';
-				return;
-			}
-			var html = '<h4>📝 Notas (' + docNotes.length + ')</h4>';
-			docNotes.forEach(function (n) {
-				html += '<div class="viewer-note">'
-					+ '<div class="viewer-note-meta">' + escapeHtml(formatDate(n.created_at)) + '</div>'
-					+ '<div class="viewer-note-text">' + escapeHtml(n.content) + '</div>'
-					+ '</div>';
-			});
-			section.innerHTML = html;
-		} catch (e) {
-			section.innerHTML = '<h4>📝 Notas</h4><p class="viewer-notes-empty">No se pudieron cargar las notas.</p>';
-		}
-	}
+    async function loadViewerNotes(root, doc) {
+        const section = root.getElementById
+            ? root.getElementById('viewer-notes-section')
+            : root.querySelector('#viewer-notes-section');
+        if (!section || !doc) {
+            if (section) section.innerHTML = '<h4>📝 Notas</h4><p class="viewer-notes-empty">Sin notas.</p>';
+            return;
+        }
+        try {
+            const allNotes = await api('/notes');
+            const docNotes = allNotes.filter(function (n) {
+                return n.module === 'documents' && n.item_id === doc.id;
+            });
+            if (!docNotes.length) {
+                section.innerHTML = '<h4>📝 Notas</h4><p class="viewer-notes-empty">Sin notas para este documento.</p>';
+                return;
+            }
+            let html = '<h4>📝 Notas (' + docNotes.length + ')</h4>';
+            docNotes.forEach(function (n) {
+                html +=
+                    '<div class="viewer-note">' +
+                    '<div class="viewer-note-meta">' +
+                    escapeHtml(formatDate(n.created_at)) +
+                    '</div>' +
+                    '<div class="viewer-note-text">' +
+                    escapeHtml(n.content) +
+                    '</div>' +
+                    '</div>';
+            });
+            section.innerHTML = html;
+        } catch (e) {
+            section.innerHTML = '<h4>📝 Notas</h4><p class="viewer-notes-empty">No se pudieron cargar las notas.</p>';
+        }
+    }
 
-	function handleViewerKeydown(e) {
-		const modal = document.getElementById('tma-doc-viewer-modal');
-		if (!modal || !modal.classList.contains('open')) return;
-		if (e.key === 'Escape') { closeDocumentViewer(); }
-		else if (e.key === 'ArrowLeft') { navigateDoc(-1); }
-		else if (e.key === 'ArrowRight') { navigateDoc(1); }
-	}
+    function handleViewerKeydown(e) {
+        const modal = document.getElementById('tma-doc-viewer-modal');
+        if (!modal || !modal.classList.contains('open')) return;
+        if (e.key === 'Escape') {
+            closeDocumentViewer();
+        } else if (e.key === 'ArrowLeft') {
+            navigateDoc(-1);
+        } else if (e.key === 'ArrowRight') {
+            navigateDoc(1);
+        }
+    }
 
-	/* ═══════════════════════════════════════════════════════════════
+    /* ═══════════════════════════════════════════════════════════════
 	   Section: Leads
 	   ═══════════════════════════════════════════════════════════════ */
 
-	async function renderLeads(container) {
-		try {
-			const leads = await api('/leads');
-			if (!leads.length) {
-				container.innerHTML = '<div class="empty-state"><div class="empty-state__icon">📥</div><p class="empty-state__text">' + escapeHtml(t('leads.no_leads')) + '</p></div>';
-				updateSidebarBadge('leads', 0);
-				return;
-			}
+    async function renderLeads(container) {
+        try {
+            const leads = await api('/leads');
+            if (!leads.length) {
+                container.innerHTML =
+                    '<div class="empty-state"><div class="empty-state__icon">📥</div><p class="empty-state__text">' +
+                    escapeHtml(t('leads.no_leads')) +
+                    '</p></div>';
+                updateSidebarBadge('leads', 0);
+                return;
+            }
 
-			// Compute KPI summary
-			var totalLeads = leads.length;
-			var pipelineValue = 0;
-			var newLeads = 0;
-			var sources = {};
-			var statuses = {};
-			leads.forEach(function (lead) {
-				pipelineValue += parseFloat(lead.lead_value) || 0;
-				if (lead.status === 'new') newLeads++;
-				var src = lead.source || 'unknown';
-				sources[src] = (sources[src] || 0) + 1;
-				statuses[lead.status || 'new'] = (statuses[lead.status || 'new'] || 0) + 1;
-			});
+            // Compute KPI summary
+            const totalLeads = leads.length;
+            let pipelineValue = 0;
+            let newLeads = 0;
+            const sources = {};
+            const statuses = {};
+            leads.forEach(function (lead) {
+                pipelineValue += parseFloat(lead.lead_value) || 0;
+                if (lead.status === 'new') newLeads++;
+                const src = lead.source || 'unknown';
+                sources[src] = (sources[src] || 0) + 1;
+                statuses[lead.status || 'new'] = (statuses[lead.status || 'new'] || 0) + 1;
+            });
 
-			// Update sidebar badge
-			updateSidebarBadge('leads', newLeads);
+            // Update sidebar badge
+            updateSidebarBadge('leads', newLeads);
 
-			// Build source filter options
-			var sourceOptions = '<option value="">' + escapeHtml(t('leads.filter_all')) + '</option>';
-			Object.keys(sources).sort().forEach(function (src) {
-				sourceOptions += '<option value="' + escapeHtml(src) + '">' + escapeHtml(src) + ' (' + sources[src] + ')</option>';
-			});
+            // Build source filter options
+            let sourceOptions = '<option value="">' + escapeHtml(t('leads.filter_all')) + '</option>';
+            Object.keys(sources)
+                .sort()
+                .forEach(function (src) {
+                    sourceOptions +=
+                        '<option value="' +
+                        escapeHtml(src) +
+                        '">' +
+                        escapeHtml(src) +
+                        ' (' +
+                        sources[src] +
+                        ')</option>';
+                });
 
-			// Build status filter options
-			var statusOptions = '<option value="">' + escapeHtml(t('leads.filter_all')) + '</option>';
-			['new', 'contacted', 'quoted', 'won', 'lost'].forEach(function (s) {
-				if (statuses[s]) {
-					statusOptions += '<option value="' + s + '">' + escapeHtml(s) + ' (' + statuses[s] + ')</option>';
-				}
-			});
+            // Build status filter options
+            let statusOptions = '<option value="">' + escapeHtml(t('leads.filter_all')) + '</option>';
+            ['new', 'contacted', 'quoted', 'won', 'lost'].forEach(function (s) {
+                if (statuses[s]) {
+                    statusOptions += '<option value="' + s + '">' + escapeHtml(s) + ' (' + statuses[s] + ')</option>';
+                }
+            });
 
-			function buildLeadRows(filterSource, filterStatus) {
-				var rows = '';
-				leads.forEach(function (lead) {
-					if (filterSource && (lead.source || 'unknown') !== filterSource) return;
-					if (filterStatus && lead.status !== filterStatus) return;
-					var leadId = Number(lead.id || 0);
-					var currentValue = parseFloat(lead.lead_value) || 0;
-					var selectOpts = ['new', 'contacted', 'quoted', 'won', 'lost'].map(function (s) {
-						return '<option value="' + s + '"' + (s === lead.status ? ' selected' : '') + '>' + escapeHtml(s) + '</option>';
-					}).join('');
+            function buildLeadRows(filterSource, filterStatus) {
+                let rows = '';
+                leads.forEach(function (lead) {
+                    if (filterSource && (lead.source || 'unknown') !== filterSource) return;
+                    if (filterStatus && lead.status !== filterStatus) return;
+                    const leadId = Number(lead.id || 0);
+                    const currentValue = parseFloat(lead.lead_value) || 0;
+                    const selectOpts = ['new', 'contacted', 'quoted', 'won', 'lost']
+                        .map(function (s) {
+                            return (
+                                '<option value="' +
+                                s +
+                                '"' +
+                                (s === lead.status ? ' selected' : '') +
+                                '>' +
+                                escapeHtml(s) +
+                                '</option>'
+                            );
+                        })
+                        .join('');
 
-					rows += '<tr>'
-						+ '<td>' + escapeHtml(lead.name || '') + '</td>'
-						+ '<td>' + escapeHtml(lead.email || '') + '</td>'
-						+ '<td>' + escapeHtml(lead.source || '') + '</td>'
-						+ '<td><div class="lead-status lead-status--' + escapeHtml(lead.status || 'new') + '">'
-						+ '<select class="lead-status-select input input--compact" data-lead-id="' + leadId + '" data-lead-value="' + currentValue + '">' + selectOpts + '</select>'
-						+ '</div></td>'
-						+ '<td>$' + currentValue.toLocaleString() + '</td>'
-						+ '<td>' + formatDate(lead.created_at) + '</td>'
-						+ '<td><button class="btn btn--small btn--ghost js-view-history" data-lead-id="' + leadId + '">Ver historial</button></td>'
-						+ '</tr>';
-				});
-				return rows;
-			}
+                    rows +=
+                        '<tr>' +
+                        '<td>' +
+                        escapeHtml(lead.name || '') +
+                        '</td>' +
+                        '<td>' +
+                        escapeHtml(lead.email || '') +
+                        '</td>' +
+                        '<td>' +
+                        escapeHtml(lead.source || '') +
+                        '</td>' +
+                        '<td><div class="lead-status lead-status--' +
+                        escapeHtml(lead.status || 'new') +
+                        '">' +
+                        '<select class="lead-status-select input input--compact" data-lead-id="' +
+                        leadId +
+                        '" data-lead-value="' +
+                        currentValue +
+                        '">' +
+                        selectOpts +
+                        '</select>' +
+                        '</div></td>' +
+                        '<td>$' +
+                        currentValue.toLocaleString() +
+                        '</td>' +
+                        '<td>' +
+                        formatDate(lead.created_at) +
+                        '</td>' +
+                        '<td><button class="btn btn--small btn--ghost js-view-history" data-lead-id="' +
+                        leadId +
+                        '">Ver historial</button></td>' +
+                        '</tr>';
+                });
+                return rows;
+            }
 
-			container.innerHTML = `
+            container.innerHTML = `
 				<div class="lead-kpi-bar">
 					<div class="lead-kpi">
 						<div class="lead-kpi__value">${totalLeads}</div>
@@ -1180,106 +1460,112 @@
 				</div>
 			`;
 
-			// Filter handlers
-			function applyFilters() {
-				var src = document.getElementById('tma-lead-filter-source').value;
-				var st = document.getElementById('tma-lead-filter-status').value;
-				var tbody = document.getElementById('tma-leads-tbody');
-				if (tbody) {
-					tbody.innerHTML = buildLeadRows(src, st);
-					bindLeadEvents();
-				}
-			}
-			var srcFilter = document.getElementById('tma-lead-filter-source');
-			var stFilter = document.getElementById('tma-lead-filter-status');
-			if (srcFilter) srcFilter.addEventListener('change', applyFilters);
-			if (stFilter) stFilter.addEventListener('change', applyFilters);
+            // Filter handlers
+            function applyFilters() {
+                const src = document.getElementById('tma-lead-filter-source').value;
+                const st = document.getElementById('tma-lead-filter-status').value;
+                const tbody = document.getElementById('tma-leads-tbody');
+                if (tbody) {
+                    tbody.innerHTML = buildLeadRows(src, st);
+                    bindLeadEvents();
+                }
+            }
+            const srcFilter = document.getElementById('tma-lead-filter-source');
+            const stFilter = document.getElementById('tma-lead-filter-status');
+            if (srcFilter) srcFilter.addEventListener('change', applyFilters);
+            if (stFilter) stFilter.addEventListener('change', applyFilters);
 
-			function bindLeadEvents() {
-				container.querySelectorAll('.js-view-history').forEach(function (btn) {
-					btn.addEventListener('click', async function () {
-						const leadId = Number(btn.getAttribute('data-lead-id') || 0);
-						await renderLeadHistoryTimeline(container, leadId);
-					});
-				});
-				container.querySelectorAll('.lead-status-select').forEach(function (sel) {
-					var prevValue = sel.value;
-					sel.addEventListener('change', async function () {
-						var id = Number(sel.dataset.leadId || 0);
-						var val = parseFloat(sel.dataset.leadValue || 0);
-						sel.disabled = true;
-						try {
-							await api('/leads/' + id, {
-								method: 'POST',
-								body: JSON.stringify({ status: sel.value, lead_value: val })
-							});
-							prevValue = sel.value;
-							sel.style.borderColor = 'var(--tma-success)';
-							setTimeout(function () { sel.style.borderColor = ''; }, 1500);
-						} catch (err) {
-							showToast('Error actualizando lead: ' + getErrorMessage(err), 'error');
-							sel.value = prevValue;
-						} finally {
-							sel.disabled = false;
-						}
-					});
-				});
-			}
-			bindLeadEvents();
-		} catch (err) {
-			showError(container, t('error.loading_leads') + ': ' + getErrorMessage(err));
-		}
-	}
+            function bindLeadEvents() {
+                container.querySelectorAll('.js-view-history').forEach(function (btn) {
+                    btn.addEventListener('click', async function () {
+                        const leadId = Number(btn.getAttribute('data-lead-id') || 0);
+                        await renderLeadHistoryTimeline(container, leadId);
+                    });
+                });
+                container.querySelectorAll('.lead-status-select').forEach(function (sel) {
+                    let prevValue = sel.value;
+                    sel.addEventListener('change', async function () {
+                        const id = Number(sel.dataset.leadId || 0);
+                        const val = parseFloat(sel.dataset.leadValue || 0);
+                        sel.disabled = true;
+                        try {
+                            await api('/leads/' + id, {
+                                method: 'POST',
+                                body: JSON.stringify({ status: sel.value, lead_value: val }),
+                            });
+                            prevValue = sel.value;
+                            sel.style.borderColor = 'var(--tma-success)';
+                            setTimeout(function () {
+                                sel.style.borderColor = '';
+                            }, 1500);
+                        } catch (err) {
+                            showToast('Error actualizando lead: ' + getErrorMessage(err), 'error');
+                            sel.value = prevValue;
+                        } finally {
+                            sel.disabled = false;
+                        }
+                    });
+                });
+            }
+            bindLeadEvents();
+        } catch (err) {
+            showError(container, t('error.loading_leads') + ': ' + getErrorMessage(err));
+        }
+    }
 
-	async function renderLeadHistoryTimeline(container, leadId) {
-		const card = container.querySelector('#lead-history');
-		const timeline = container.querySelector('#lead-history-timeline');
-		if (!card || !timeline) {
-			return;
-		}
+    async function renderLeadHistoryTimeline(container, leadId) {
+        const card = container.querySelector('#lead-history');
+        const timeline = container.querySelector('#lead-history-timeline');
+        if (!card || !timeline) {
+            return;
+        }
 
-		try {
-			const items = await api('/leads/' + leadId + '/history');
-			card.classList.remove('hidden');
-			if (!Array.isArray(items) || !items.length) {
-				timeline.innerHTML = '<p class="text-muted">Sin cambios registrados todavía.</p>';
-				return;
-			}
+        try {
+            const items = await api('/leads/' + leadId + '/history');
+            card.classList.remove('hidden');
+            if (!Array.isArray(items) || !items.length) {
+                timeline.innerHTML = '<p class="text-muted">Sin cambios registrados todavía.</p>';
+                return;
+            }
 
-			let html = '';
-			items.forEach(function (item) {
-				html += '<div class="timeline__item">'
-					+ '<div><strong>' + escapeHtml(item.action || 'Cambio') + '</strong></div>'
-					+ '<div class="timeline__meta">'
-					+ escapeHtml(formatDate(item.created_at))
-					+ ' · ' + escapeHtml(item.user_name || ('user #' + Number(item.user_id || 0)))
-					+ '</div>'
-					+ '</div>';
-			});
+            let html = '';
+            items.forEach(function (item) {
+                html +=
+                    '<div class="timeline__item">' +
+                    '<div><strong>' +
+                    escapeHtml(item.action || 'Cambio') +
+                    '</strong></div>' +
+                    '<div class="timeline__meta">' +
+                    escapeHtml(formatDate(item.created_at)) +
+                    ' · ' +
+                    escapeHtml(item.user_name || 'user #' + Number(item.user_id || 0)) +
+                    '</div>' +
+                    '</div>';
+            });
 
-			timeline.innerHTML = html;
-		} catch (err) {
-			card.classList.remove('hidden');
-			timeline.innerHTML = '<p class="text-danger">No se pudo cargar el historial.</p>';
-		}
-	}
+            timeline.innerHTML = html;
+        } catch (err) {
+            card.classList.remove('hidden');
+            timeline.innerHTML = '<p class="text-danger">No se pudo cargar el historial.</p>';
+        }
+    }
 
-	/* ═══════════════════════════════════════════════════════════════
+    /* ═══════════════════════════════════════════════════════════════
 	   Section: Notes
 	   ═══════════════════════════════════════════════════════════════ */
 
-	async function renderNotes(container) {
-		try {
-			const notes = await api('/notes');
+    async function renderNotes(container) {
+        try {
+            const notes = await api('/notes');
 
-			let notesList = '';
-			if (notes.length) {
-				notes.forEach(function (note) {
-					const vis = note.visibility === 'internal' ? 'badge--warning' : 'badge--info';
-					const visLabel = note.visibility === 'internal' ? t('notes.internal') : t('notes.shared');
-					const moduleLabel = note.module ? String(note.module) : 'general';
-					const itemLabel = parseInt(note.item_id || 0, 10) > 0 ? ('#' + parseInt(note.item_id || 0, 10)) : '—';
-					notesList += `
+            let notesList = '';
+            if (notes.length) {
+                notes.forEach(function (note) {
+                    const vis = note.visibility === 'internal' ? 'badge--warning' : 'badge--info';
+                    const visLabel = note.visibility === 'internal' ? t('notes.internal') : t('notes.shared');
+                    const moduleLabel = note.module ? String(note.module) : 'general';
+                    const itemLabel = parseInt(note.item_id || 0, 10) > 0 ? '#' + parseInt(note.item_id || 0, 10) : '—';
+                    notesList += `
 						<div class="note-item">
 							<div class="note-item__header">
 								<strong>${escapeHtml(note.title || t('notes.no_title'))}</strong>
@@ -1290,12 +1576,12 @@
 							<div class="note-item__body">${escapeHtml(note.content || '')}</div>
 						</div>
 					`;
-				});
-			} else {
-				notesList = '<p class="text-muted">' + escapeHtml(t('notes.no_notes')) + '</p>';
-			}
+                });
+            } else {
+                notesList = '<p class="text-muted">' + escapeHtml(t('notes.no_notes')) + '</p>';
+            }
 
-			container.innerHTML = `
+            container.innerHTML = `
 				<div class="card">
 					<h2 class="card__title">${escapeHtml(t('notes.title'))}</h2>
 					<form id="note-form" class="note-form">
@@ -1322,63 +1608,366 @@
 				</div>
 			`;
 
-			// Note form handler
-			var form = document.getElementById('note-form');
-			if (form) {
-				form.addEventListener('submit', async function (e) {
-					e.preventDefault();
-					var fd = new FormData(form);
-					try {
-						await api('/notes', {
-							method: 'POST',
-							body: JSON.stringify({
-								title: fd.get('title'),
-								content: fd.get('content'),
-								visibility: fd.get('visibility'),
-								module: fd.get('module') || 'general',
-								item_id: parseInt(fd.get('item_id') || '0', 10) || 0,
-							}),
-						});
-						renderNotes(container);
-					} catch (err) {
-						showToast(t('common.error') + ': ' + err.message, 'error');
-					}
-				});
-			}
-		} catch (err) {
-			showError(container, t('error.loading_notes') + ': ' + getErrorMessage(err));
-		}
-	}
+            // Note form handler
+            const form = document.getElementById('note-form');
+            if (form) {
+                form.addEventListener('submit', async function (e) {
+                    e.preventDefault();
+                    const fd = new FormData(form);
+                    try {
+                        await api('/notes', {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                title: fd.get('title'),
+                                content: fd.get('content'),
+                                visibility: fd.get('visibility'),
+                                module: fd.get('module') || 'general',
+                                item_id: parseInt(fd.get('item_id') || '0', 10) || 0,
+                            }),
+                        });
+                        renderNotes(container);
+                    } catch (err) {
+                        showToast(t('common.error') + ': ' + err.message, 'error');
+                    }
+                });
+            }
+        } catch (err) {
+            showError(container, t('error.loading_notes') + ': ' + getErrorMessage(err));
+        }
+    }
 
-	/* ═══════════════════════════════════════════════════════════════
+    /* ═══════════════════════════════════════════════════════════════
+	   Section: Google Setup
+	   ═══════════════════════════════════════════════════════════════ */
+
+    function renderGoogleSetup(container) {
+        if (!user.isAdmin) {
+            showError(container, 'Restricted');
+            return;
+        }
+
+        /* ── Integration status data ── */
+        const integrations = [
+            {
+                id: 'oauth2',
+                icon: '🔑',
+                name: t('google.int.oauth2'),
+                status: 'active',
+                details: [
+                    { label: 'Client ID', value: '940256671703-tmgeh0p9...', mono: true },
+                    { label: t('google.int.brand'), value: t('google.int.verified') },
+                    { label: 'Scopes', value: 'analytics.readonly, webmasters.readonly, business.manage', mono: true },
+                    { label: t('google.int.tokenCache'), value: 'WordPress transient (~55 min)' },
+                ],
+            },
+            {
+                id: 'ga4',
+                icon: '📊',
+                name: 'Google Analytics 4 (GA4)',
+                status: 'active',
+                details: [
+                    { label: 'Property ID', value: 'properties/532291061', mono: true },
+                    { label: 'Measurement ID', value: 'G-LC2XS0JTTS', mono: true },
+                    { label: 'API', value: 'GA4 Data API (v1beta) — analyticsdata.googleapis.com' },
+                    {
+                        label: t('google.int.metrics'),
+                        value: 'sessions, users, pageviews, bounce_rate, conversions, top_pages',
+                    },
+                    { label: t('google.int.sync'), value: t('google.int.dailyCron') },
+                    { label: t('google.int.dataNote'), value: t('google.int.ga4AccumulatingData') },
+                ],
+            },
+            {
+                id: 'gsc',
+                icon: '🔍',
+                name: 'Google Search Console',
+                status: 'active',
+                details: [
+                    { label: 'Site', value: 'sc-domain:thormetalart.com', mono: true },
+                    { label: t('google.int.verification'), value: 'siteOwner (DNS)' },
+                    { label: 'API', value: 'Search Console API (v3) — webmasters.googleapis.com' },
+                    {
+                        label: t('google.int.metrics'),
+                        value: 'clicks, impressions, CTR, avg_position, top_queries, top_pages',
+                    },
+                    { label: t('google.int.sync'), value: t('google.int.dailyCron') },
+                    { label: t('google.int.dataNote'), value: t('google.int.gscAccumulatingData') },
+                ],
+            },
+            {
+                id: 'maps',
+                icon: '🗺️',
+                name: 'Google Maps',
+                status: 'ready',
+                details: [
+                    { label: 'API Key', value: t('google.int.restricted') },
+                    { label: t('google.int.usage'), value: t('google.int.mapsUsage') },
+                ],
+            },
+            {
+                id: 'gbp',
+                icon: '🏢',
+                name: 'Google Business Profile API',
+                status: 'blocked',
+                details: [
+                    { label: t('google.int.blocker'), value: t('google.int.gbpBlocker') },
+                    { label: t('google.int.action'), value: t('google.int.gbpAction') },
+                    { label: t('google.int.metrics'), value: 'reviews, rating, impressions, actions, photos' },
+                ],
+            },
+            {
+                id: 'instagram',
+                icon: '📸',
+                name: 'Instagram Graph API',
+                status: 'blocked',
+                details: [
+                    { label: t('google.int.blocker'), value: t('google.int.igBlocker') },
+                    { label: t('google.int.action'), value: t('google.int.igAction') },
+                    { label: t('google.int.metrics'), value: 'followers, reach, engagement_rate' },
+                ],
+            },
+        ];
+
+        const statusLabels = {
+            active: { text: t('google.status.active'), cls: 'badge--success' },
+            ready: { text: t('google.status.ready'), cls: 'badge--info' },
+            blocked: { text: t('google.status.blocked'), cls: 'badge--warning' },
+        };
+
+        /* ── Summary counts ── */
+        const countActive = integrations.filter(function (i) {
+            return i.status === 'active';
+        }).length;
+        const countReady = integrations.filter(function (i) {
+            return i.status === 'ready';
+        }).length;
+        const countBlocked = integrations.filter(function (i) {
+            return i.status === 'blocked';
+        }).length;
+
+        let html = '<div class="google-setup">';
+
+        /* ── Summary cards ── */
+        html +=
+            '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:24px">';
+        html +=
+            '<div class="card" style="text-align:center;padding:20px"><div style="font-size:2rem;font-weight:700;color:var(--color-success,#4caf50)">' +
+            countActive +
+            '</div><div style="opacity:0.7">' +
+            t('google.status.active') +
+            '</div></div>';
+        html +=
+            '<div class="card" style="text-align:center;padding:20px"><div style="font-size:2rem;font-weight:700;color:var(--color-info,#2196f3)">' +
+            countReady +
+            '</div><div style="opacity:0.7">' +
+            t('google.status.ready') +
+            '</div></div>';
+        html +=
+            '<div class="card" style="text-align:center;padding:20px"><div style="font-size:2rem;font-weight:700;color:var(--color-warning,#ff9800)">' +
+            countBlocked +
+            '</div><div style="opacity:0.7">' +
+            t('google.status.blocked') +
+            '</div></div>';
+        html += '</div>';
+
+        /* ── Integration cards ── */
+        integrations.forEach(function (integ) {
+            const badge = statusLabels[integ.status] || statusLabels.blocked;
+            html += '<div class="card" style="margin-bottom:16px">';
+            html += '<div class="card__header" style="display:flex;align-items:center;justify-content:space-between">';
+            html += '<h3 style="margin:0">' + integ.icon + ' ' + escapeHtml(integ.name) + '</h3>';
+            html += '<span class="badge ' + badge.cls + '">' + badge.text + '</span>';
+            html += '</div>';
+            html += '<div class="card__body"><table class="table"><tbody>';
+            integ.details.forEach(function (d) {
+                const val = d.mono ? '<code>' + escapeHtml(d.value) + '</code>' : escapeHtml(d.value);
+                html +=
+                    '<tr><td style="width:35%;font-weight:600">' +
+                    escapeHtml(d.label) +
+                    '</td><td>' +
+                    val +
+                    '</td></tr>';
+            });
+            html += '</tbody></table></div></div>';
+        });
+
+        /* ── GBP Form section (kept for action) ── */
+        html += '<div class="card" style="margin-bottom:16px;border:2px solid var(--color-warning,#ff9800)">';
+        html +=
+            '<div class="card__header" style="background:var(--color-warning-bg,rgba(255,152,0,0.1))"><h3>📝 ' +
+            t('google.gbpFormTitle') +
+            '</h3></div>';
+        html += '<div class="card__body">';
+        html += '<div class="alert alert--warning" style="margin-bottom:16px"><p>' + t('google.warning') + '</p></div>';
+
+        const formData = [
+            { field: t('google.field.requestType'), value: 'Solicitud de acceso básico a las APIs' },
+            { field: 'Project ID', value: 'thor-metal-art' },
+            { field: 'Project Number', value: '940256671703' },
+            { field: t('google.field.company'), value: 'Thor Metal Art LLC' },
+            { field: t('google.field.website'), value: 'https://thormetalart.com' },
+            { field: t('google.field.email'), value: 'thormetalwork@gmail.com' },
+            { field: t('google.field.locations'), value: '1' },
+        ];
+
+        html +=
+            '<table class="table"><thead><tr><th style="width:40%">' +
+            t('google.field.col') +
+            '</th><th>' +
+            t('google.field.valCol') +
+            '</th></tr></thead><tbody>';
+        formData.forEach(function (row) {
+            html +=
+                '<tr><td><strong>' +
+                escapeHtml(row.field) +
+                '</strong></td><td><code>' +
+                escapeHtml(row.value) +
+                '</code></td></tr>';
+        });
+        html += '</tbody></table>';
+
+        const description =
+            'We need API access to display our Google Business Profile information (reviews, ratings, photos, business hours, and contact info) on our custom internal business dashboard. We manage a single verified business location (Thor Metal Art LLC) in Miami, FL. The dashboard is used exclusively by the business owner to monitor online presence, track customer reviews, and analyze KPIs. We do not share or redistribute the data.';
+
+        html += '<p style="margin-top:16px"><strong>' + t('google.copyDesc') + ':</strong></p>';
+        html +=
+            '<div class="code-block" style="background:var(--color-surface-alt,#2a2a2a);padding:16px;border-radius:8px;border:1px solid var(--color-border,#444);cursor:pointer;position:relative" id="gbp-desc-copy">';
+        html += '<p style="margin:0;font-style:italic;line-height:1.6">' + escapeHtml(description) + '</p>';
+        html += '<small style="display:block;margin-top:8px;opacity:0.6">👆 Click to copy</small>';
+        html += '</div>';
+
+        html += '<div style="text-align:center;margin:20px 0">';
+        html +=
+            '<a href="https://support.google.com/business/contact/api_default?hl=es" target="_blank" rel="noopener" class="btn btn--primary" style="display:inline-block;padding:12px 32px;font-size:1rem">';
+        html += '📝 ' + t('google.openForm') + '</a></div>';
+        html += '</div></div>';
+
+        /* ── Infra/Environment ── */
+        html += '<div class="card" style="margin-bottom:16px">';
+        html += '<div class="card__header"><h3>⚙️ ' + t('google.infra.title') + '</h3></div>';
+        html += '<div class="card__body"><table class="table"><tbody>';
+        const infraItems = [
+            { label: 'GCP Project', value: 'thor-metal-art (940256671703)', mono: true },
+            { label: t('google.infra.apisEnabled'), value: '62 APIs' },
+            { label: t('google.infra.billing'), value: t('google.infra.billingDetail') },
+            {
+                label: t('google.infra.serviceAccount'),
+                value: 'tma-dashboard@thor-metal-art.iam.gserviceaccount.com',
+                mono: true,
+            },
+            {
+                label: t('google.infra.secretManager'),
+                value: '4 secrets (api-key, ga4-measurement-id, ga4-property-id, oauth-refresh-token)',
+            },
+            { label: t('google.infra.cronSchedule'), value: t('google.infra.cronDetail') },
+        ];
+        infraItems.forEach(function (d) {
+            const val = d.mono ? '<code>' + escapeHtml(d.value) + '</code>' : escapeHtml(d.value);
+            html +=
+                '<tr><td style="width:35%;font-weight:600">' + escapeHtml(d.label) + '</td><td>' + val + '</td></tr>';
+        });
+        html += '</tbody></table></div></div>';
+
+        /* ── References ── */
+        const refs = [
+            {
+                label: 'Google Cloud Console',
+                url: 'https://console.cloud.google.com/home/dashboard?project=thor-metal-art',
+            },
+            { label: 'GA4 Admin', url: 'https://analytics.google.com/analytics/web/#/a532291061p532291061/admin' },
+            {
+                label: 'Search Console',
+                url: 'https://search.google.com/search-console?resource_id=sc-domain:thormetalart.com',
+            },
+            { label: 'GBP API Request Form', url: 'https://support.google.com/business/contact/api_default?hl=es' },
+            {
+                label: 'GBP API Quotas',
+                url: 'https://console.cloud.google.com/apis/api/mybusinessaccountmanagement.googleapis.com/quotas?project=thor-metal-art',
+            },
+            {
+                label: 'API Credentials',
+                url: 'https://console.cloud.google.com/apis/credentials?project=thor-metal-art',
+            },
+            { label: 'Google Business Profile Manager', url: 'https://business.google.com' },
+        ];
+
+        html += '<div class="card" style="margin-bottom:16px">';
+        html += '<div class="card__header"><h3>📎 ' + t('google.refs') + '</h3></div>';
+        html += '<div class="card__body"><ul style="list-style:none;padding:0">';
+        refs.forEach(function (ref) {
+            html +=
+                '<li style="margin-bottom:8px">🔗 <a href="' +
+                ref.url +
+                '" target="_blank" rel="noopener">' +
+                escapeHtml(ref.label) +
+                '</a></li>';
+        });
+        html += '</ul></div></div>';
+
+        html += '</div>';
+
+        container.innerHTML = html;
+
+        /* ── Copy-to-clipboard ── */
+        const copyBlock = document.getElementById('gbp-desc-copy');
+        if (copyBlock) {
+            copyBlock.addEventListener('click', function () {
+                navigator.clipboard.writeText(description).then(function () {
+                    const small = copyBlock.querySelector('small');
+                    if (small) {
+                        small.textContent = '✅ Copied!';
+                        setTimeout(function () {
+                            small.textContent = '👆 Click to copy';
+                        }, 2000);
+                    }
+                });
+            });
+        }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
 	   Section: Audit Log
 	   ═══════════════════════════════════════════════════════════════ */
 
-	async function renderAudit(container) {
-		if (!user.isAdmin) {
-			showError(container, t('audit.restricted'));
-			return;
-		}
+    async function renderAudit(container) {
+        if (!user.isAdmin) {
+            showError(container, t('audit.restricted'));
+            return;
+        }
 
-		try {
-			const entries = await api('/audit');
-			if (!entries.length) {
-				container.innerHTML = '<div class="empty-state"><div class="empty-state__icon">📝</div><p class="empty-state__text">' + escapeHtml(t('audit.no_entries')) + '</p></div>';
-				return;
-			}
+        try {
+            const entries = await api('/audit');
+            if (!entries.length) {
+                container.innerHTML =
+                    '<div class="empty-state"><div class="empty-state__icon">📝</div><p class="empty-state__text">' +
+                    escapeHtml(t('audit.no_entries')) +
+                    '</p></div>';
+                return;
+            }
 
-			let rows = '';
-			entries.forEach(function (entry) {
-				rows += '<tr>'
-					+ '<td>' + formatDate(entry.created_at) + '</td>'
-					+ '<td>' + escapeHtml(entry.action || '') + '</td>'
-					+ '<td>' + escapeHtml(entry.entity_type || '') + '</td>'
-					+ '<td>' + (parseInt(entry.entity_id) || '') + '</td>'
-					+ '<td>' + escapeHtml(entry.user_name || String(entry.user_id || '')) + '</td>'
-					+ '</tr>';
-			});
+            let rows = '';
+            entries.forEach(function (entry) {
+                rows +=
+                    '<tr>' +
+                    '<td>' +
+                    formatDate(entry.created_at) +
+                    '</td>' +
+                    '<td>' +
+                    escapeHtml(entry.action || '') +
+                    '</td>' +
+                    '<td>' +
+                    escapeHtml(entry.entity_type || '') +
+                    '</td>' +
+                    '<td>' +
+                    (parseInt(entry.entity_id) || '') +
+                    '</td>' +
+                    '<td>' +
+                    escapeHtml(entry.user_name || String(entry.user_id || '')) +
+                    '</td>' +
+                    '</tr>';
+            });
 
-			container.innerHTML = `
+            container.innerHTML = `
 				<div class="card">
 					<h2 class="card__title">${escapeHtml(t('audit.title'))}</h2>
 					<div class="table-wrap">
@@ -1389,54 +1978,54 @@
 					</div>
 				</div>
 			`;
-		} catch (err) {
-			showError(container, t('error.loading_audit') + ': ' + getErrorMessage(err));
-		}
-	}
+        } catch (err) {
+            showError(container, t('error.loading_audit') + ': ' + getErrorMessage(err));
+        }
+    }
 
-	/* ═══════════════════════════════════════════════════════════════
+    /* ═══════════════════════════════════════════════════════════════
 	   Sidebar — Mobile Toggle
 	   ═══════════════════════════════════════════════════════════════ */
 
-	function initSidebar() {
-		const hamburger = document.getElementById('tma-hamburger');
-		const sidebar = document.getElementById('tma-sidebar');
-		const overlay = document.getElementById('tma-sidebar-overlay');
+    function initSidebar() {
+        const hamburger = document.getElementById('tma-hamburger');
+        const sidebar = document.getElementById('tma-sidebar');
+        const overlay = document.getElementById('tma-sidebar-overlay');
 
-		if (!hamburger || !sidebar || !overlay) return;
+        if (!hamburger || !sidebar || !overlay) return;
 
-		function toggle() {
-			const isOpen = sidebar.classList.toggle('open');
-			overlay.classList.toggle('open', isOpen);
-			hamburger.setAttribute('aria-expanded', isOpen);
-		}
+        function toggle() {
+            const isOpen = sidebar.classList.toggle('open');
+            overlay.classList.toggle('open', isOpen);
+            hamburger.setAttribute('aria-expanded', isOpen);
+        }
 
-		function close() {
-			sidebar.classList.remove('open');
-			overlay.classList.remove('open');
-			hamburger.setAttribute('aria-expanded', 'false');
-		}
+        function close() {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('open');
+            hamburger.setAttribute('aria-expanded', 'false');
+        }
 
-		hamburger.addEventListener('click', toggle);
-		overlay.addEventListener('click', close);
+        hamburger.addEventListener('click', toggle);
+        overlay.addEventListener('click', close);
 
-		// Close sidebar when navigating on mobile.
-		document.querySelectorAll('.nav-link').forEach(function (link) {
-			link.addEventListener('click', function () {
-				if (window.innerWidth < 768) close();
-			});
-		});
-	}
+        // Close sidebar when navigating on mobile.
+        document.querySelectorAll('.nav-link').forEach(function (link) {
+            link.addEventListener('click', function () {
+                if (window.innerWidth < 768) close();
+            });
+        });
+    }
 
-	/* ═══════════════════════════════════════════════════════════════
+    /* ═══════════════════════════════════════════════════════════════
 	   Init
 	   ═══════════════════════════════════════════════════════════════ */
 
-	document.addEventListener('DOMContentLoaded', function () {
-		if (window.TMA_i18n) window.TMA_i18n.init();
-		initSidebar();
-		navigate();
-	});
+    document.addEventListener('DOMContentLoaded', function () {
+        if (window.TMA_i18n) window.TMA_i18n.init();
+        initSidebar();
+        navigate();
+    });
 
-	window.addEventListener('hashchange', navigate);
+    window.addEventListener('hashchange', navigate);
 })();
