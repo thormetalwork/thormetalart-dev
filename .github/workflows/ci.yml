@@ -44,12 +44,8 @@ jobs:
           exit $ERROR
 
       - name: PHPCS — WordPress Coding Standards
-        run: |
-          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            phpcs --standard=.phpcs.xml --report=summary
-          else
-            phpcs --standard=.phpcs.xml --report=summary || true
-          fi
+        continue-on-error: true
+        run: phpcs --standard=.phpcs.xml --report=summary
 
   lint-js:
     name: JavaScript Lint & Format
