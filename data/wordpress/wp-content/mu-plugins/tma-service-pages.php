@@ -452,6 +452,24 @@ function tma_get_core_pages()
 }
 
 /**
+ * Return exact fingerprints for generated content deployed before hash metadata.
+ *
+ * @return array<string, string>
+ */
+function tma_get_legacy_generated_content_hashes()
+{
+	return array(
+		'custom-metal-gates-miami'     => 'c9c8796db1687fa280f4f32b6fddedba8f1686b7224b43fac5fc5c318832df3b',
+		'metal-railings-miami'         => '161c89227ce9193f895e5bbcdffb5f0064973168e9b990f2eee661c37edd476b',
+		'metal-fences-miami'           => '299afe569d4db26c14a0ee3b686b23c8fe877d9ae05063eeeb44c6a01c08efec',
+		'custom-metal-furniture-miami' => '890fc8bc0a1ce81ae7d57cffb678364257908871ac983c05551fc1e1a2ecacc4',
+		'metal-stairs-miami'           => '20c86d66c8e29f80a1e129cdbda29e859f8965d0f676a24751098e412f1f7e73',
+		'art-commissions'               => '1534f235c9d4a355bb79297cd5177844b04007a541da0bca7cd3924b2c775b24',
+		'how-we-work'                   => '1acd33653e1b1826deb1de2a13320b52f9ecce9630f4a02e76325e85f79c8823',
+	);
+}
+
+/**
  * Create page if missing and update generated content.
  *
  * @param string $slug    Page slug.
@@ -467,9 +485,11 @@ function tma_create_or_update_generated_page($slug, $title, $content, $type)
 
 	if ($existing) {
 		if ('1' === get_post_meta($existing->ID, '_tma_generated_page', true)) {
-			$stored_hash  = (string) get_post_meta($existing->ID, '_tma_generated_content_hash', true);
-			$current_hash = hash('sha256', (string) $existing->post_content);
-			if ('' !== $stored_hash && hash_equals($stored_hash, $current_hash)) {
+			$stored_hash   = (string) get_post_meta($existing->ID, '_tma_generated_content_hash', true);
+			$current_hash  = hash('sha256', (string) $existing->post_content);
+			$legacy_hashes = tma_get_legacy_generated_content_hashes();
+			$is_legacy     = isset($legacy_hashes[$slug]) && hash_equals($legacy_hashes[$slug], $current_hash);
+			if (('' !== $stored_hash && hash_equals($stored_hash, $current_hash)) || $is_legacy) {
 				wp_update_post(
 					array(
 						'ID'           => $existing->ID,

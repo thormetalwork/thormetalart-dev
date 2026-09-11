@@ -49,9 +49,11 @@ else
     fail "legacy generated page shell is still present"
 fi
 
-if grep -q "'' !== \$stored_hash && hash_equals(\$stored_hash, \$current_hash)" "$PLUGIN_FILE" && \
+if grep -q 'function tma_get_legacy_generated_content_hashes' "$PLUGIN_FILE" && \
+   grep -q 'isset(\$legacy_hashes\[\$slug\]) && hash_equals(\$legacy_hashes\[\$slug\], \$current_hash)' "$PLUGIN_FILE" && \
+   grep -q "'' !== \$stored_hash && hash_equals(\$stored_hash, \$current_hash)" "$PLUGIN_FILE" && \
    ! grep -q 'is_legacy_sales_content' "$PLUGIN_FILE"; then
-    pass "generated sales shells migrate only when their stored hash still matches"
+    pass "generated shells migrate only with stored or allowlisted legacy hashes"
 else
     fail "generated sales migration can overwrite content without a matching hash"
 fi
