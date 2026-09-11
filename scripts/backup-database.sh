@@ -6,23 +6,22 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 BACKUP_DIR="${PROJECT_DIR}/backups"
-CONTAINER="tma_dev_mysql"
 
 [[ -f "${PROJECT_DIR}/.env" ]] || { echo "ERROR: .env not found at ${PROJECT_DIR}/.env"; exit 1; }
-source "${PROJECT_DIR}/.env"
+
+DATABASE_NAME="$(docker compose --project-directory "${PROJECT_DIR}" exec -T mysql printenv MYSQL_DATABASE)"
+DATABASE_NAME="${DATABASE_NAME//$'\r'/}"
+[[ -n "${DATABASE_NAME}" ]] || { echo "ERROR: MYSQL_DATABASE is empty in the mysql container"; exit 1; }
 
 mkdir -p "${BACKUP_DIR}"
 
-BACKUP_FILE="${BACKUP_DIR}/${MYSQL_DATABASE}_${TIMESTAMP}.sql.gz"
+BACKUP_FILE="${BACKUP_DIR}/${DATABASE_NAME}_${TIMESTAMP}.sql.gz"
 
-echo "Backing up ${MYSQL_DATABASE}..."
+echo "Backing up ${DATABASE_NAME}..."
 set -o pipefail
-docker exec "${CONTAINER}" bash -c "MYSQL_PWD='${MYSQL_ROOT_PASSWORD}' mysqldump \
-    -u root \
-    --single-transaction \
-    --routines \
-    --triggers \
-    '${MYSQL_DATABASE}'" | gzip > "${BACKUP_FILE}"
+docker compose --project-directory "${PROJECT_DIR}" exec -T mysql sh -c \
+  'MYSQL_PWD="${MYSQL_ROOT_PASSWORD}" exec mysqldump -u root --single-transaction --routines --triggers "${MYSQL_DATABASE}"' \
+  | gzip > "${BACKUP_FILE}"
 
 # Verify backup is not empty (minimum ~200 bytes for valid gzip)
 BACKUP_SIZE=$(stat -c%s "${BACKUP_FILE}" 2>/dev/null || stat -f%z "${BACKUP_FILE}")

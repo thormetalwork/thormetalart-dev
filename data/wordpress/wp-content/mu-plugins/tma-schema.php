@@ -102,42 +102,15 @@ add_action('wp_head', 'tma_schema_local_business', 1);
  */
 function tma_schema_service_catalog()
 {
-	$services = array(
-		array(
-			'name' => 'Custom Metal Gates',
-			'url'  => home_url('/custom-metal-gates-miami/'),
-		),
-		array(
-			'name' => 'Metal Railings',
-			'url'  => home_url('/metal-railings-miami/'),
-		),
-		array(
-			'name' => 'Metal Fences',
-			'url'  => home_url('/metal-fences-miami/'),
-		),
-		array(
-			'name' => 'Custom Metal Furniture',
-			'url'  => home_url('/custom-metal-furniture-miami/'),
-		),
-		array(
-			'name' => 'Metal Stairs',
-			'url'  => home_url('/metal-stairs-miami/'),
-		),
-		array(
-			'name' => 'Art Commissions',
-			'url'  => home_url('/art-commissions/'),
-		),
-	);
-
 	$offers = array();
-	foreach ($services as $service) {
+	foreach (tma_get_service_catalog() as $slug => $service) {
 		$offers[] = array(
 			'@type'       => 'Offer',
 			'itemOffered' => array(
 				'@type'    => 'Service',
-				'name'     => $service['name'],
+				'name'     => $service['label']['en'],
 				'provider' => array('@id' => tma_schema_localbusiness_id()),
-				'url'      => $service['url'],
+				'url'      => home_url('/' . $slug . '/'),
 			),
 		);
 	}
@@ -154,14 +127,8 @@ function tma_schema_service_page()
 		return;
 	}
 
-	$slugs = array(
-		'custom-metal-gates-miami',
-		'metal-railings-miami',
-		'metal-fences-miami',
-		'custom-metal-furniture-miami',
-		'metal-stairs-miami',
-		'art-commissions',
-	);
+	$slugs   = array_keys(tma_get_service_catalog());
+	$slugs[] = 'art-commissions';
 
 	$slug = get_post_field('post_name', get_queried_object_id());
 	if (! in_array($slug, $slugs, true)) {
@@ -195,86 +162,14 @@ function tma_schema_faq_page()
 		return;
 	}
 
-	$faqs_by_slug = array(
-		'custom-metal-gates-miami'     => array(
-			array(
-				'q' => 'How long does a custom gate take?',
-				'a' => 'Most projects take between 3 and 5 weeks after design approval, depending on complexity and permit requirements.',
-			),
-			array(
-				'q' => 'Do you handle permits in Miami-Dade and Broward?',
-				'a' => 'Yes. We can manage permits directly or guide your team through the process when required by code.',
-			),
-			array(
-				'q' => 'What is the typical price range?',
-				'a' => 'Pricing depends on size, material, automation, and design detail. We provide a clear quote after a free consultation.',
-			),
-		),
-		'metal-railings-miami'         => array(
-			array(
-				'q' => 'Can you match an existing railing style?',
-				'a' => 'Yes. We can replicate or reinterpret existing styles while improving structural performance and finish quality.',
-			),
-			array(
-				'q' => 'Are your railings code compliant?',
-				'a' => 'Yes. We fabricate based on local safety requirements and project conditions.',
-			),
-			array(
-				'q' => 'Do you install for both homes and businesses?',
-				'a' => 'Absolutely. We handle residential and commercial installations across Miami-Dade and Broward.',
-			),
-		),
-		'metal-fences-miami'           => array(
-			array(
-				'q' => 'What material works best for Miami weather?',
-				'a' => 'We select material and finish based on exposure and maintenance preferences, with strong anti-corrosion options.',
-			),
-			array(
-				'q' => 'Can you do privacy-focused fence designs?',
-				'a' => 'Yes. We can fabricate patterns and panel combinations that increase privacy while maintaining airflow and style.',
-			),
-			array(
-				'q' => 'Do you offer commercial perimeter fences?',
-				'a' => 'Yes. We build custom fence systems for commercial properties including controlled access points.',
-			),
-		),
-		'custom-metal-furniture-miami' => array(
-			array(
-				'q' => 'Can you build from inspiration photos?',
-				'a' => 'Yes. We can work from references, refine proportions, and deliver a custom piece tailored to your space.',
-			),
-			array(
-				'q' => 'Do you offer matching furniture sets?',
-				'a' => 'Yes. We can fabricate cohesive sets for dining, living, office, or hospitality environments.',
-			),
-			array(
-				'q' => 'What is the average lead time?',
-				'a' => 'Lead time depends on complexity and quantity. We provide a schedule in the quote phase.',
-			),
-		),
-		'metal-stairs-miami'           => array(
-			array(
-				'q' => 'Do you build stairs for renovations and new construction?',
-				'a' => 'Yes. We work with homeowners, contractors, and designers for both renovation and ground-up projects.',
-			),
-			array(
-				'q' => 'Can stairs be fabricated with mixed materials?',
-				'a' => 'Yes. We can combine metal structures with wood, stone, or glass depending on your concept.',
-			),
-			array(
-				'q' => 'Do you offer modern minimalist designs?',
-				'a' => 'Yes. Minimal line designs are one of our most requested solutions for contemporary spaces.',
-			),
-		),
-	);
-
 	$slug = get_post_field('post_name', get_queried_object_id());
-	if (! isset($faqs_by_slug[$slug])) {
+	$services = tma_get_service_catalog();
+	if (! isset($services[$slug])) {
 		return;
 	}
 
 	$entities = array();
-	foreach ($faqs_by_slug[$slug] as $faq) {
+	foreach ($services[$slug]['faqs'] as $faq) {
 		$entities[] = array(
 			'@type'          => 'Question',
 			'name'           => $faq['q'],

@@ -55,10 +55,10 @@
                 <!-- wp:column -->
                 <div class="wp-block-column">
                     <!-- wp:paragraph {"style":{"typography":{"fontFamily":"var(--wp--preset--font-family--forjado-display)","fontWeight":"700"}},"textColor":"ink"} -->
-                    <p class="has-ink-color has-text-color" style="font-family:var(--wp--preset--font-family--forjado-display);font-weight:700">4.9★</p>
+                    <p class="has-ink-color has-text-color" style="font-family:var(--wp--preset--font-family--forjado-display);font-weight:700">Made to order</p>
                     <!-- /wp:paragraph -->
                     <!-- wp:paragraph {"style":{"typography":{"fontSize":"11px","letterSpacing":"0.14em","textTransform":"uppercase"}},"textColor":"ink-mute"} -->
-                    <p class="has-ink-mute-color has-text-color" style="font-size:11px;letter-spacing:0.14em;text-transform:uppercase">Client rating</p>
+                    <p class="has-ink-mute-color has-text-color" style="font-size:11px;letter-spacing:0.14em;text-transform:uppercase">Every project</p>
                     <!-- /wp:paragraph -->
                 </div>
                 <!-- /wp:column -->

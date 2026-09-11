@@ -7,21 +7,28 @@ PASS=0
 FAIL=0
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PAGE_TEMPLATE="${ROOT_DIR}/data/wordpress/wp-content/themes/thormetalart/templates/page.html"
+PAGE_PATTERN="${ROOT_DIR}/data/wordpress/wp-content/themes/thormetalart/patterns/page-banner-forjado.php"
 STYLE_FILE="${ROOT_DIR}/data/wordpress/wp-content/themes/thormetalart/style.css"
 
 pass() { echo "[PASS] $1"; PASS=$((PASS+1)); }
 fail() { echo "[FAIL] $1"; FAIL=$((FAIL+1)); }
 
-if grep -q 'tma-page-shell' "$PAGE_TEMPLATE" && grep -q 'tma-page-hero' "$PAGE_TEMPLATE" && grep -q 'tma-page-content' "$PAGE_TEMPLATE"; then
-    pass "page.html includes the new Lujo Forjado shell classes"
+if [[ -f "$PAGE_PATTERN" ]] && grep -q 'thormetalart/page-banner-forjado' "$PAGE_TEMPLATE"; then
+    pass "page.html consumes the reusable Lujo Forjado banner"
 else
-    fail "page.html is missing the new Lujo Forjado shell classes"
+    fail "page.html does not consume a reusable Lujo Forjado banner"
 fi
 
-if grep -q '.tma-page-hero' "$STYLE_FILE" && grep -q '.tma-page-content' "$STYLE_FILE"; then
-    pass "style.css defines the page shell visual styles"
+if [[ -f "$PAGE_PATTERN" ]] && grep -q 'tma-page-kicker' "$PAGE_PATTERN" && grep -q 'wp:post-title' "$PAGE_PATTERN" && grep -q 'tma_breadcrumbs' "$PAGE_PATTERN"; then
+    pass "banner contains eyebrow, dynamic H1 and breadcrumbs"
 else
-    fail "style.css is missing the page shell visual styles"
+    fail "banner is missing eyebrow, dynamic H1 or breadcrumbs"
+fi
+
+if grep -q 'background: var(--wp--preset--color--obsidian)' "$STYLE_FILE" && grep -q 'background: var(--wp--preset--color--paper)' "$STYLE_FILE"; then
+    pass "page shell uses Lujo Forjado color tokens"
+else
+    fail "page shell still relies on legacy literal backgrounds"
 fi
 
 echo ""

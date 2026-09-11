@@ -64,6 +64,21 @@ function tma_enqueue_styles()
 add_action('wp_enqueue_scripts', 'tma_enqueue_styles');
 
 /**
+ * Enqueue global navigation interactions.
+ */
+function tma_enqueue_navigation_script()
+{
+	wp_enqueue_script(
+		'thormetalart-navigation',
+		get_stylesheet_directory_uri() . '/assets/js/tma-navigation.js',
+		array(),
+		tma_asset_version('/assets/js/tma-navigation.js'),
+		true
+	);
+}
+add_action('wp_enqueue_scripts', 'tma_enqueue_navigation_script');
+
+/**
  * Enqueue the "Lujo Forjado" homepage interactions script.
  *
  * Only loaded on the front page: header solid-on-scroll, scroll-reveal,

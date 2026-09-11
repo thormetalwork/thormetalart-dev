@@ -24,6 +24,18 @@ else
     fail "style.css is missing contact layout styling"
 fi
 
+if grep -q 'Get in Touch' "$CONTACT_TEMPLATE"; then
+    pass "contact page uses the approved eyebrow"
+else
+    fail "contact page is missing the Get in Touch eyebrow"
+fi
+
+if grep -q 'font-family: var(--wp--preset--font-family--forjado-body)' "$STYLE_FILE"; then
+    pass "contact controls use the Forjado body font"
+else
+    fail "contact controls do not use the Forjado body font"
+fi
+
 echo ""
 echo "================================================"
 echo " Results: ${PASS} passed, ${FAIL} failed"

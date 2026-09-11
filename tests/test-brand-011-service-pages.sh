@@ -7,52 +7,53 @@ PASS=0
 FAIL=0
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PLUGIN_FILE="${ROOT_DIR}/data/wordpress/wp-content/mu-plugins/tma-service-pages.php"
+TEMPLATE_FILE="${ROOT_DIR}/data/wordpress/wp-content/themes/thormetalart/templates/page-service.html"
+SALES_TEMPLATE="${ROOT_DIR}/data/wordpress/wp-content/themes/thormetalart/templates/page-sales.html"
 
 pass() { echo "[PASS] $1"; PASS=$((PASS+1)); }
 fail() { echo "[FAIL] $1"; FAIL=$((FAIL+1)); }
 
-if grep -q 'tma-page-shell' "$PLUGIN_FILE" && grep -q 'tma-page-hero' "$PLUGIN_FILE"; then
-    pass "mu-plugin service page content includes the page shell structure"
+if grep -q 'tma-page-shell' "$TEMPLATE_FILE" && grep -q 'tma_service_hero' "$TEMPLATE_FILE"; then
+    pass "dedicated service template owns the page shell structure"
 else
-    fail "mu-plugin service page content is missing the page shell structure"
+    fail "dedicated service template is missing the page shell structure"
 fi
 
-if grep -q 'tma-final-cta' "$PLUGIN_FILE"; then
-    pass "service page content keeps the final CTA block"
+if grep -q 'tma-forjado-cta' "$PLUGIN_FILE" && ! grep -q 'tma-final-cta' "$PLUGIN_FILE"; then
+    pass "service page content uses the Lujo Forjado CTA"
 else
-    fail "service page content is missing the final CTA block"
+    fail "service page content still uses the legacy CTA"
 fi
 
-if python3 - "$PLUGIN_FILE" <<'PY'
-import sys
-from pathlib import Path
-text = Path(sys.argv[1]).read_text()
-if 'function tma_page_shell_markup' in text and "'Metal as Art'" in text and "/wp-content/uploads/2026/04/tma-portfolio-fenix-sculpture.jpg" in text:
-    print("[PASS] art-commissions core page keeps the hero cover and heading")
-    raise SystemExit(0)
-print("[FAIL] art-commissions core page is missing the hero cover or heading")
-raise SystemExit(1)
-PY
-then
-    pass "art-commissions core page keeps the hero cover and heading"
+if [[ -f "$SALES_TEMPLATE" ]] && grep -q 'tma_sales_hero' "$SALES_TEMPLATE" && grep -q 'wp:post-content' "$SALES_TEMPLATE"; then
+    pass "sales template owns one dynamic hero and the page content"
 else
-    fail "art-commissions core page is missing the hero cover or heading"
+    fail "sales pages do not have a dedicated hero/content template"
 fi
 
-if python3 - "$PLUGIN_FILE" <<'PY'
-import sys
-from pathlib import Path
-text = Path(sys.argv[1]).read_text()
-if "'How We Work'" in text and "/wp-content/uploads/2026/04/tma-karel-welding.jpg" in text:
-    print("[PASS] how-we-work core page keeps the hero cover and heading")
-    raise SystemExit(0)
-print("[FAIL] how-we-work core page is missing the hero cover or heading")
-raise SystemExit(1)
-PY
-then
-    pass "how-we-work core page keeps the hero cover and heading"
+if grep -q 'function tma_shortcode_sales_hero' "$PLUGIN_FILE" && grep -q "'art-commissions'" "$PLUGIN_FILE" && grep -q "/wp-content/uploads/2026/04/tma-portfolio-fenix-sculpture.jpg" "$PLUGIN_FILE"; then
+    pass "art commissions has a Forjado sales hero"
 else
-    fail "how-we-work core page is missing the hero cover or heading"
+    fail "art commissions is missing its Forjado sales hero"
+fi
+
+if grep -q 'thormetalart/process-forjado' "$PLUGIN_FILE" && grep -q 'thormetalart/cta-forjado' "$PLUGIN_FILE"; then
+    pass "sales content reuses process and CTA patterns"
+else
+    fail "sales content does not reuse process and CTA patterns"
+fi
+
+if ! grep -q 'function tma_page_shell_markup' "$PLUGIN_FILE"; then
+    pass "generated content no longer embeds a duplicate page shell"
+else
+    fail "legacy generated page shell is still present"
+fi
+
+if grep -q "'' !== \$stored_hash && hash_equals(\$stored_hash, \$current_hash)" "$PLUGIN_FILE" && \
+   ! grep -q 'is_legacy_sales_content' "$PLUGIN_FILE"; then
+    pass "generated sales shells migrate only when their stored hash still matches"
+else
+    fail "generated sales migration can overwrite content without a matching hash"
 fi
 
 echo ""

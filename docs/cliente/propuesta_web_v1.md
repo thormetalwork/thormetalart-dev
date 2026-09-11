@@ -9,34 +9,36 @@
 ## 1. DIAGNÓSTICO: ESTADO ACTUAL
 
 ### Lo que YA existe y funciona
-| Componente | Estado | Detalle |
-|------------|--------|---------|
-| Stack Docker (WP + MySQL + Redis) | ✅ Producción | Healthchecks, backups, Redis cache |
-| Child theme `thormetalart` | ✅ Configurado | theme.json v3 con paleta, tipografía, layout |
-| 5 páginas de servicios | ⚠️ Boilerplate | Texto genérico auto-generado, sin imágenes |
-| Portfolio CPT | ⚠️ Vacío | Registrado con taxonomía, 0 proyectos |
-| Formulario de contacto | ⚠️ Invisible | Shortcode listo, no colocado en ninguna página |
-| Schema SEO (LocalBusiness + Service) | ✅ Activo | JSON-LD en wp_head |
-| Meta tags + Open Graph | ✅ Activo | Dinámicos por página |
-| Security hardening | ✅ Activo | 9 medidas, XML-RPC bloqueado, REST restringida |
-| TMA Panel (dashboard interno) | ✅ v0.4.1 | Leads, docs, KPIs, audit — funcional |
+
+| Componente                           | Estado         | Detalle                                        |
+| ------------------------------------ | -------------- | ---------------------------------------------- |
+| Stack Docker (WP + MySQL + Redis)    | ✅ Producción  | Healthchecks, backups, Redis cache             |
+| Child theme `thormetalart`           | ✅ Configurado | theme.json v3 con paleta, tipografía, layout   |
+| 5 páginas de servicios               | ⚠️ Boilerplate | Texto genérico auto-generado, sin imágenes     |
+| Portfolio CPT                        | ⚠️ Vacío       | Registrado con taxonomía, 0 proyectos          |
+| Formulario de contacto               | ⚠️ Invisible   | Shortcode listo, no colocado en ninguna página |
+| Schema SEO (LocalBusiness + Service) | ✅ Activo      | JSON-LD en wp_head                             |
+| Meta tags + Open Graph               | ✅ Activo      | Dinámicos por página                           |
+| Security hardening                   | ✅ Activo      | 9 medidas, XML-RPC bloqueado, REST restringida |
+| TMA Panel (dashboard interno)        | ✅ v0.4.1      | Leads, docs, KPIs, audit — funcional           |
 
 ### Lo que FALTA para una web real
-| Carencia | Impacto |
-|----------|---------|
-| **Homepage sin diseño** | Visitante ve template genérico de TwentyTwentyfive |
-| **Sin hero section** | No hay primer impacto visual ni CTA visible |
-| **Sin imágenes** | Carpeta uploads vacía — web 100% texto |
-| **Menú de navegación no configurado** | Visitante no puede navegar entre secciones |
-| **Páginas de servicios genéricas** | Textos placeholder, sin FAQs, sin diferenciadores |
-| **Página "About" inexistente** | No cuenta la historia de Karel ni el taller |
-| **Página "How We Work" inexistente** | No explica el proceso de 5 pasos |
-| **Página "Art & Commissions" inexistente** | Motor Artista completamente ausente |
-| **Página de contacto inexistente** | Formulario existe pero no tiene página |
-| **Portfolio vacío** | 0 proyectos — no hay galería visual |
-| **Sin testimonios/reseñas** | No hay social proof |
-| **Footer genérico** | Sin NAP, sin redes, sin info de contacto |
-| **Sin header/nav personalizado** | Usa header default del parent theme |
+
+| Carencia                                   | Impacto                                            |
+| ------------------------------------------ | -------------------------------------------------- |
+| **Homepage sin diseño**                    | Visitante ve template genérico de TwentyTwentyfive |
+| **Sin hero section**                       | No hay primer impacto visual ni CTA visible        |
+| **Sin imágenes**                           | Carpeta uploads vacía — web 100% texto             |
+| **Menú de navegación no configurado**      | Visitante no puede navegar entre secciones         |
+| **Páginas de servicios genéricas**         | Textos placeholder, sin FAQs, sin diferenciadores  |
+| **Página "About" inexistente**             | No cuenta la historia de Karel ni el taller        |
+| **Página "How We Work" inexistente**       | No explica el proceso de 5 pasos                   |
+| **Página "Art & Commissions" inexistente** | Motor Artista completamente ausente                |
+| **Página de contacto inexistente**         | Formulario existe pero no tiene página             |
+| **Portfolio vacío**                        | 0 proyectos — no hay galería visual                |
+| **Sin testimonios/reseñas**                | No hay social proof                                |
+| **Footer genérico**                        | Sin NAP, sin redes, sin info de contacto           |
+| **Sin header/nav personalizado**           | Usa header default del parent theme                |
 
 ---
 
@@ -334,75 +336,79 @@ Cada servicio usa el contenido definido en el Doc 10 (Copys del Sitio Web):
 
 Usaremos el sistema de Full Site Editing de WordPress con el child theme `thormetalart`:
 
-| Componente | Archivo | Propósito |
-|------------|---------|-----------|
-| Header | `parts/header.html` | Logo + nav + CTA + idioma |
-| Footer | `parts/footer.html` | NAP, servicios, redes, legal |
-| Home template | `templates/front-page.html` | Layout completo del home |
-| Service template | `templates/single-service.html` | Template para cada servicio |
-| Portfolio archive | `templates/archive-tma_portfolio.html` | Grid de proyectos con filtros |
-| Portfolio single | `templates/single-tma_portfolio.html` | Detalle de proyecto |
-| Contact template | `templates/page-contact.html` | Layout 2 columnas con form |
-| Default page | `templates/page.html` | About, How We Work, Art |
+| Componente        | Archivo                                | Propósito                               |
+| ----------------- | -------------------------------------- | --------------------------------------- |
+| Header            | `parts/header.html`                    | Logo + nav + CTA + idioma               |
+| Footer            | `parts/footer.html`                    | NAP, servicios, redes, legal            |
+| Home template     | `templates/front-page.html`            | Layout completo del home                |
+| Service template  | `templates/page-service.html`          | Template único para los cinco servicios |
+| Sales template    | `templates/page-sales.html`            | Art & Commissions y How We Work         |
+| Portfolio archive | `templates/archive-tma_portfolio.html` | Grid de proyectos con filtros           |
+| Portfolio single  | `templates/single-tma_portfolio.html`  | Detalle de proyecto                     |
+| Contact template  | `templates/page-contact.html`          | Layout 2 columnas con form              |
+| Default page      | `templates/page.html`                  | Páginas internas generales              |
 
 ### 4.2 Nuevos mu-plugins necesarios
 
-| Plugin | Función |
-|--------|---------|
-| `tma-navigation.php` | Registra menús y posiciones (header, footer, servicios) |
-| `tma-homepage-blocks.php` | Custom blocks o patterns para las secciones del home |
-| `tma-testimonials.php` | CPT para testimonios (o ACF repeater en opciones) |
+| Plugin                    | Función                                                 |
+| ------------------------- | ------------------------------------------------------- |
+| `tma-navigation.php`      | Registra menús y posiciones (header, footer, servicios) |
+| `tma-homepage-blocks.php` | Custom blocks o patterns para las secciones del home    |
+| `tma-testimonials.php`    | CPT para testimonios (o ACF repeater en opciones)       |
 
 ### 4.3 Contenido que requiere input del cliente (Karel)
 
-| Elemento | Estado | Acción necesaria |
-|----------|--------|-------------------|
-| Fotos de proyectos | ❌ No hay | Karel debe enviar fotos de sus trabajos (mín. 20-30 fotos) |
-| Número de teléfono | ❌ Placeholder | Definir teléfono de negocio para web |
-| Email de negocio | ❌ Placeholder | Definir email (info@thormetalart.com?) |
-| Dirección de taller | ❌ No publicada | Decidir si mostrar address o solo "Miami-Dade" |
-| Rating de Google | ❌ Sin reseñas | Necesita al menos 3-5 reseñas en GBP |
-| Testimonios de clientes | ❌ Ninguno | Pedir testimonios a clientes anteriores |
-| Artist statement de Karel | ⚠️ Template | Karel debe personalizar su declaración artística |
-| Años de experiencia | ❌ Placeholder "[X]" | Karel debe confirmar años de experiencia |
-| Horario de atención | ❌ No definido | Definir horario para web y GBP |
-| Logo alta resolución | ⚠️ Verificar | Necesitamos logo en SVG o PNG de alta res |
+| Elemento                  | Estado               | Acción necesaria                                       |
+| ------------------------- | -------------------- | ------------------------------------------------------ |
+| Fotos de proyectos        | ⚠️ Parcial           | Validar y documentar cada proyecto antes de publicarlo |
+| Número de teléfono        | ✅ Configurado       | Mantener el número comercial vigente                   |
+| Email de negocio          | ✅ Configurado       | `contact@thormetalart.com` vía Hostinger SMTP          |
+| Dirección de taller       | ❌ No publicada      | Decidir si mostrar address o solo "Miami-Dade"         |
+| Rating de Google          | ⏸️ No publicado      | Publicar solo con fuente y aprobación documentadas     |
+| Testimonios de clientes   | ⏸️ No publicados     | Solicitar consentimiento y texto aprobado              |
+| Artist statement de Karel | ⚠️ Template          | Karel debe personalizar su declaración artística       |
+| Años de experiencia       | ❌ Placeholder "[X]" | Karel debe confirmar años de experiencia               |
+| Horario de atención       | ❌ No definido       | Definir horario para web y GBP                         |
+| Logo alta resolución      | ⚠️ Verificar         | Necesitamos logo en SVG o PNG de alta res              |
 
 ---
 
 ## 5. PLAN DE EJECUCIÓN POR FASES
 
 ### Fase A: Estructura + Templates (sin contenido real)
+
 **Scope:** Crear los templates FSE, header, footer, y estructura de todas las páginas con contenido del Doc 10.
 
-| Ticket | Descripción | Prioridad |
-|--------|-------------|-----------|
-| TICKET-WP-004 | Header personalizado: logo + nav + CTA + lang switch | P0 |
-| TICKET-WP-005 | Footer personalizado: NAP + servicios + redes + legal | P0 |
-| TICKET-WP-006 | Homepage completa con todas las secciones | P0 |
-| TICKET-WP-007 | Reescribir páginas de servicios con copys del Doc 10 | P1 |
-| TICKET-WP-008 | Crear página Art & Commissions | P1 |
-| TICKET-WP-009 | Crear página How We Work | P1 |
-| TICKET-WP-010 | Crear página Contact con formulario integrado | P1 |
-| TICKET-WP-011 | Configurar menú de navegación (header + footer) | P0 |
+| Ticket        | Descripción                                           | Prioridad |
+| ------------- | ----------------------------------------------------- | --------- |
+| TICKET-WP-004 | Header personalizado: logo + nav + CTA + lang switch  | P0        |
+| TICKET-WP-005 | Footer personalizado: NAP + servicios + redes + legal | P0        |
+| TICKET-WP-006 | Homepage completa con todas las secciones             | P0        |
+| TICKET-WP-007 | Reescribir páginas de servicios con copys del Doc 10  | P1        |
+| TICKET-WP-008 | Crear página Art & Commissions                        | P1        |
+| TICKET-WP-009 | Crear página How We Work                              | P1        |
+| TICKET-WP-010 | Crear página Contact con formulario integrado         | P1        |
+| TICKET-WP-011 | Configurar menú de navegación (header + footer)       | P0        |
 
 ### Fase B: Contenido visual (requiere fotos de Karel)
-| Ticket | Descripción | Prioridad |
-|--------|-------------|-----------|
-| TICKET-WP-012 | Subir y asignar imágenes hero a cada página | P0 |
-| TICKET-WP-013 | Crear 10-15 proyectos en Portfolio con fotos reales | P0 |
-| TICKET-WP-014 | Agregar fotos de taller/proceso a "How We Work" | P1 |
-| TICKET-WP-015 | Agregar fotos de esculturas a "Art & Commissions" | P1 |
+
+| Ticket        | Descripción                                         | Prioridad |
+| ------------- | --------------------------------------------------- | --------- |
+| TICKET-WP-012 | Subir y asignar imágenes hero a cada página         | P0        |
+| TICKET-WP-013 | Crear 10-15 proyectos en Portfolio con fotos reales | P0        |
+| TICKET-WP-014 | Agregar fotos de taller/proceso a "How We Work"     | P1        |
+| TICKET-WP-015 | Agregar fotos de esculturas a "Art & Commissions"   | P1        |
 
 ### Fase C: Conversión + SEO
-| Ticket | Descripción | Prioridad |
-|--------|-------------|-----------|
-| TICKET-SEO-003 | Actualizar meta descriptions con contenido final | P1 |
-| TICKET-SEO-004 | FAQ Schema markup en páginas de servicios | P1 |
-| TICKET-SEO-005 | BreadcrumbList schema | P2 |
-| TICKET-SEO-006 | Sitemap XML (Yoast o custom) | P1 |
-| TICKET-WP-016 | Sección testimonios con reseñas reales | P2 |
-| TICKET-WP-017 | Google Maps embed en contacto (si hay dirección) | P3 |
+
+| Ticket         | Descripción                                      | Prioridad |
+| -------------- | ------------------------------------------------ | --------- |
+| TICKET-SEO-003 | Actualizar meta descriptions con contenido final | P1        |
+| TICKET-SEO-004 | FAQ Schema markup en páginas de servicios        | P1        |
+| TICKET-SEO-005 | BreadcrumbList schema                            | P2        |
+| TICKET-SEO-006 | Sitemap XML (Yoast o custom)                     | P1        |
+| TICKET-WP-016  | Sección testimonios con reseñas reales           | P2        |
+| TICKET-WP-017  | Google Maps embed en contacto (si hay dirección) | P3        |
 
 ---
 
@@ -418,21 +424,21 @@ Con la documentación existente (Doc 10 Copys + Brief v2), podemos construir **t
 6. **Crear Contact** con formulario (shortcode ya existe)
 7. **Configurar navegación principal**
 
-**Resultado:** Un sitio web estructuralmente completo, con todo el contenido textual profesional, listo para recibir imágenes reales cuando Karel las proporcione. Se usarán placeholders visuales elegantes (gradientes metálicos, patterns) en lugar de imágenes stock genéricas.
+**Resultado actual:** El sitio usa templates FSE compartidos, navegación canónica, cinco servicios, contenido bilingüe y formulario conectado al seguimiento de leads. Los claims y proyectos sin evidencia permanecen fuera de publicación.
 
 ---
 
 ## 7. MÉTRICAS DE ÉXITO DE LA V1
 
-| Métrica | Objetivo | Cómo medirlo |
-|---------|----------|---------------|
-| Páginas funcionales | 10/10 con contenido real | Auditoría manual |
-| Formulario de contacto visible | En cada página de servicio + contacto | Test funcional |
-| Navegación completa | Header + footer + dropdown servicios | Test navegación |
-| Mobile responsive | Todas las páginas < 768px | Chrome DevTools |
-| SEO on-page | Meta + Schema + H1 únicos por página | Lighthouse / Schema validator |
-| Page speed | LCP < 2.5s, CLS < 0.1 | PageSpeed Insights |
-| Accesibilidad | Score > 90 en Lighthouse | Lighthouse |
+| Métrica                        | Objetivo                              | Cómo medirlo                  |
+| ------------------------------ | ------------------------------------- | ----------------------------- |
+| Páginas funcionales            | 10/10 con contenido real              | Auditoría manual              |
+| Formulario de contacto visible | En cada página de servicio + contacto | Test funcional                |
+| Navegación completa            | Header + footer + dropdown servicios  | Test navegación               |
+| Mobile responsive              | Todas las páginas < 768px             | Chrome DevTools               |
+| SEO on-page                    | Meta + Schema + H1 únicos por página  | Lighthouse / Schema validator |
+| Page speed                     | LCP < 2.5s, CLS < 0.1                 | PageSpeed Insights            |
+| Accesibilidad                  | Score > 90 en Lighthouse              | Lighthouse                    |
 
 ---
 
@@ -446,4 +452,4 @@ Con la documentación existente (Doc 10 Copys + Brief v2), podemos construir **t
 
 ---
 
-*Propuesta preparada con base en: BACKLOG.md, docs/cliente/03_brief_posicionamiento_v2.md, Doc 10 (Copys Sitio Web), Doc 09 (Guía Fotografía), análisis del child theme actual y mu-plugins existentes.*
+_Propuesta preparada con base en: BACKLOG.md, docs/cliente/03_brief_posicionamiento_v2.md, Doc 10 (Copys Sitio Web), Doc 09 (Guía Fotografía), análisis del child theme actual y mu-plugins existentes._

@@ -2,7 +2,7 @@
 
 > **Source of Truth:** Este archivo es el índice maestro de tickets.
 > Cada ticket tiene su historia completa aquí.
-> **Última actualización:** 2026-07-07
+> **Última actualización:** 2026-09-11
 
 ---
 
@@ -3511,7 +3511,7 @@
     - **Completado:** 2026-07-28
     - **Notas de cierre:** QA automatizado aprobado en todos los criterios. Hallazgo y fix durante la fase QA: los eyebrows de 11px uppercase en los 3 patrones con fondo oscuro (hero-forjado, cta-forjado, quote-band) usóban `textColor:forge` (3.95:1 — no cumple WCAG AA para texto normal pequeño); corregido a `textColor:ember` (7.57:1) vía `sed` + `php -l` inmediato. Tests cubren: (1) H1 único en 7 URLs públicas; (2) contraste WCAG AA ≥4.5:1 para todos los pares de color activos (ember, ash, titanium, ink-mute, ink); (3) `@media (prefers-reduced-motion: reduce)` presente en `style.css`; (4) homepage renderizado sin errores PHP fatales/warnings; (5) homepage en `/es/` responde 200; (6) meta viewport presente; (7) ninguno de los 3 patrones oscuros tiene eyebrow forge; (8) todos los patrones PHP pasan `php -l`; (9) `functions.php` + `theme.json` válidos; (10) las 8 secciones Lujo Forjado renderizan en el homepage. Tests: `tests/test-brand-008-qa-e2e.sh` (11/11 passed).
 
-- [ ] **TICKET-BRAND-009: Deployment del rediseño a PROD + verificación post-deploy**
+- [x] **TICKET-BRAND-009: Deployment del rediseño a PROD + verificación post-deploy**
     - **Fuente:** DEV-FIRST rule del proyecto — promoción obligatoria tras validación completa en dev.thormetalart.com.
     - **Historia de Usuario:** Como responsable del sitio, quiero el rediseño visible en thormetalart.com solo después de que todos los tickets anteriores estén verificados en dev.
     - **Criterios de Aceptación:**
@@ -3538,9 +3538,11 @@
     - **Dependencias:** TICKET-BRAND-008
     - **Estimación:** 2 horas
     - **Prioridad:** P1
-    - **Status:** ⏸️ PENDIENTE
+    - **Status:** ✅ COMPLETADO
+    - **Completado:** 2026-09-11
+    - **Notas de cierre:** Auditoría pública confirmó que el homepage "Lujo Forjado", assets, header/footer y páginas internas están activos en `thormetalart.com`. Este ticket cubre el despliegue inicial; la extensión y correcciones finales se cierran en TICKET-BRAND-018.
 
-- [ ] **TICKET-BRAND-010: Rediseñar `page.html` genérico con banner "Lujo Forjado" (eyebrow + H1 + breadcrumb oscuro)**
+- [x] **TICKET-BRAND-010: Rediseñar `page.html` genérico con banner "Lujo Forjado" (eyebrow + H1 + breadcrumb oscuro)**
     - **Fuente:** Investigación 2026-07-29 — el correo del cliente confirma que "Lujo Forjado" (v3) es el sistema de diseño vigente; auditoría de plantillas confirma que `page.html` (usado por las 12 páginas estáticas) solo heredó paleta/tipografía en BRAND-006, sin ningún tratamiento de sección tipo hero.
     - **Historia de Usuario:** Como visitante, quiero que cualquier página interna del sitio (contacto, blog, legales) tenga un encabezado con la misma identidad visual oscura del homepage para percibir un sitio coherente y profesional.
     - **Criterios de Aceptación:**
@@ -3563,9 +3565,9 @@
     - **Dependencias:** TICKET-BRAND-006 ✅
     - **Estimación:** 3 horas
     - **Prioridad:** P2
-    - **Status:** ⏸️ PENDIENTE
+    - **Status:** ✅ COMPLETADO — pattern reutilizable y render validado en DEV (2026-09-11)
 
-- [ ] **TICKET-BRAND-011: Reconstruir las 5 páginas de servicio con patterns Lujo Forjado completos**
+- [x] **TICKET-BRAND-011: Reconstruir las 5 páginas de servicio con patterns Lujo Forjado completos**
     - **Fuente:** Investigación 2026-07-29 — `custom-metal-gates-miami`, `metal-railings-miami`, `metal-fences-miami`, `custom-metal-furniture-miami`, `metal-stairs-miami` solo tienen un hero cover básico (overlay obsidian, fix de BRAND-006) inyectado por `tma-service-pages.php`, sin el resto del lenguaje visual (eyebrow, disciplinas, FAQ estilizado, CTA final con textura).
     - **Historia de Usuario:** Como cliente potencial buscando un servicio específico, quiero que la página de ese servicio transmita la misma calidad visual "Lujo Forjado" del homepage para confiar en la marca antes de solicitar un presupuesto.
     - **Criterios de Aceptación:**
@@ -3590,12 +3592,12 @@
     - **Archivos a Modificar:**
         - `data/wordpress/wp-content/mu-plugins/tma-service-pages.php` (MODIFIED)
         - `data/wordpress/wp-content/themes/thormetalart/patterns/cta-forjado.php` (referenciado, no modificado)
-    - **Dependencias:** TICKET-BRAND-003 ✅, TICKET-FIX-001 ✅
+    - **Dependencias:** TICKET-BRAND-003 ✅, TICKET-FIX-001 ✅, TICKET-WP-047
     - **Estimación:** 6 horas
     - **Prioridad:** P1
-    - **Status:** ⏸️ PENDIENTE
+    - **Status:** ✅ COMPLETADO — 5 páginas con template dedicado y arquitectura sin shells duplicados (2026-09-11)
 
-- [ ] **TICKET-BRAND-012: Art Commissions + How We Work con patterns Lujo Forjado completos**
+- [x] **TICKET-BRAND-012: Art Commissions + How We Work con patterns Lujo Forjado completos**
     - **Fuente:** Investigación 2026-07-29 — mismo hallazgo que BRAND-011, aplicado a las 2 páginas de venta restantes generadas por `tma-service-pages.php` (líneas ~229 y ~233).
     - **Historia de Usuario:** Como visitante interesado en encargos de arte o en el proceso de trabajo, quiero una experiencia visual consistente con el resto del sitio rediseñado.
     - **Criterios de Aceptación:**
@@ -3617,9 +3619,9 @@
     - **Dependencias:** TICKET-BRAND-011
     - **Estimación:** 3 horas
     - **Prioridad:** P2
-    - **Status:** ⏸️ PENDIENTE
+    - **Status:** ✅ COMPLETADO — templates de venta, hero y patterns compartidos validados (2026-09-11)
 
-- [ ] **TICKET-BRAND-013: Página de Contacto — hero + formulario con tokens "Lujo Forjado"**
+- [x] **TICKET-BRAND-013: Página de Contacto — hero + formulario con tokens "Lujo Forjado"**
     - **Fuente:** Investigación 2026-07-29 — `/contact/` no tiene ningún tratamiento visual del rediseño (usa `page.html` genérico plano).
     - **Historia de Usuario:** Como visitante listo para contactar, quiero que la página de contacto se sienta parte de la misma marca premium, no una página administrativa aparte.
     - **Criterios de Aceptación:**
@@ -3639,12 +3641,12 @@
     - **Archivos a Modificar:**
         - `data/wordpress/wp-content/themes/thormetalart/templates/page-contact.html` (MODIFIED)
         - `data/wordpress/wp-content/themes/thormetalart/style.css` (MODIFIED)
-    - **Dependencias:** TICKET-BRAND-010
+    - **Dependencias:** TICKET-BRAND-010, TICKET-LEAD-005, TICKET-LEAD-006
     - **Estimación:** 3 horas
     - **Prioridad:** P2
-    - **Status:** ⏸️ PENDIENTE
+    - **Status:** ✅ COMPLETADO — hero y formulario EN/ES validados en DEV (2026-09-11)
 
-- [ ] **TICKET-BRAND-014: Blog (listado + artículo) — hero banner y tarjetas estilo "Selected Work"**
+- [x] **TICKET-BRAND-014: Blog (listado + artículo) — hero banner y tarjetas estilo "Selected Work"**
     - **Fuente:** Investigación 2026-07-29 — `archive.html`/`single.html` ya heredan paleta y tipografía (BRAND-006, FIX-002) pero no tienen secciones tipo hero ni tarjetas con el lenguaje visual del homepage.
     - **Historia de Usuario:** Como lector del blog, quiero que el listado y los artículos se vean con la misma calidad visual que el resto del sitio rediseñado.
     - **Criterios de Aceptación:**
@@ -3668,9 +3670,9 @@
     - **Dependencias:** TICKET-BRAND-010
     - **Estimación:** 4 horas
     - **Prioridad:** P2
-    - **Status:** ⏸️ PENDIENTE
+    - **Status:** ✅ COMPLETADO — archivo y single con hero/cards validados (2026-09-11)
 
-- [ ] **TICKET-BRAND-015: Portfolio (archivo/single/taxonomía) — mismo tratamiento visual**
+- [x] **TICKET-BRAND-015: Portfolio (archivo/single/taxonomía) — mismo tratamiento visual**
     - **Fuente:** Investigación 2026-07-29 — mismas plantillas de portfolio con paleta heredada pero sin secciones hero/tarjetas del nuevo sistema.
     - **Historia de Usuario:** Como visitante explorando el portafolio de proyectos, quiero una experiencia visual consistente con el homepage al navegar por categorías y proyectos individuales.
     - **Criterios de Aceptación:**
@@ -3694,9 +3696,9 @@
     - **Dependencias:** TICKET-BRAND-010
     - **Estimación:** 4 horas
     - **Prioridad:** P2
-    - **Status:** ⏸️ PENDIENTE
+    - **Status:** ✅ COMPLETADO — archivo, single y taxonomía usan el sistema Forjado (2026-09-11)
 
-- [ ] **TICKET-BRAND-016: Páginas legales (Privacy Policy, Terms of Service) — verificación y ajuste ligero**
+- [x] **TICKET-BRAND-016: Páginas legales (Privacy Policy, Terms of Service) — verificación y ajuste ligero**
     - **Fuente:** Investigación 2026-07-29 — estas páginas heredan el banner de BRAND-010 al usar `page.html`, pero su contenido extenso (listas largas, texto legal) necesita QA tipográfico específico.
     - **Historia de Usuario:** Como visitante consultando términos legales, quiero que la página sea legible y coherente con la marca sin sacrificar claridad legal.
     - **Criterios de Aceptación:**
@@ -3711,9 +3713,9 @@
     - **Dependencias:** TICKET-BRAND-010
     - **Estimación:** 1 hora
     - **Prioridad:** P3
-    - **Status:** ⏸️ PENDIENTE
+    - **Status:** ✅ COMPLETADO — template legal dedicado y lectura a 760px validados (2026-09-11)
 
-- [ ] **TICKET-BRAND-017: TranslatePress — Traducir strings ES de los nuevos patterns "Lujo Forjado"**
+- [x] **TICKET-BRAND-017: TranslatePress — Traducir strings ES de los nuevos patterns "Lujo Forjado"**
     - **Fuente:** Investigación 2026-07-29 — conteo directo en `tma_trp_dictionary_en_us_es_es` muestra 197 strings con `status=0` (sin traducir), incluyendo el H1 del hero ("Steel, shaped" / "with intent.") y otro contenido introducido en BRAND-001 a BRAND-008 que nunca se agregó al diccionario. Relacionado pero distinto en alcance a TICKET-WP-044 (86 strings de un diagnóstico anterior, 2026-05-26, centrado en "What's Included" de páginas de servicio).
     - **Historia de Usuario:** Como visitante hispanohablante, quiero leer el nuevo hero y las secciones del homepage/páginas rediseñadas completamente en español al visitar `/es/`.
     - **Criterios de Aceptación:**
@@ -3735,33 +3737,59 @@
     - **Dependencias:** TICKET-BRAND-005 ✅, TICKET-WP-044 (relacionado, no bloqueante)
     - **Estimación:** 3 horas
     - **Prioridad:** P1
-    - **Status:** ⏸️ PENDIENTE
+    - **Status:** ✅ COMPLETADO — migración portable por texto y páginas ES validadas (2026-09-11)
 
-- [ ] **TICKET-BRAND-018: Deploy a PROD de la extensión completa del rediseño**
-    - **Fuente:** DEV-FIRST rule — promoción obligatoria tras validar en dev.thormetalart.com todas las páginas extendidas.
-    - **Historia de Usuario:** Como responsable del sitio, quiero que thormetalart.com refleje el mismo diseño y traducción coherentes en todas las páginas, no solo en el homepage.
+- [ ] **TICKET-BRAND-018: Release integral a PROD + cierre de repositorios**
+    - **Fuente:** DEV-FIRST rule + auditoría integral 2026-09-11 + solicitud de cierre completo en producción y repositorios.
+    - **Historia de Usuario:** Como responsable del sitio, quiero promover el release validado desde DEV hasta PROD y cerrar Git/GitHub para que web, bases de datos y repositorios representen exactamente la misma versión estable.
     - **Criterios de Aceptación:**
 
         ```gherkin
-        Scenario: Paridad completa DEV/PROD
-          Given todos los archivos modificados en BRAND-010 a BRAND-017
-          When se copian a /srv/stacks/thormetalart-prod/
-          Then thormetalart.com refleja el mismo diseño y traducciones que dev.thormetalart.com en las 12 páginas estáticas + blog + portfolio
+        Scenario: Quality gates completos en DEV
+          Given todos los tickets dependientes implementados en ramas de trabajo
+          When se ejecutan make test-all, make lint y la suite E2E de TICKET-BRAND-021
+          Then todos los checks aplicables pasan
+          And dev.thormetalart.com queda aprobado en desktop y móvil, EN y ES
 
         Scenario: Backup previo
           Given el stack de PROD corriendo
           When se ejecuta el deployment
-          Then existe un backup de base de datos y archivos previo al cambio
+          Then existe un backup restaurable de base de datos y archivos previo al cambio
+
+        Scenario: Paridad completa DEV/PROD
+          Given el release aprobado en DEV y el backup de PROD
+          When se promueven archivos y migraciones de forma controlada
+          Then thormetalart.com refleja el mismo diseño, navegación, servicios, leads y traducciones validados en DEV
+          And no se copian secretos ni datos de DEV sobre PROD
+
+        Scenario: Verificación pública post-deploy
+          Given el release desplegado
+          When se ejecutan smoke tests y Playwright contra thormetalart.com
+          Then las URLs objetivo responden 200
+          And los cinco servicios son visibles en desktop y móvil
+          And formularios, blog, portfolio, EN y ES no presentan regresiones
+          And existe un procedimiento de rollback documentado y comprobable
+
+        Scenario: Repositorios completamente cerrados
+          Given el release de PROD verificado
+          When se completa el flujo de GitHub
+          Then cada rama de ticket fue integrada por PR y squash en dev
+          And dev fue integrado por PR en main con CI verde
+          And local/dev/origin-dev y local/main/origin-main reportan 0 commits ahead y 0 behind
+          And el árbol de trabajo está limpio
+          And las ramas remotas de trabajo ya integradas fueron eliminadas
         ```
 
     - **Archivos a Modificar:**
-        - `/srv/stacks/thormetalart-prod/` (MODIFIED — réplica de archivos de dev)
-    - **Dependencias:** TICKET-BRAND-009, TICKET-BRAND-010, TICKET-BRAND-011, TICKET-BRAND-012, TICKET-BRAND-013, TICKET-BRAND-014, TICKET-BRAND-015, TICKET-BRAND-016, TICKET-BRAND-017
-    - **Estimación:** 2 horas
-    - **Prioridad:** P1
-    - **Status:** ⏸️ PENDIENTE
+        - `/srv/stacks/thormetalart-prod/` (MODIFIED — promoción controlada desde DEV)
+        - `BACKLOG.md` (MODIFIED — cierre de tickets y notas de release)
+        - `docs/cliente/` (MODIFIED/NEW — evidencia y acta de despliegue)
+    - **Dependencias:** TICKET-BRAND-009 ✅, TICKET-BRAND-010, TICKET-BRAND-011, TICKET-BRAND-012, TICKET-BRAND-013, TICKET-BRAND-014, TICKET-BRAND-015, TICKET-BRAND-016, TICKET-BRAND-017, TICKET-FIX-003, TICKET-WP-047, TICKET-WP-048, TICKET-BRAND-019, TICKET-BRAND-020, TICKET-LEAD-005, TICKET-LEAD-006, TICKET-DOC-002, TICKET-BRAND-021
+    - **Estimación:** 4 horas
+    - **Prioridad:** P0
+    - **Status:** 🧪 EN TESTING — DEV aprobado; pendiente backup, PROD, CI y sincronización final
 
-- [ ] **TICKET-DOC-001: Documentar regla de Definition-of-Done bilingüe en el flujo de tickets**
+- [x] **TICKET-DOC-001: Documentar regla de Definition-of-Done bilingüe en el flujo de tickets**
     - **Fuente:** Investigación 2026-07-29 — causa raíz de por qué el hero y otros textos nuevos quedaron sin traducir: ningún ticket de contenido (BRAND-001 a BRAND-008) incluyó explícitamente el paso de traducción ES como parte de su cierre.
     - **Historia de Usuario:** Como equipo de desarrollo, quiero que todo ticket que agregue texto visible al frontend incluya un paso obligatorio de traducción ES antes de marcarse como completado, para evitar que el sitio quede parcialmente en inglés después de cada rediseño o feature nueva.
     - **Criterios de Aceptación:**
@@ -3783,38 +3811,361 @@
     - **Dependencias:** Ninguna
     - **Estimación:** 1 hora
     - **Prioridad:** P3
-    - **Status:** ⏸️ PENDIENTE
+    - **Status:** ✅ COMPLETADO — checklist bilingüe y patrón de migración documentados (2026-09-11)
+
+---
+
+## 📋 FASE 27 — Cierre Integral del Rediseño + Servicios + Correo (Auditoría 2026-09-11)
+
+> **Fuente:** Auditoría visual, estructural, bilingüe y de correo ejecutada en DEV/PROD el 2026-09-11.
+> **Objetivo de release:** ningún ticket de esta fase se considera entregado al negocio hasta completar TICKET-BRAND-018: merge a `dev`, PR `dev → main`, CI verde, backup, promoción DEV→PROD, verificación pública y repositorios sincronizados.
+> **Evidencia base:** los cinco servicios existen y responden 200; el fallo de visibilidad desktop es recorte CSS. SMTP Hostinger autentica con TLS en PROD sin enviar mensajes; la entrega real y su observabilidad siguen pendientes.
+
+- [x] **TICKET-FIX-003: Mostrar los 5 servicios en el dropdown desktop**
+    - **Fuente:** Auditoría 2026-09-11 — `.tma-site-header` computa `overflow-x:hidden`/`overflow-y:auto`; solo Custom Gates queda dentro de los 116.9 px de altura del header.
+    - **Historia de Usuario:** Como visitante desktop, quiero ver y abrir los cinco servicios desde el menú para encontrar Railings, Fences, Furniture y Stairs además de Custom Gates.
+    - **Criterios de Aceptación:**
+
+        ```gherkin
+        Scenario: Dropdown desktop completo
+          Given un viewport de 1440x900
+          When hago hover o foco de teclado sobre Services
+          Then Custom Gates, Metal Railings, Metal Fences, Custom Furniture y Metal Stairs son visibles y clicables
+          And el último elemento puede sobresalir del borde inferior del header sin ser recortado
+
+        Scenario: Navegación móvil sin regresión
+          Given un viewport de 390x844
+          When abro el overlay de navegación
+          Then los cinco servicios son visibles y clicables
+          And no existe overflow horizontal en el documento
+
+        Scenario: Accesibilidad de teclado
+          Given un usuario que navega con Tab y Enter
+          When alcanza Services
+          Then puede abrir el submenú, recorrer sus cinco enlaces y cerrarlo sin usar mouse
+        ```
+
+    - **Archivos a Modificar:**
+        - `data/wordpress/wp-content/themes/thormetalart/style.css` (MODIFIED)
+        - `tests/test-fix-003-services-dropdown.sh` (NEW)
+        - `tests/e2e/` (NEW/MODIFIED — prueba Playwright desktop/móvil)
+    - **Dependencias:** Ninguna
+    - **Estimación:** 1.5 horas
+    - **Prioridad:** P0
+    - **Status:** ✅ COMPLETADO — hover, foco, Escape y móvil cubiertos por E2E (2026-09-11)
+
+- [x] **TICKET-WP-047: Consolidar la arquitectura de las 5 páginas de servicio**
+    - **Fuente:** Auditoría 2026-09-11 — `page.html` y `tma_service_page_content()` generan shells, heroes y breadcrumbs superpuestos; las cinco páginas publican 2 shells y títulos repetidos.
+    - **Historia de Usuario:** Como cliente potencial, quiero una sola jerarquía visual por página de servicio para comprender la oferta sin títulos, espacios ni breadcrumbs duplicados.
+    - **Criterios de Aceptación:**
+
+        ```gherkin
+        Scenario: Una sola estructura por servicio
+          Given cualquiera de las cinco páginas de servicio
+          When se renderiza EN o ES
+          Then contiene exactamente un H1, un hero, un breadcrumb y un page shell
+          And el contenido no depende de dos wrappers que implementan la misma responsabilidad
+
+        Scenario: Template dedicado y reutilizable
+          Given las cinco páginas comparten estructura
+          When se modifica el diseño del servicio
+          Then el cambio se realiza en un template/pattern común
+          And el contenido persistido contiene datos y cuerpo, no otro template completo
+
+        Scenario: Migración idempotente
+          Given páginas existentes con `_tma_generated_page=1`
+          When se ejecuta el provisionador más de una vez
+          Then no duplica bloques, páginas, traducciones ni metadatos
+          And conserva contenido manual no marcado como generado
+        ```
+
+    - **Archivos a Modificar:**
+        - `data/wordpress/wp-content/themes/thormetalart/templates/page-service.html` (NEW)
+        - `data/wordpress/wp-content/themes/thormetalart/templates/page.html` (MODIFIED)
+        - `data/wordpress/wp-content/mu-plugins/tma-service-pages.php` (MODIFIED)
+        - `tests/test-wp-047-service-architecture.sh` (NEW)
+    - **Dependencias:** TICKET-FIX-001 ✅
+    - **Estimación:** 6 horas
+    - **Prioridad:** P0
+    - **Status:** ✅ COMPLETADO — 8/8 checks de arquitectura y migración idempotente (2026-09-11)
+
+- [x] **TICKET-WP-048: Unificar la fuente de verdad de navegación y servicios**
+    - **Fuente:** Auditoría 2026-09-11 — header FSE inline, menús clásicos sembrados y ubicaciones de menú sin asignar mantienen catálogos duplicados.
+    - **Historia de Usuario:** Como editor del sitio, quiero administrar el catálogo de navegación desde una sola fuente para que header, footer y formularios no diverjan al añadir o renombrar servicios.
+    - **Criterios de Aceptación:**
+
+        ```gherkin
+        Scenario: Una sola navegación canónica
+          Given el header y footer del tema
+          When se consulta su configuración
+          Then ambos derivan del catálogo canónico aprobado
+          And no existe un menú clásico sembrado que aparente controlar un header que no lo consume
+
+        Scenario: Cinco servicios consistentes
+          Given header, footer, schema, homepage y formulario
+          When se enumeran los servicios
+          Then todos usan los mismos cinco slugs y nombres canónicos
+          And cada enlace responde 200 en EN y ES
+        ```
+
+    - **Archivos a Modificar:**
+        - `data/wordpress/wp-content/themes/thormetalart/parts/header.html` (MODIFIED)
+        - `data/wordpress/wp-content/themes/thormetalart/parts/footer.html` (MODIFIED)
+        - `data/wordpress/wp-content/mu-plugins/tma-navigation.php` (MODIFIED)
+        - `data/wordpress/wp-content/mu-plugins/tma-service-pages.php` (MODIFIED)
+        - `tests/test-wp-048-navigation-source.sh` (NEW)
+    - **Dependencias:** TICKET-FIX-003
+    - **Estimación:** 4 horas
+    - **Prioridad:** P1
+    - **Status:** ✅ COMPLETADO — catálogo canónico compartido por navegación, schema y formulario (2026-09-11)
+
+- [x] **TICKET-BRAND-019: Hacer visibles los 5 servicios y portfolio relacionado en el diseño**
+    - **Fuente:** Auditoría 2026-09-11 — el homepage agrupa cuatro servicios bajo Architectural Fabrication y Furniture bajo Art; las páginas de servicio no muestran el portfolio relacionado previsto en la propuesta.
+    - **Historia de Usuario:** Como visitante, quiero identificar los cinco servicios principales y ver trabajos relacionados para entender rápidamente todo lo que fabrica Thor Metal Art.
+    - **Criterios de Aceptación:**
+
+        ```gherkin
+        Scenario: Oferta completa visible sin depender del dropdown
+          Given el homepage en desktop o móvil
+          When reviso la sección de servicios
+          Then encuentro Gates, Railings, Fences, Furniture y Stairs con enlaces directos
+          And Art & Commissions permanece claramente diferenciado de los cinco servicios
+
+        Scenario: Portfolio relacionado por servicio
+          Given una página de servicio
+          When llego a la sección de trabajos relacionados
+          Then veo hasta tres proyectos publicados de su taxonomía
+          And existe un estado vacío honesto cuando no hay proyectos suficientes
+        ```
+
+    - **Archivos a Modificar:**
+        - `data/wordpress/wp-content/themes/thormetalart/patterns/disciplines.php` (MODIFIED)
+        - `data/wordpress/wp-content/themes/thormetalart/patterns/` (NEW/MODIFIED — catálogo/related work)
+        - `data/wordpress/wp-content/mu-plugins/tma-service-pages.php` (MODIFIED)
+        - `tests/test-brand-019-service-discovery.sh` (NEW)
+    - **Dependencias:** TICKET-WP-047, TICKET-WP-048, TICKET-BRAND-011
+    - **Estimación:** 4 horas
+    - **Prioridad:** P1
+    - **Status:** ✅ COMPLETADO — descubrimiento de servicios y fallback honesto validados (2026-09-11)
+
+- [x] **TICKET-BRAND-020: Validar o retirar rating, clientes y testimonios públicos**
+    - **Fuente:** Auditoría 2026-09-11 — homepage publica `4.9★`, logos/nombres de clientes y testimonios semilla mientras la documentación indica que no estaban validados.
+    - **Historia de Usuario:** Como cliente potencial, quiero que las señales de confianza sean reales y comprobables para tomar decisiones con información honesta.
+    - **Criterios de Aceptación:**
+
+        ```gherkin
+        Scenario: Claims con evidencia aprobada
+          Given un rating, testimonio o nombre de cliente visible
+          When se publica en DEV y PROD
+          Then existe evidencia y aprobación documentada del cliente
+          And el texto publicado coincide con la fuente aprobada
+
+        Scenario: Fallback sin claims ficticios
+          Given un claim sin evidencia suficiente
+          When se prepara el release
+          Then se retira o sustituye por contenido factual no atribuido
+          And no se presentan placeholders como clientes reales
+        ```
+
+    - **Archivos a Modificar:**
+        - `data/wordpress/wp-content/themes/thormetalart/patterns/atelier.php` (MODIFIED)
+        - `data/wordpress/wp-content/themes/thormetalart/patterns/client-logos.php` (MODIFIED)
+        - `data/wordpress/wp-content/mu-plugins/tma-seed-content.php` (MODIFIED)
+        - `docs/cliente/` (MODIFIED/NEW — matriz de aprobación de claims)
+        - `tests/test-brand-020-verified-proof.sh` (NEW)
+    - **Dependencias:** Aprobación de Karel para cualquier claim atribuido
+    - **Estimación:** 2 horas técnicas + tiempo de aprobación del cliente
+    - **Prioridad:** P0
+    - **Status:** ✅ COMPLETADO — claims no verificables retirados y seeds en draft (2026-09-11)
+
+- [x] **TICKET-LEAD-005: Corregir catálogo del formulario y alertas de alto valor**
+    - **Fuente:** Auditoría 2026-09-11 — falta Metal Stairs; el formulario envía slugs (`custom-gates`, `metal-art`) que no coinciden con las etiquetas comparadas por la alerta premium.
+    - **Historia de Usuario:** Como responsable comercial, quiero clasificar todos los servicios y recibir alertas de oportunidades de alto valor para responder correctamente a cada lead.
+    - **Criterios de Aceptación:**
+
+        ```gherkin
+        Scenario: Selector completo EN/ES
+          Given el formulario de contacto
+          When abro Service of interest o Servicio de interés
+          Then aparecen los cinco servicios, Art & Commissions y Other con valores canónicos
+
+        Scenario: Alertas premium alcanzables
+          Given un envío válido para custom-gates o metal-art
+          When se procesa el lead
+          Then se activa exactamente una alerta de alto valor
+          And servicios no premium no generan esa alerta
+
+        Scenario: Lead persistido con valor permitido
+          Given un POST manipulado con un servicio desconocido
+          When el backend valida la solicitud
+          Then rechaza o normaliza el valor según allowlist
+          And nunca persiste una etiqueta arbitraria como servicio canónico
+        ```
+
+    - **Archivos a Modificar:**
+        - `data/wordpress/wp-content/mu-plugins/tma-contact-form.php` (MODIFIED)
+        - `tests/test-lead-004-high-value-alerts.sh` (MODIFIED — reemplazar checks superficiales)
+        - `tests/test-lead-005-service-catalog.sh` (NEW)
+    - **Dependencias:** TICKET-WP-048
+    - **Estimación:** 3 horas
+    - **Prioridad:** P0
+    - **Status:** ✅ COMPLETADO — allowlist, cinco servicios y notificación única validados (2026-09-11)
+
+- [ ] **TICKET-LEAD-006: Añadir observabilidad y prueba controlada de entrega SMTP**
+    - **Fuente:** Auditoría 2026-09-11 — Hostinger acepta autenticación TLS en PROD, pero se ignora el retorno de `wp_mail()`, no se registra `wp_mail_failed` y DEV suprime correo sin un transporte observable de prueba.
+    - **Historia de Usuario:** Como operador, quiero saber si cada notificación fue entregada al servidor SMTP y poder reintentar fallos para no perder oportunidades comerciales.
+    - **Criterios de Aceptación:**
+
+        ```gherkin
+        Scenario: Fallo de notificación observable
+          Given un lead persistido y un fallo de wp_mail
+          When termina el procesamiento
+          Then el lead sigue confirmado al usuario
+          And notification_status queda en failed sin almacenar credenciales ni cuerpo sensible en logs
+          And se registra un evento operativo con causa sanitizada
+
+        Scenario: Éxito SMTP observable
+          Given SMTP Hostinger configurado
+          When wp_mail entrega el mensaje al servidor SMTP
+          Then notification_status queda en sent
+          And no se duplica el correo de alerta premium
+
+        Scenario: Prueba segura en DEV
+          Given WP_ENVIRONMENT_TYPE=development
+          When se ejecuta la suite de correo
+          Then no sale correo real a Internet
+          And se puede afirmar qué mensaje habría sido enviado mediante un transporte/interceptor de prueba
+
+        Scenario: Entrega real controlada en PROD
+          Given destinatario de prueba y ventana aprobados
+          When se ejecuta una única prueba end-to-end
+          Then autenticación, aceptación SMTP y recepción en inbox/spam quedan documentadas
+          And no se usa una dirección de cliente sin autorización
+        ```
+
+    - **Archivos a Modificar:**
+        - `data/wordpress/wp-content/mu-plugins/tma-smtp.php` (MODIFIED)
+        - `data/wordpress/wp-content/mu-plugins/tma-contact-form.php` (MODIFIED)
+        - `tests/test-lead-006-smtp-observability.sh` (NEW)
+        - `docs/cliente/` (MODIFIED/NEW — evidencia de prueba sin secretos)
+    - **Dependencias:** TICKET-LEAD-005; destinatario/ventana aprobados solo para el escenario PROD
+    - **Estimación:** 5 horas + ventana de verificación de entrega
+    - **Prioridad:** P0
+    - **Status:** 🧪 EN TESTING — observabilidad/captura DEV 7/7; prueba SMTP real requiere autorización
+
+- [x] **TICKET-DOC-002: Actualizar documentación de diseño, correo y Definition of Done**
+    - **Fuente:** Auditoría 2026-09-11 — la propuesta aún marca el correo como placeholder y describe componentes anteriores al rediseño; falta un runbook actual de SMTP y release.
+    - **Historia de Usuario:** Como equipo de desarrollo y cliente, quiero documentación alineada con el sistema publicado para operar el sitio y evaluar futuros cambios sin partir de supuestos obsoletos.
+    - **Criterios de Aceptación:**
+
+        ```gherkin
+        Scenario: Estado actual documentado
+          Given propuesta, arquitectura y runbooks
+          When se revisan tras el cambio
+          Then identifican contact@thormetalart.com, Hostinger SMTP, DEV suppression y la fuente canónica de navegación
+          And separan configuración, autenticación, aceptación SMTP y recepción final
+
+        Scenario: Definition of Done completa
+          Given un ticket con frontend, traducciones o deployment
+          When se marca COMPLETADO
+          Then exige pruebas EN/ES, desktop/móvil, DEV, PROD, CI, PRs y repositorios sincronizados según corresponda
+        ```
+
+    - **Archivos a Modificar:**
+        - `docs/cliente/propuesta_web_v1.md` (MODIFIED)
+        - `docs/` (MODIFIED/NEW — arquitectura y runbook SMTP/release)
+        - `.github/instructions/workflows.instructions.md` (MODIFIED)
+        - `BACKLOG.md` (MODIFIED)
+    - **Dependencias:** TICKET-DOC-001, TICKET-WP-048, TICKET-LEAD-006
+    - **Estimación:** 3 horas
+    - **Prioridad:** P1
+    - **Status:** ✅ COMPLETADO — propuesta, arquitectura y runbook SMTP/release actualizados (2026-09-11)
+
+- [x] **TICKET-BRAND-021: Quality gate E2E integral antes de producción**
+    - **Fuente:** Auditoría 2026-09-11 — pruebas anteriores no detectaron recorte del dropdown, shells duplicados, ausencia de Stairs ni alertas premium inalcanzables.
+    - **Historia de Usuario:** Como responsable del release, quiero una suite que reproduzca los flujos reales para impedir que un test superficial apruebe una versión visual o funcionalmente incompleta.
+    - **Criterios de Aceptación:**
+
+        ```gherkin
+        Scenario: Matriz visual y funcional
+          Given las URLs de home, cinco servicios, Art, How We Work, Contact, Blog y Portfolio
+          When Playwright las prueba en desktop y móvil, EN y ES
+          Then no hay solapamientos ni overflow horizontal
+          And navegación, formularios, imágenes, H1 y CTAs cumplen sus contratos
+
+        Scenario: Regresiones específicas cubiertas
+          Given los defectos de la auditoría 2026-09-11
+          When se ejecuta la suite
+          Then falla si hay menos de cinco servicios visibles
+          And falla si una página de servicio tiene más de un shell, hero, breadcrumb o H1
+          And falla si falta Metal Stairs o una alerta premium es inalcanzable
+
+        Scenario: Evidencia reproducible
+          Given la suite completada en DEV
+          When se prepara el release
+          Then se conservan resultados y capturas sin secretos ni PII
+          And make test-all, make lint y CI no presentan fallos nuevos
+        ```
+
+    - **Archivos a Modificar:**
+        - `tests/e2e/` (NEW/MODIFIED)
+        - `tests/test-brand-021-release-qa.sh` (NEW)
+        - `Makefile` (MODIFIED — target reproducible si aplica)
+        - `.github/workflows/ci.yml` (MODIFIED — solo si el entorno permite E2E estable)
+    - **Dependencias:** TICKET-FIX-003, TICKET-WP-047, TICKET-WP-048, TICKET-BRAND-010 a TICKET-BRAND-017, TICKET-BRAND-019, TICKET-BRAND-020, TICKET-LEAD-005, TICKET-LEAD-006, TICKET-DOC-002
+    - **Estimación:** 5 horas
+    - **Prioridad:** P0
+    - **Status:** ✅ COMPLETADO — 56/56 suites y 58/58 escenarios Playwright en DEV (2026-09-11)
+
+### Orden de ejecución y estimación de la Fase 27
+
+| Orden                           | Ticket                              | Entregable                                               | Estimación                      |
+| ------------------------------- | ----------------------------------- | -------------------------------------------------------- | ------------------------------- |
+| 1                               | TICKET-FIX-003                      | Dropdown desktop completo                                | 1.5 h                           |
+| 2                               | TICKET-WP-047                       | Arquitectura única de servicios                          | 6 h                             |
+| 3                               | TICKET-WP-048                       | Navegación/catálogo canónico                             | 4 h                             |
+| 4                               | TICKET-LEAD-005                     | Formulario y alertas correctos                           | 3 h                             |
+| 5                               | TICKET-LEAD-006                     | Correo observable y probado                              | 5 h + ventana                   |
+| 6                               | TICKET-BRAND-019                    | Oferta y portfolio visibles                              | 4 h                             |
+| 7                               | TICKET-BRAND-020                    | Social proof verificado                                  | 2 h + aprobación                |
+| 8                               | TICKET-DOC-002                      | Documentación y DoD actualizados                         | 3 h                             |
+| 9                               | TICKET-BRAND-021                    | QA E2E integral                                          | 5 h                             |
+| Cierre                          | TICKET-BRAND-018                    | PRs, main, PROD y repositorios                           | 4 h                             |
+| **Total técnico nuevo**         |                                     | **Sin contar BRAND-010 a BRAND-017 ya estimados**        | **37.5 h**                      |
+| Preexistente                    | TICKET-BRAND-010 a TICKET-BRAND-017 | Extensión visual pendiente                               | 27 h                            |
+| **Programa completo pendiente** |                                     | **Implementación, QA, release y cierre de repositorios** | **64.5 h + aprobación/ventana** |
 
 ---
 
 ## 📊 Resumen
 
-| Fase                             | Total   | ✅     | ⏸️     | 🚫    | Progreso |
-| -------------------------------- | ------- | ------ | ------ | ----- | -------- |
-| 1 — Infraestructura              | 3       | 3      | 0      | 0     | 100%     |
-| 2 — Dashboard                    | 3       | 3      | 0      | 0     | 100%     |
-| 3 — WordPress                    | 3       | 3      | 0      | 0     | 100%     |
-| 4 — SEO                          | 2       | 2      | 0      | 0     | 100%     |
-| 5 — Seguridad                    | 1       | 1      | 0      | 0     | 100%     |
-| 6 — Leads/CRM                    | 1       | 1      | 0      | 0     | 100%     |
-| 7 — Portal Docs                  | 4       | 4      | 0      | 0     | 100%     |
-| 8 — TMA Panel Base               | 10      | 10     | 0      | 0     | 100%     |
-| 9 — Dashboard Datos Reales       | 7       | 5      | 0      | 2     | 71%      |
-| 10 — Portal Integrado            | 3       | 3      | 0      | 0     | 100%     |
-| 11 — Leads Dinámico              | 3       | 3      | 0      | 0     | 100%     |
-| 12 — Cleanup Docker              | 1       | 1      | 0      | 0     | 100%     |
-| 13 — UI/UX Polish                | 4       | 4      | 0      | 0     | 100%     |
-| 14 — Bug Fixes & Doc UX          | 1       | 1      | 0      | 0     | 100%     |
-| 15 — Website V1: Templates       | 10      | 10     | 0      | 0     | 100%     |
-| 16 — Website V1: Visual          | 4       | 4      | 0      | 0     | 100%     |
-| 17 — Website V1: SEO+Conv        | 6       | 6      | 0      | 0     | 100%     |
-| 18 — Google Ecosystem            | 7       | 4      | 1      | 2     | 57%      |
-| **19 — Visual Real (Drive)**     | **5**   | **5**  | **0**  | **0** | **100%** |
-| **20 — Visual Full + Deploy**    | **6**   | **6**  | **0**  | **0** | **100%** |
-| **21 — TranslatePress i18n**     | **5**   | **5**  | **0**  | **0** | **100%** |
-| **22 — Social Media Setup**      | **4**   | **0**  | **4**  | **0** | **0%**   |
-| **23 — Blog SEO + Marca**        | **6**   | **2**  | **4**  | **0** | **33%**  |
-| **24 — Español Miami Market**    | **5**   | **0**  | **5**  | **0** | **0%**   |
-| **25 — SEO Técnico Profundo**    | **8**   | **0**  | **8**  | **0** | **0%**   |
-| **26 — Rediseño "Lujo Forjado"** | **20**  | **10** | **10** | **0** | **50%**  |
-| **TOTAL**                        | **132** | **97** | **31** | **4** | **73%**  |
+| Fase                             | Total   | ✅      | ⏸️     | 🚫    | Progreso |
+| -------------------------------- | ------- | ------- | ------ | ----- | -------- |
+| 1 — Infraestructura              | 3       | 3       | 0      | 0     | 100%     |
+| 2 — Dashboard                    | 3       | 3       | 0      | 0     | 100%     |
+| 3 — WordPress                    | 3       | 3       | 0      | 0     | 100%     |
+| 4 — SEO                          | 2       | 2       | 0      | 0     | 100%     |
+| 5 — Seguridad                    | 1       | 1       | 0      | 0     | 100%     |
+| 6 — Leads/CRM                    | 1       | 1       | 0      | 0     | 100%     |
+| 7 — Portal Docs                  | 4       | 4       | 0      | 0     | 100%     |
+| 8 — TMA Panel Base               | 10      | 10      | 0      | 0     | 100%     |
+| 9 — Dashboard Datos Reales       | 5       | 5       | 0      | 0     | 100%     |
+| 10 — Portal Integrado            | 3       | 3       | 0      | 0     | 100%     |
+| 11 — Leads Dinámico              | 3       | 3       | 0      | 0     | 100%     |
+| 12 — Cleanup Docker              | 1       | 1       | 0      | 0     | 100%     |
+| 13 — UI/UX Polish                | 4       | 4       | 0      | 0     | 100%     |
+| 14 — Bug Fixes & Doc UX          | 1       | 1       | 0      | 0     | 100%     |
+| 15 — Website V1: Templates       | 10      | 10      | 0      | 0     | 100%     |
+| 16 — Website V1: Visual          | 4       | 4       | 0      | 0     | 100%     |
+| 17 — Website V1: SEO+Conv        | 6       | 6       | 0      | 0     | 100%     |
+| 18 — Google Ecosystem            | 7       | 6       | 0      | 1     | 86%      |
+| **19 — Visual Real (Drive)**     | **5**   | **5**   | **0**  | **0** | **100%** |
+| **20 — Visual Full + Deploy**    | **6**   | **6**   | **0**  | **0** | **100%** |
+| **21 — TranslatePress i18n**     | **5**   | **5**   | **0**  | **0** | **100%** |
+| **22 — Social Media Setup**      | **4**   | **0**   | **4**  | **0** | **0%**   |
+| **23 — Blog SEO + Marca**        | **8**   | **8**   | **0**  | **0** | **100%** |
+| **24 — Español Miami Market**    | **5**   | **0**   | **5**  | **0** | **0%**   |
+| **25 — SEO Técnico Profundo**    | **8**   | **8**   | **0**  | **0** | **100%** |
+| **26 — Rediseño "Lujo Forjado"** | **21**  | **11**  | **10** | **0** | **52%**  |
+| **27 — Cierre Integral 2026-09** | **9**   | **0**   | **9**  | **0** | **0%**   |
+| **TOTAL**                        | **142** | **113** | **28** | **1** | **80%**  |
