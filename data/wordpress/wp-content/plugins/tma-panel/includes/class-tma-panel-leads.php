@@ -141,12 +141,12 @@ class TMA_Panel_Leads {
 		$wpdb->insert(
 			$wpdb->prefix . 'panel_lead_history',
 			array(
-				'lead_id'     => $lead_id,
-				'user_id'     => get_current_user_id(),
-				'action'      => sprintf( 'Estado: %s -> %s', $old_status, $new_status ),
-				'old_status'  => $old_status,
-				'new_status'  => $new_status,
-				'created_at'  => current_time( 'mysql' ),
+				'lead_id'    => $lead_id,
+				'user_id'    => get_current_user_id(),
+				'action'     => sprintf( 'Estado: %s -> %s', $old_status, $new_status ),
+				'old_status' => $old_status,
+				'new_status' => $new_status,
+				'created_at' => current_time( 'mysql' ),
 			),
 			array( '%d', '%d', '%s', '%s', '%s', '%s' )
 		);

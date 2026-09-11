@@ -7,7 +7,7 @@ set -e
 PASS=0
 FAIL=0
 TOTAL=0
-WP_CONTAINER="thormetalart_wordpress"
+WP_CONTAINER="tma_dev_wordpress"
 PLUGIN_DIR="/srv/stacks/thormetalart-dev/data/wordpress/wp-content/plugins/tma-panel"
 
 pass() { PASS=$((PASS + 1)); TOTAL=$((TOTAL + 1)); echo "  ✅ $1"; }

@@ -30,12 +30,14 @@ class TMA_Panel_Audit {
 			$user_id = get_current_user_id();
 		}
 
-		$details = wp_json_encode( array(
-			'ip_address' => self::get_ip(),
-			'user_agent' => isset( $_SERVER['HTTP_USER_AGENT'] )
-				? sanitize_text_field( substr( $_SERVER['HTTP_USER_AGENT'], 0, 255 ) )
-				: '',
-		) );
+		$details = wp_json_encode(
+			array(
+				'ip_address' => self::get_ip(),
+				'user_agent' => isset( $_SERVER['HTTP_USER_AGENT'] )
+					? sanitize_text_field( substr( $_SERVER['HTTP_USER_AGENT'], 0, 255 ) )
+					: '',
+			)
+		);
 
 		$wpdb->insert(
 			$wpdb->prefix . 'panel_audit',
@@ -88,8 +90,8 @@ class TMA_Panel_Audit {
 	public static function cleanup(): void {
 		global $wpdb;
 
-		$table    = $wpdb->prefix . 'panel_audit';
-		$cutoff   = gmdate( 'Y-m-d H:i:s', strtotime( '-' . self::RETENTION_DAYS . ' days' ) );
+		$table  = $wpdb->prefix . 'panel_audit';
+		$cutoff = gmdate( 'Y-m-d H:i:s', strtotime( '-' . self::RETENTION_DAYS . ' days' ) );
 
 		$wpdb->query(
 			$wpdb->prepare( "DELETE FROM {$table} WHERE created_at < %s", $cutoff )

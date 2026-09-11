@@ -14,15 +14,15 @@
 defined( 'ABSPATH' ) || exit;
 
 /* ═══════════════════════════════════════════════════════════════════
-   Constants
-   ═══════════════════════════════════════════════════════════════════ */
+	Constants
+	═══════════════════════════════════════════════════════════════════ */
 
 define( 'TMA_PANEL_VERSION', '0.4.1' );
 define( 'TMA_PANEL_PATH', plugin_dir_path( __FILE__ ) );
 define( 'TMA_PANEL_URL', plugin_dir_url( __FILE__ ) );
 // Dynamic panel host: supports both prod and dev panel subdomains.
 $_tma_panel_hosts = array( 'panel.thormetalart.com', 'panel-dev.thormetalart.com' );
-$_tma_host = isset( $_SERVER['HTTP_HOST'] ) ? strtolower( preg_replace( '/[^a-zA-Z0-9.-]/', '', $_SERVER['HTTP_HOST'] ) ) : '';
+$_tma_host        = isset( $_SERVER['HTTP_HOST'] ) ? strtolower( preg_replace( '/[^a-zA-Z0-9.-]/', '', $_SERVER['HTTP_HOST'] ) ) : '';
 define( 'TMA_PANEL_HOST', in_array( $_tma_host, $_tma_panel_hosts, true ) ? $_tma_host : 'panel.thormetalart.com' );
 unset( $_tma_panel_hosts, $_tma_host );
 define( 'TMA_PANEL_PATH_PREFIX', '/panel' );
@@ -79,8 +79,8 @@ function tma_panel_current_route(): ?string {
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   Includes
-   ═══════════════════════════════════════════════════════════════════ */
+	Includes
+	═══════════════════════════════════════════════════════════════════ */
 
 require_once TMA_PANEL_PATH . 'includes/class-tma-panel-router.php';
 require_once TMA_PANEL_PATH . 'includes/class-tma-panel-roles.php';
@@ -88,37 +88,44 @@ require_once TMA_PANEL_PATH . 'includes/class-tma-panel-data.php';
 require_once TMA_PANEL_PATH . 'includes/class-tma-panel-audit.php';
 require_once TMA_PANEL_PATH . 'includes/class-tma-panel-api.php';
 require_once TMA_PANEL_PATH . 'includes/class-tma-panel-export.php';
+require_once TMA_PANEL_PATH . 'includes/class-tma-panel-google-auth.php';
 require_once TMA_PANEL_PATH . 'includes/class-tma-panel-cron.php';
 require_once TMA_PANEL_PATH . 'includes/class-tma-panel-docs.php';
 require_once TMA_PANEL_PATH . 'includes/class-tma-panel-leads.php';
 
 /* ═══════════════════════════════════════════════════════════════════
-   Activation / Deactivation
-   ═══════════════════════════════════════════════════════════════════ */
+	Activation / Deactivation
+	═══════════════════════════════════════════════════════════════════ */
 
-register_activation_hook( __FILE__, function (): void {
-	TMA_Panel_Roles::activate();
-	TMA_Panel_Data::maybe_migrate();
-	TMA_Panel_Audit::schedule_cleanup();
-	TMA_Panel_Cron::schedule_event();
-	TMA_Panel_Docs::migrate_portal_docs_to_cache();
-	TMA_Panel_Leads::migrate_from_tma_leads();
-} );
-register_deactivation_hook( __FILE__, function (): void {
-	TMA_Panel_Roles::deactivate();
-	TMA_Panel_Audit::unschedule_cleanup();
-	TMA_Panel_Cron::unschedule_event();
-} );
+register_activation_hook(
+	__FILE__,
+	function (): void {
+		TMA_Panel_Roles::activate();
+		TMA_Panel_Data::maybe_migrate();
+		TMA_Panel_Audit::schedule_cleanup();
+		TMA_Panel_Cron::schedule_event();
+		TMA_Panel_Docs::migrate_portal_docs_to_cache();
+		TMA_Panel_Leads::migrate_from_tma_leads();
+	}
+);
+register_deactivation_hook(
+	__FILE__,
+	function (): void {
+		TMA_Panel_Roles::deactivate();
+		TMA_Panel_Audit::unschedule_cleanup();
+		TMA_Panel_Cron::unschedule_event();
+	}
+);
 
 /* ═══════════════════════════════════════════════════════════════════
-   Auto-migrate on admin_init (for updates without reactivation)
-   ═══════════════════════════════════════════════════════════════════ */
+	Auto-migrate on admin_init (for updates without reactivation)
+	═══════════════════════════════════════════════════════════════════ */
 
 add_action( 'admin_init', array( 'TMA_Panel_Data', 'maybe_migrate' ) );
 
 /* ═══════════════════════════════════════════════════════════════════
-   Audit cron scheduling + hook
-   ═══════════════════════════════════════════════════════════════════ */
+	Audit cron scheduling + hook
+	═══════════════════════════════════════════════════════════════════ */
 
 add_action( 'init', array( 'TMA_Panel_Audit', 'schedule_cleanup' ) );
 add_action( 'tma_panel_audit_cleanup', array( 'TMA_Panel_Audit', 'cleanup' ) );
@@ -131,55 +138,69 @@ add_action( 'init', array( 'TMA_Panel_Cron', 'schedule_event' ) );
 add_action( 'tma_panel_sync_external_kpis', array( 'TMA_Panel_Cron', 'sync_all_sources' ) );
 
 /* ═══════════════════════════════════════════════════════════════════
-   Security — Hide admin bar, block wp-admin, session timeout, CORS
-   ═══════════════════════════════════════════════════════════════════ */
+	Security — Hide admin bar, block wp-admin, session timeout, CORS
+	═══════════════════════════════════════════════════════════════════ */
 
 // Hide admin bar for tma_admin and tma_client roles.
-add_action( 'after_setup_theme', function (): void {
-	if ( ! is_user_logged_in() ) {
-		return;
+add_action(
+	'after_setup_theme',
+	function (): void {
+		if ( ! is_user_logged_in() ) {
+			return;
+		}
+		$user  = wp_get_current_user();
+		$roles = array( 'tma_admin', 'tma_client' );
+		if ( array_intersect( $roles, $user->roles ) ) {
+			show_admin_bar( false );
+		}
 	}
-	$user  = wp_get_current_user();
-	$roles = array( 'tma_admin', 'tma_client' );
-	if ( array_intersect( $roles, $user->roles ) ) {
-		show_admin_bar( false );
-	}
-} );
+);
 
 // Block wp-admin access for tma_client / tma_admin (redirect to panel).
-add_action( 'admin_init', function (): void {
-	if ( wp_doing_ajax() || wp_doing_cron() ) {
-		return;
-	}
-	$user        = wp_get_current_user();
-	$tma_roles   = array( 'tma_admin', 'tma_client' );
-	if ( $user->ID && array_intersect( $tma_roles, $user->roles )
+add_action(
+	'admin_init',
+	function (): void {
+		if ( wp_doing_ajax() || wp_doing_cron() ) {
+			return;
+		}
+		$user      = wp_get_current_user();
+		$tma_roles = array( 'tma_admin', 'tma_client' );
+		if ( $user->ID && array_intersect( $tma_roles, $user->roles )
 		&& ! array_intersect( array( 'administrator' ), $user->roles ) ) {
-		wp_safe_redirect( tma_panel_url( '/' ) );
-		exit;
+			wp_safe_redirect( tma_panel_url( '/' ) );
+			exit;
+		}
 	}
-} );
+);
 
 // Session timeout: 12 hours for TMA roles.
-add_filter( 'auth_cookie_expiration', function ( int $expiration, int $user_id ): int {
-	$user      = get_userdata( $user_id );
-	$tma_roles = array( 'tma_admin', 'tma_client' );
-	if ( $user && array_intersect( $tma_roles, $user->roles ) ) {
-		return 12 * HOUR_IN_SECONDS;
-	}
-	return $expiration;
-}, 10, 2 );
+add_filter(
+	'auth_cookie_expiration',
+	function ( int $expiration, int $user_id ): int {
+		$user      = get_userdata( $user_id );
+		$tma_roles = array( 'tma_admin', 'tma_client' );
+		if ( $user && array_intersect( $tma_roles, $user->roles ) ) {
+			return 12 * HOUR_IN_SECONDS;
+		}
+		return $expiration;
+	},
+	10,
+	2
+);
 
 // CORS: allow panel domain for REST API.
-add_filter( 'allowed_http_origins', function ( array $origins ): array {
-	$origins[] = 'https://' . TMA_PANEL_HOST;
-	$origins[] = home_url();
-	return $origins;
-} );
+add_filter(
+	'allowed_http_origins',
+	function ( array $origins ): array {
+		$origins[] = 'https://' . TMA_PANEL_HOST;
+		$origins[] = home_url();
+		return $origins;
+	}
+);
 
 /* ═══════════════════════════════════════════════════════════════════
-   REST API — Register tma-panel/v1 endpoints
-   ═══════════════════════════════════════════════════════════════════ */
+	REST API — Register tma-panel/v1 endpoints
+	═══════════════════════════════════════════════════════════════════ */
 
 add_action( 'rest_api_init', array( 'TMA_Panel_API', 'register_routes' ) );
 
@@ -196,93 +217,103 @@ add_action(
 );
 
 /* ═══════════════════════════════════════════════════════════════════
-   Init — Router intercepts panel domain before WP query resolution
-   ═══════════════════════════════════════════════════════════════════ */
+	Init — Router intercepts panel domain before WP query resolution
+	═══════════════════════════════════════════════════════════════════ */
 
-add_action( 'init', function (): void {
-	$request_uri = tma_panel_current_route();
-	if ( null === $request_uri ) {
-		return;
-	}
+add_action(
+	'init',
+	function (): void {
+		$request_uri = tma_panel_current_route();
+		if ( null === $request_uri ) {
+			return;
+		}
 
-	// Allow REST API and WordPress core paths to pass through.
-	if ( str_starts_with( $request_uri, '/wp-json' )
+		// Allow REST API and WordPress core paths to pass through.
+		if ( str_starts_with( $request_uri, '/wp-json' )
 		|| str_starts_with( $request_uri, '/wp-admin' )
 		|| str_starts_with( $request_uri, '/wp-login' ) ) {
-		return;
-	}
+			return;
+		}
 
-	// Not logged in → public routes.
-	if ( ! is_user_logged_in() ) {
+		// Not logged in → public routes.
+		if ( ! is_user_logged_in() ) {
+			if ( $request_uri === '/login' ) {
+				TMA_Panel_Router::send_security_headers();
+				require_once TMA_PANEL_PATH . 'templates/login.php';
+				exit;
+			}
+			if ( $request_uri === '/forgot-password' ) {
+				TMA_Panel_Router::send_security_headers();
+				require_once TMA_PANEL_PATH . 'templates/forgot-password.php';
+				exit;
+			}
+			if ( $request_uri === '/reset-password' ) {
+				TMA_Panel_Router::send_security_headers();
+				require_once TMA_PANEL_PATH . 'templates/reset-password.php';
+				exit;
+			}
+			wp_safe_redirect( tma_panel_url( '/login' ) );
+			exit;
+		}
+
+		// Logged in on /login → redirect to panel root.
 		if ( $request_uri === '/login' ) {
-			TMA_Panel_Router::send_security_headers();
-			require_once TMA_PANEL_PATH . 'templates/login.php';
+			wp_safe_redirect( tma_panel_url( '/' ) );
 			exit;
 		}
-		if ( $request_uri === '/forgot-password' ) {
-			TMA_Panel_Router::send_security_headers();
-			require_once TMA_PANEL_PATH . 'templates/forgot-password.php';
-			exit;
+
+		// Verify role.
+		$user        = wp_get_current_user();
+		$valid_roles = array( 'tma_admin', 'tma_client', 'administrator' );
+		if ( ! array_intersect( $valid_roles, $user->roles ) ) {
+			wp_die(
+				esc_html__( 'Tu cuenta no tiene permisos para acceder al panel.', 'thormetalart' ),
+				esc_html__( 'Acceso denegado', 'thormetalart' ),
+				array( 'response' => 403 )
+			);
 		}
-		if ( $request_uri === '/reset-password' ) {
-			TMA_Panel_Router::send_security_headers();
-			require_once TMA_PANEL_PATH . 'templates/reset-password.php';
-			exit;
-		}
-		wp_safe_redirect( tma_panel_url( '/login' ) );
+
+		// Serve panel SPA shell.
+		TMA_Panel_Router::send_security_headers();
+		require_once TMA_PANEL_PATH . 'templates/panel.php';
 		exit;
-	}
-
-	// Logged in on /login → redirect to panel root.
-	if ( $request_uri === '/login' ) {
-		wp_safe_redirect( tma_panel_url( '/' ) );
-		exit;
-	}
-
-	// Verify role.
-	$user        = wp_get_current_user();
-	$valid_roles = array( 'tma_admin', 'tma_client', 'administrator' );
-	if ( ! array_intersect( $valid_roles, $user->roles ) ) {
-		wp_die(
-			esc_html__( 'Tu cuenta no tiene permisos para acceder al panel.', 'thormetalart' ),
-			esc_html__( 'Acceso denegado', 'thormetalart' ),
-			array( 'response' => 403 )
-		);
-	}
-
-	// Serve panel SPA shell.
-	TMA_Panel_Router::send_security_headers();
-	require_once TMA_PANEL_PATH . 'templates/panel.php';
-	exit;
-}, 1 );
+	},
+	1
+);
 
 /* ═══════════════════════════════════════════════════════════════════
-   Disable canonical redirect on panel domain
-   ═══════════════════════════════════════════════════════════════════ */
+	Disable canonical redirect on panel domain
+	═══════════════════════════════════════════════════════════════════ */
 
-add_filter( 'redirect_canonical', function ( $redirect_url ) {
-	if ( null !== tma_panel_current_route() ) {
-		return false;
+add_filter(
+	'redirect_canonical',
+	function ( $redirect_url ) {
+		if ( null !== tma_panel_current_route() ) {
+			return false;
+		}
+		return $redirect_url;
 	}
-	return $redirect_url;
-} );
+);
 
 /* ═══════════════════════════════════════════════════════════════════
-   Allow panel domain as safe redirect target
-   ═══════════════════════════════════════════════════════════════════ */
+	Allow panel domain as safe redirect target
+	═══════════════════════════════════════════════════════════════════ */
 
-add_filter( 'allowed_redirect_hosts', function ( array $hosts ): array {
-	$hosts[] = TMA_PANEL_HOST;
-	$main_host = wp_parse_url( home_url(), PHP_URL_HOST );
-	if ( is_string( $main_host ) && $main_host !== '' ) {
-		$hosts[] = $main_host;
+add_filter(
+	'allowed_redirect_hosts',
+	function ( array $hosts ): array {
+		$hosts[]   = TMA_PANEL_HOST;
+		$main_host = wp_parse_url( home_url(), PHP_URL_HOST );
+		if ( is_string( $main_host ) && $main_host !== '' ) {
+			$hosts[] = $main_host;
+		}
+		return $hosts;
 	}
-	return $hosts;
-} );
+);
 
 /* ═══════════════════════════════════════════════════════════════════
-   AJAX Login handler
-   ═══════════════════════════════════════════════════════════════════ */
+	AJAX Login handler
+	═══════════════════════════════════════════════════════════════════ */
 
 add_action( 'wp_ajax_nopriv_tma_panel_login', 'tma_panel_handle_login' );
 add_action( 'wp_ajax_tma_panel_login', 'tma_panel_handle_login' );
@@ -306,11 +337,14 @@ function tma_panel_handle_login(): void {
 	$pwd      = $_POST['pwd'] ?? '';
 	$remember = ! empty( $_POST['rememberme'] );
 
-	$user = wp_signon( array(
-		'user_login'    => $log,
-		'user_password' => $pwd,
-		'remember'      => $remember,
-	), is_ssl() );
+	$user = wp_signon(
+		array(
+			'user_login'    => $log,
+			'user_password' => $pwd,
+			'remember'      => $remember,
+		),
+		is_ssl()
+	);
 
 	if ( is_wp_error( $user ) ) {
 		set_transient( $transient_key, $attempts + 1, 15 * MINUTE_IN_SECONDS );

@@ -1,0 +1,62 @@
+<!-- wp:template-part {"slug":"header","theme":"thormetalart","tagName":"header"} /-->
+
+<!-- wp:group {"className":"tma-page-shell","style":{"spacing":{"padding":{"top":"0","bottom":"0","left":"24px","right":"24px"}}},"layout":{"type":"constrained","wideSize":"1200px"}} -->
+<div
+    class="wp-block-group tma-page-shell"
+    style="padding-top: 0; padding-right: 24px; padding-bottom: 0; padding-left: 24px"
+>
+    <!-- wp:group {"className":"tma-page-hero","style":{"spacing":{"padding":{"top":"48px","bottom":"48px","left":"32px","right":"32px"}},"border":{"radius":"24px"}},"layout":{"type":"constrained","contentSize":"1120px"}} -->
+    <div
+        class="wp-block-group tma-page-hero"
+        style="padding-top: 48px; padding-right: 32px; padding-bottom: 48px; padding-left: 32px; border-radius: 24px"
+    >
+        <!-- wp:shortcode -->
+        [tma_breadcrumbs]
+        <!-- /wp:shortcode -->
+
+        <!-- wp:post-title {"level":1,"textColor":"titanium","style":{"typography":{"fontFamily":"var(--wp--preset--font-family--forjado-display)","fontWeight":"700","textTransform":"uppercase","fontSize":"clamp(2rem,4vw,3rem)","lineHeight":"1.05"}}} /-->
+
+        <!-- wp:paragraph {"style":{"typography":{"fontSize":"1rem","lineHeight":"1.6"}},"textColor":"ash"} -->
+        <p class="has-ash-color has-text-color" style="font-size: 1rem; line-height: 1.6">
+            [tma_i18n key="portfolio_single_intro"]
+        </p>
+        <!-- /wp:paragraph -->
+    </div>
+    <!-- /wp:group -->
+
+    <!-- wp:group {"className":"tma-page-content","style":{"spacing":{"padding":{"top":"32px","bottom":"32px","left":"32px","right":"32px"}}},"layout":{"type":"constrained","contentSize":"1120px"}} -->
+    <div
+        class="wp-block-group tma-page-content"
+        style="padding-top: 32px; padding-right: 32px; padding-bottom: 32px; padding-left: 32px"
+    >
+        <!-- wp:post-featured-image {"aspectRatio":"16/9","className":"tma-page-featured-image"} /-->
+
+        <!-- wp:post-content /-->
+
+        <!-- wp:group {"className":"tma-project-meta"} -->
+        <div class="wp-block-group tma-project-meta">
+            <!-- wp:post-terms {"term":"tma_project_type"} /-->
+
+            <!-- wp:shortcode -->
+            [tma_portfolio_meta]
+            <!-- /wp:shortcode -->
+        </div>
+        <!-- /wp:group -->
+
+        <!-- wp:buttons -->
+        <div class="wp-block-buttons">
+            <!-- wp:button {"className":"is-style-outline"} -->
+            <div class="wp-block-button is-style-outline">
+                <a class="wp-block-button__link wp-element-button" href="/portfolio/"
+                    >[tma_i18n key="back_to_portfolio"]</a
+                >
+            </div>
+            <!-- /wp:button -->
+        </div>
+        <!-- /wp:buttons -->
+    </div>
+    <!-- /wp:group -->
+</div>
+<!-- /wp:group -->
+
+<!-- wp:template-part {"slug":"footer","theme":"thormetalart","tagName":"footer"} /-->

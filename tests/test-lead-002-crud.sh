@@ -3,7 +3,7 @@ set -e
 PASS=0
 FAIL=0
 TOTAL=0
-WP_CONTAINER="thormetalart_wordpress"
+WP_CONTAINER="tma_dev_wordpress"
 PLUGIN_DIR="/srv/stacks/thormetalart-dev/data/wordpress/wp-content/plugins/tma-panel"
 CONTACT_FILE="/srv/stacks/thormetalart-dev/data/wordpress/wp-content/mu-plugins/tma-contact-form.php"
 API_FILE="$PLUGIN_DIR/includes/class-tma-panel-api.php"

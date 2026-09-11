@@ -7,7 +7,7 @@ set -e
 PASS=0
 FAIL=0
 TOTAL=0
-WP_CONTAINER="thormetalart_wordpress"
+WP_CONTAINER="tma_dev_wordpress"
 PLUGIN_DIR="/srv/stacks/thormetalart-dev/data/wordpress/wp-content/plugins/tma-panel"
 PANEL_HOST="panel.thormetalart.com"
 API_BASE="https://${PANEL_HOST}/wp-json/tma-panel/v1"

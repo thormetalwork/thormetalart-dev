@@ -114,9 +114,9 @@ echo ""
 
 echo "▸ Scenario 4: Traefik labels for panel.thormetalart.com"
 
-grep -q "panel.thormetalart.com" "$COMPOSE" \
-    && pass "panel.thormetalart.com in docker-compose.yml" \
-    || fail "panel.thormetalart.com NOT in docker-compose.yml"
+grep -q "panel-dev.thormetalart.com" "$COMPOSE" \
+    && pass "panel-dev.thormetalart.com in docker-compose.yml" \
+    || fail "panel-dev.thormetalart.com NOT in docker-compose.yml"
 
 echo ""
 
@@ -137,19 +137,19 @@ echo ""
 echo "▸ Scenario 6: Plugin activation (PHP syntax check)"
 
 if [[ -f "$PLUGIN_DIR/tma-panel.php" ]]; then
-    docker exec thormetalart_wordpress php -l "/var/www/html/wp-content/plugins/tma-panel/tma-panel.php" 2>&1 | grep -q "No syntax errors" \
+    docker exec tma_dev_wordpress php -l "/var/www/html/wp-content/plugins/tma-panel/tma-panel.php" 2>&1 | grep -q "No syntax errors" \
         && pass "tma-panel.php — no syntax errors" \
         || fail "tma-panel.php — syntax error detected"
 fi
 
 if [[ -f "$PLUGIN_DIR/includes/class-tma-panel-router.php" ]]; then
-    docker exec thormetalart_wordpress php -l "/var/www/html/wp-content/plugins/tma-panel/includes/class-tma-panel-router.php" 2>&1 | grep -q "No syntax errors" \
+    docker exec tma_dev_wordpress php -l "/var/www/html/wp-content/plugins/tma-panel/includes/class-tma-panel-router.php" 2>&1 | grep -q "No syntax errors" \
         && pass "Router — no syntax errors" \
         || fail "Router — syntax error detected"
 fi
 
 if [[ -f "$PLUGIN_DIR/templates/panel.php" ]]; then
-    docker exec thormetalart_wordpress php -l "/var/www/html/wp-content/plugins/tma-panel/templates/panel.php" 2>&1 | grep -q "No syntax errors" \
+    docker exec tma_dev_wordpress php -l "/var/www/html/wp-content/plugins/tma-panel/templates/panel.php" 2>&1 | grep -q "No syntax errors" \
         && pass "Panel template — no syntax errors" \
         || fail "Panel template — syntax error detected"
 fi
