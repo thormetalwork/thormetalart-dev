@@ -3739,7 +3739,7 @@
     - **Prioridad:** P1
     - **Status:** ✅ COMPLETADO — migración portable por texto y páginas ES validadas (2026-09-11)
 
-- [ ] **TICKET-BRAND-018: Release integral a PROD + cierre de repositorios**
+- [x] **TICKET-BRAND-018: Release integral a PROD + cierre de repositorios**
     - **Fuente:** DEV-FIRST rule + auditoría integral 2026-09-11 + solicitud de cierre completo en producción y repositorios.
     - **Historia de Usuario:** Como responsable del sitio, quiero promover el release validado desde DEV hasta PROD y cerrar Git/GitHub para que web, bases de datos y repositorios representen exactamente la misma versión estable.
     - **Criterios de Aceptación:**
@@ -3787,7 +3787,8 @@
     - **Dependencias:** TICKET-BRAND-009 ✅, TICKET-BRAND-010, TICKET-BRAND-011, TICKET-BRAND-012, TICKET-BRAND-013, TICKET-BRAND-014, TICKET-BRAND-015, TICKET-BRAND-016, TICKET-BRAND-017, TICKET-FIX-003, TICKET-WP-047, TICKET-WP-048, TICKET-BRAND-019, TICKET-BRAND-020, TICKET-LEAD-005, TICKET-LEAD-006, TICKET-DOC-002, TICKET-BRAND-021
     - **Estimación:** 4 horas
     - **Prioridad:** P0
-    - **Status:** 🧪 EN TESTING — DEV aprobado; pendiente backup, PROD, CI y sincronización final
+    - **Status:** ✅ COMPLETADO — backup SQL/código verificado, PRs #6/#9 integrados, CI verde y PROD 58/58 E2E (2026-09-11)
+    - **Notas de cierre:** Promoción limitada a 26 archivos runtime versionados; no se copiaron secretos, datos DEV, uploads ni cachés. Migraciones `v8`, traducciones `v2`, seeds `v2`, leads `1.2` y legales `v1` verificadas. Rollback: `thormetalart_wp_20260911_125740_pre_brand018.sql.gz` + `wordpress-custom-code_20260911_125804_pre_brand018.tar.gz`. La prueba de recepción SMTP real permanece bajo TICKET-LEAD-006 y requiere autorización expresa.
 
 - [x] **TICKET-DOC-001: Documentar regla de Definition-of-Done bilingüe en el flujo de tickets**
     - **Fuente:** Investigación 2026-07-29 — causa raíz de por qué el hero y otros textos nuevos quedaron sin traducir: ningún ticket de contenido (BRAND-001 a BRAND-008) incluyó explícitamente el paso de traducción ES como parte de su cierre.
