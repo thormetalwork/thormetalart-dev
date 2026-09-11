@@ -57,13 +57,13 @@ echo ""
 
 echo "▸ Scenario 3: Roles in WordPress DB"
 
-TMA_ADMIN_EXISTS=$(docker exec thormetalart_wordpress php -r "
+TMA_ADMIN_EXISTS=$(docker exec tma_dev_wordpress php -r "
 require '/var/www/html/wp-load.php';
 \$role = get_role('tma_admin');
 echo \$role ? 'yes' : 'no';
 " 2>/dev/null)
 
-TMA_CLIENT_EXISTS=$(docker exec thormetalart_wordpress php -r "
+TMA_CLIENT_EXISTS=$(docker exec tma_dev_wordpress php -r "
 require '/var/www/html/wp-load.php';
 \$role = get_role('tma_client');
 echo \$role ? 'yes' : 'no';
@@ -83,7 +83,7 @@ echo ""
 
 echo "▸ Scenario 4: tma_admin capabilities"
 
-ADMIN_CAPS=$(docker exec thormetalart_wordpress php -r "
+ADMIN_CAPS=$(docker exec tma_dev_wordpress php -r "
 require '/var/www/html/wp-load.php';
 \$role = get_role('tma_admin');
 if (\$role) {
@@ -105,7 +105,7 @@ echo ""
 
 echo "▸ Scenario 5: tma_client restrictions"
 
-CLIENT_CAPS=$(docker exec thormetalart_wordpress php -r "
+CLIENT_CAPS=$(docker exec tma_dev_wordpress php -r "
 require '/var/www/html/wp-load.php';
 \$role = get_role('tma_client');
 if (\$role) {
@@ -148,7 +148,7 @@ echo ""
 echo "▸ Scenario 7: Syntax check"
 
 if [[ -f "$PLUGIN_DIR/includes/class-tma-panel-roles.php" ]]; then
-    docker exec thormetalart_wordpress php -l "/var/www/html/wp-content/plugins/tma-panel/includes/class-tma-panel-roles.php" 2>&1 | grep -q "No syntax errors" \
+    docker exec tma_dev_wordpress php -l "/var/www/html/wp-content/plugins/tma-panel/includes/class-tma-panel-roles.php" 2>&1 | grep -q "No syntax errors" \
         && pass "Roles class — no syntax errors" \
         || fail "Roles class — syntax error"
 fi

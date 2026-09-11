@@ -563,15 +563,29 @@
     }
 
     function renderGBPSection(gbp) {
+        const lastReview = gbp.latest_review;
+        const reviewHtml = lastReview
+            ? `<div class="review-snippet mt-4">
+					<div class="review-snippet__header">
+						<span class="review-snippet__author">${escapeHtml(String(lastReview.author || ''))}</span>
+						<span class="review-snippet__stars">${'★'.repeat(Math.min(5, Math.max(0, parseInt(lastReview.rating) || 0)))}</span>
+					</div>
+					<p class="review-snippet__text">${escapeHtml(String(lastReview.comment || ''))}</p>
+				</div>`
+            : '';
+
         return `
 			<div class="section-card">
 				<h2 class="card__title">Google Business Profile</h2>
 				<div class="kpi-grid mt-3">
 					<div class="kpi-card"><span class="kpi-card__label">Rating</span><span class="kpi-card__value">${escapeHtml(String(gbp.rating || 0))}</span></div>
 					<div class="kpi-card"><span class="kpi-card__label">Reviews</span><span class="kpi-card__value">${escapeHtml(String(gbp.reviews || 0))}</span></div>
+					<div class="kpi-card"><span class="kpi-card__label">Posts</span><span class="kpi-card__value">${escapeHtml(String(gbp.posts || 0))}</span></div>
+					<div class="kpi-card"><span class="kpi-card__label">Photos</span><span class="kpi-card__value">${escapeHtml(String(gbp.photos || 0))}</span></div>
 					<div class="kpi-card"><span class="kpi-card__label">Impressions</span><span class="kpi-card__value">${escapeHtml(String(gbp.impressions || 0))}</span></div>
 					<div class="kpi-card"><span class="kpi-card__label">Actions</span><span class="kpi-card__value">${escapeHtml(String(gbp.actions || 0))}</span></div>
 				</div>
+				${reviewHtml}
 				<div class="chart-wrap mt-4"><canvas id="tma-chart-gbp-impressions-split"></canvas></div>
 			</div>
 		`;
