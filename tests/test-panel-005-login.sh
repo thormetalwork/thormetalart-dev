@@ -158,7 +158,7 @@ else
   [ "$FOUND_RATE" -ge 1 ] \
     && pass "Rate limiting code found" \
     || fail "Rate limiting code not found"
-  
+
   FOUND_TRANSIENT=$(grep -rl 'transient' "$PLUGIN_DIR" 2>/dev/null | wc -l)
   [ "$FOUND_TRANSIENT" -ge 1 ] \
     && pass "Transient storage for rate limiting" \
